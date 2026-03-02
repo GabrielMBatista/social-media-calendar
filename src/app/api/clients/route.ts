@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ClientAPI } from "@/lib/api-contracts";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth-utils";
 
 const createSchema = z.object({
     name: z.string().min(1),
@@ -15,33 +15,21 @@ const createSchema = z.object({
 });
 
 export async function GET() {
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    const { user } = auth;
+
     try {
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "User not authenticated" } }, { status: 401 });
-        }
-
-        const dbUser = await prisma.user.findUnique({
-            where: { authId: user.id },
-            select: { accountId: true }
-        });
-
-        if (!dbUser) {
-            return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "User not linked to any account" } }, { status: 403 });
-        }
-
         const clients = await prisma.client.findMany({
             where: {
-                accountId: dbUser.accountId,
+                accountId: user.accountId,
             },
             orderBy: { createdAt: "asc" },
         });
 
         return NextResponse.json({
             success: true,
-            data: clients,
+            data: clients as any,
         } satisfies ClientAPI.GetListResponse);
     } catch (error) {
         return NextResponse.json(
@@ -52,37 +40,25 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    const { user } = auth;
+
     try {
         const body = await req.json();
         const data = createSchema.parse(body);
-
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "User not authenticated" } }, { status: 401 });
-        }
-
-        const dbUser = await prisma.user.findUnique({
-            where: { authId: user.id },
-            select: { accountId: true }
-        });
-
-        if (!dbUser) {
-            return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "User not linked to any account" } }, { status: 403 });
-        }
 
         const client = await prisma.client.create({
             data: {
                 ...data,
                 logoInitials: data.logoInitials || data.name.substring(0, 2).toUpperCase(),
-                accountId: dbUser.accountId,
+                accountId: user.accountId,
             },
         });
 
         return NextResponse.json({
             success: true,
-            data: client,
+            data: client as any,
         } satisfies ClientAPI.CreateResponse);
     } catch (error) {
         return NextResponse.json(

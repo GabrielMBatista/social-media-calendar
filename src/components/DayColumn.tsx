@@ -39,10 +39,10 @@ export function DayColumn({ dayKey, date, label, isToday }: DayColumnProps) {
   return (
     <div
       className={cn(
-        "flex flex-col rounded-xl border transition-colors group/col",
+        "flex flex-col rounded-xl border transition-all duration-300 group/col relative",
         isToday
-          ? "border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/30 shadow-sm shadow-blue-100 dark:shadow-blue-950"
-          : "border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80"
+          ? "border-blue-400 dark:border-blue-500 bg-blue-50/60 dark:bg-blue-900/40 shadow-xl shadow-blue-500/10 ring-2 ring-blue-500/20 z-10 scale-[1.02]"
+          : "border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-700"
       )}
     >
       {/* Day header */}
@@ -76,6 +76,18 @@ export function DayColumn({ dayKey, date, label, isToday }: DayColumnProps) {
             </p>
           </div>
         </div>
+
+        {/* Progress Bar (Radial or simple) */}
+        {dayPosts.length > 0 && (
+          <div className="flex items-center gap-1.5 ml-auto mr-2">
+            <div className="w-12 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200/50 dark:border-slate-700/50">
+              <div
+                className="h-full bg-blue-500 transition-all duration-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                style={{ width: `${(dayPosts.filter(p => p.status === 'publicado').length / dayPosts.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Add post button — visible on hover */}
         <button

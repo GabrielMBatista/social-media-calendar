@@ -6,7 +6,8 @@
 import { useApp } from "@/contexts/AppContext";
 import { PostStatus, STATUS_CONFIG } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical, Search, XCircle } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
@@ -19,7 +20,12 @@ export function ClientSidebar() {
     setClientFilter, setStatusFilter, openClientModal, deleteClient
   } = useApp();
 
-  const activeClients = clients.filter(c => c.active);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const activeClients = clients.filter(c =>
+    c.active && (c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.industry?.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const getClientPostCount = (clientId: string) =>
     posts.filter(p => p.clientId === clientId).length;
@@ -36,27 +42,47 @@ export function ClientSidebar() {
   };
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+    <aside className="w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center justify-between mb-0.5">
+      <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Users size={14} className="text-slate-500" />
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-100" style={{ fontFamily: "Outfit, sans-serif" }}>
+            <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+              <Users size={12} className="text-blue-600 dark:text-blue-400" />
+            </div>
+            <span className="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest font-outfit">
               Clientes
             </span>
           </div>
           <Button
             size="sm"
-            variant="outline"
             onClick={() => openClientModal()}
-            className="h-6 px-2 text-[11px] gap-1 border-slate-200"
+            className="h-7 px-2.5 text-[10px] font-black uppercase tracking-widest gap-1 bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-500 shadow-md transition-all active:scale-95"
           >
-            <Plus size={11} />
+            <Plus size={12} />
             Novo
           </Button>
         </div>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500">{activeClients.length} clientes ativos</p>
+
+        {/* Search Input */}
+        <div className="relative group">
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+          <input
+            type="text"
+            placeholder="Buscar agência..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-8 pl-8 pr-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+            >
+              <XCircle size={12} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* All clients filter */}

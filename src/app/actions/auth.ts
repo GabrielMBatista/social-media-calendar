@@ -229,3 +229,36 @@ export async function updateAccountAction(formData: FormData) {
         return { error: "Erro ao atualizar agência." };
     }
 }
+
+/**
+ * Enviar Link de Recuperação de Senha
+ */
+export async function forgotPasswordAction(formData: FormData) {
+    const email = formData.get("email") as string;
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/reset-password`,
+    });
+
+    if (error) return { error: error.message };
+    return { success: "Link de recuperação enviado para seu e-mail!" };
+}
+
+/**
+ * Redefinir Senha do Usuário
+ */
+export async function resetPasswordAction(formData: FormData) {
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (password !== confirmPassword) {
+        return { error: "As senhas não coincidem." };
+    }
+
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) return { error: error.message };
+    return { success: "Senha redefinida com sucesso! Você já pode entrar." };
+}

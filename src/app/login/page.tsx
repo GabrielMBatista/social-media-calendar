@@ -97,7 +97,7 @@ export default function LoginPage() {
                                 <div className="space-y-1.5">
                                     <div className="flex items-center justify-between">
                                         <label htmlFor="password" className="text-xs font-bold text-slate-700">Senha</label>
-                                        <Link href="#" className="text-[10px] font-semibold text-blue-600 hover:text-blue-700">
+                                        <Link href="/forgot-password" className="text-[10px] font-semibold text-blue-600 hover:text-blue-700">
                                             Esqueceu a senha?
                                         </Link>
                                     </div>
