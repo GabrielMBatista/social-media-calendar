@@ -34,10 +34,31 @@ export async function signInAction(formData: FormData) {
 }
 
 /**
+ * Enviar Link Mágico (OTP)
+ */
+export async function signInWithOtpAction(formData: FormData) {
+    const email = formData.get("email") as string;
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
+        },
+    });
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    return { success: "Link enviado! Verifique seu e-mail." };
+}
+
+/**
  * Criar conta nova: Cadastro completo
  */
 export async function signUpAction(formData: FormData) {
-    const email = formData.get("email") as string;
+    const emailFromForm = formData.get("email") as string;
     const password = formData.get("password") as string;
     const username = formData.get("username") as string;
     const agency = formData.get("agency") as string;
@@ -45,20 +66,32 @@ export async function signUpAction(formData: FormData) {
 
     const supabase = await createClient();
 
-    // 1. Cadastra no Supabase (Auth)
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                display_name: username,
-            },
-        }
-    });
+    // 0. Verifica se já existe uma sessão (Caso o usuário venha do Magic Link)
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-    if (authError || !authData.user) {
-        return { error: authError?.message || "Erro desconhecido ao criar usuário Auth" };
+    let authUser = currentUser;
+
+    if (!authUser) {
+        // Caso A: Usuário novo total (Email/Senha)
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: emailFromForm,
+            password,
+            options: {
+                data: {
+                    display_name: username,
+                },
+            }
+        });
+
+        if (authError || !authData.user) {
+            return { error: authError?.message || "Erro desconhecido ao criar usuário Auth" };
+        }
+
+        authUser = authData.user;
     }
+
+    // O email pode vir do Auth ou do Form
+    const finalEmail = authUser.email || emailFromForm;
 
     try {
         // 2. Cria a Empresa e o Usuário Administrativo no Postgres
@@ -75,18 +108,17 @@ export async function signUpAction(formData: FormData) {
             await tx.user.create({
                 data: {
                     accountId: newAccount.id,
-                    email: email,
+                    email: finalEmail,
                     name: username,
                     phone: phone || null,
                     role: "owner",
-                    authId: authData.user!.id,
+                    authId: authUser!.id,
                 },
             });
         });
     } catch (dbError) {
-        // Log seguro no servidor (não expõe ao cliente)
-        console.error("Database provisioning failed for:", email);
-        return { error: "Ocorreu um erro no servidor ao finalizar a criação da conta. Tente novamente mais tarde." };
+        console.error("Database provisioning failed for:", finalEmail, dbError);
+        return { error: "Ocorreu um erro ao finalizar a criação da conta. Verifique se os dados estão corretos." };
     }
 
     return redirect("/");
@@ -133,5 +165,67 @@ export async function getMyProfile() {
         };
     } catch (e) {
         return null;
+    }
+}
+
+/**
+ * Atualizar Perfil do Usuário
+ */
+export async function updateProfileAction(formData: FormData) {
+    const username = formData.get("username") as string;
+    const phone = formData.get("phone") as string;
+
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
+    if (!authUser) return { error: "Não autorizado" };
+
+    try {
+        await prisma.user.update({
+            where: { authId: authUser.id },
+            data: {
+                name: username,
+                phone: phone || null,
+            }
+        });
+
+        // Opcional: Atualizar metadados no Supabase Auth também para consistência
+        await supabase.auth.updateUser({
+            data: { display_name: username }
+        });
+
+        return { success: "Perfil atualizado com sucesso!" };
+    } catch (error) {
+        return { error: "Erro ao atualizar perfil." };
+    }
+}
+
+/**
+ * Atualizar Dados da Agência (Account)
+ */
+export async function updateAccountAction(formData: FormData) {
+    const name = formData.get("name") as string;
+
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
+    if (!authUser) return { error: "Não autorizado" };
+
+    try {
+        const dbUser = await prisma.user.findUnique({
+            where: { authId: authUser.id },
+            select: { accountId: true }
+        });
+
+        if (!dbUser) return { error: "Conta não encontrada" };
+
+        await prisma.account.update({
+            where: { id: dbUser.accountId },
+            data: { name }
+        });
+
+        return { success: "Dados da agência atualizados!" };
+    } catch (error) {
+        return { error: "Erro ao atualizar agência." };
     }
 }
