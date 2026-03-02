@@ -66,7 +66,7 @@ export function ClientSidebar() {
 
         {/* Search Input */}
         <div className="relative group">
-          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
           <input
             type="text"
             placeholder="Buscar agência..."
@@ -77,7 +77,7 @@ export function ClientSidebar() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-300 transition-colors"
             >
               <XCircle size={12} />
             </button>
@@ -90,10 +90,10 @@ export function ClientSidebar() {
         <button
           onClick={() => setClientFilter(null)}
           className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all",
+            "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
             selectedClientFilter === null
               ? "bg-slate-900 text-white shadow-sm"
-              : "text-slate-600 hover:bg-slate-50"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
           )}
         >
           <LayoutGrid size={13} className="flex-shrink-0" />
@@ -181,7 +181,7 @@ export function ClientSidebar() {
                         "p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity",
                         isSelected
                           ? "hover:bg-white/20 text-white"
-                          : "hover:bg-slate-200 text-slate-400"
+                          : "hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500"
                       )}
                       onClick={e => e.stopPropagation()}
                     >
@@ -218,7 +218,7 @@ export function ClientSidebar() {
           <button
             onClick={() => setStatusFilter(null)}
             className={cn(
-              "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all",
+              "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
               selectedStatusFilter === null
                 ? "bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 font-semibold"
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -242,7 +242,7 @@ export function ClientSidebar() {
                 key={key}
                 onClick={() => setStatusFilter(isActive ? null : key)}
                 className={cn(
-                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all",
+                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
                   isActive
                     ? cn(cfg.bg, cfg.color, "font-semibold border")
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"

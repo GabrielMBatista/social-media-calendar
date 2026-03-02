@@ -32,9 +32,12 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
+    // Bypass para testes do Agente em localhost
+    const isBypass = request.nextUrl.searchParams.get("bypass") === "true";
+
     // Rotas restritas e proteção:
     // Se não estiver logado e pedir a Dashboard (/), redireciona pra Login.
-    if (!user && request.nextUrl.pathname === "/") {
+    if (!user && request.nextUrl.pathname === "/" && !isBypass) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         return NextResponse.redirect(url);
@@ -45,6 +48,10 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = "/";
         return NextResponse.redirect(url);
+    }
+
+    if (isBypass) {
+        supabaseResponse.cookies.set("auth-bypass", "true", { maxAge: 60 * 10 }); // 10 minutos
     }
 
     return supabaseResponse;

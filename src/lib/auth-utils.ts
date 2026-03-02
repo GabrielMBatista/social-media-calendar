@@ -1,12 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { cache } from "react";
 
 /**
  * Utilitário para exigir autenticação e retornar o usuário do banco (Prisma)
  * Centraliza a lógica de buscar sessão -> buscar perfil -> validar existência
+ * 
+ * Envolvido em react cache para evitar múltiplas consultas idênticas no mesmo ciclo de renderização.
  */
-export async function requireAuth() {
+export const requireAuth = cache(async () => {
     const supabase = await createClient();
     const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
 
@@ -27,4 +30,4 @@ export async function requireAuth() {
 
     // Retorna o usuário completo (Prisma) para uso nas APIs
     return { user };
-}
+});

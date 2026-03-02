@@ -1,36 +1,31 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Client, Post, PostStatus, DayOfWeek, CreateClientDTO, CreatePostDTO } from "@/lib/types";
 import { toast } from "sonner";
-import { nanoid } from "nanoid";
 
 interface AppState {
   clients: Client[];
   posts: Post[];
-  selectedClientFilter: string | null; // null = todos
+  selectedClientFilter: string | null;
   selectedStatusFilter: PostStatus | null;
-  currentWeekOffset: number; // 0 = semana atual, -1 = semana passada, etc.
+  currentWeekOffset: number;
   selectedPost: Post | null;
   isPostModalOpen: boolean;
   isClientModalOpen: boolean;
   editingClient: Client | null;
   isAddPostModalOpen: boolean;
   addPostDay: DayOfWeek | null;
-
-  // Profile Actions
   isAccountModalOpen: boolean;
 }
 
 interface AppContextValue extends AppState {
-  // Client actions
   addClient: (client: CreateClientDTO) => void;
   updateClient: (id: string, updates: Partial<Client>) => void;
   deleteClient: (id: string) => void;
   openClientModal: (client?: Client) => void;
   closeClientModal: () => void;
-
-  // Post actions
   addPost: (post: CreatePostDTO) => void;
   updatePost: (id: string, updates: Partial<Post>) => void;
   deletePost: (id: string) => void;
@@ -39,31 +34,40 @@ interface AppContextValue extends AppState {
   closePostModal: () => void;
   openAddPostModal: (day: DayOfWeek) => void;
   closeAddPostModal: () => void;
-
-  // Filter actions
   setClientFilter: (clientId: string | null) => void;
   setStatusFilter: (status: PostStatus | null) => void;
   navigateWeek: (direction: "prev" | "next" | "current") => void;
-
-  // Account Modal
   openAccountModal: () => void;
   closeAccountModal: () => void;
-
-  // Computed
   filteredPosts: Post[];
   getClientById: (id: string) => Client | undefined;
   getWeekDates: () => { key: DayOfWeek; date: Date; label: string; isToday: boolean }[];
-
-  // App state
   isLoading: boolean;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+// Fetchers
+const fetchClients = () => fetch("/api/clients").then(res => res.json()).then(d => d.data);
+const fetchPosts = () => fetch("/api/posts").then(res => res.json()).then(d => d.data);
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  // Queries
+  const { data: clients = [], isLoading: isClientsLoading } = useQuery<Client[]>({
+    queryKey: ["clients"],
+    queryFn: fetchClients,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: posts = [], isLoading: isPostsLoading } = useQuery<Post[]>({
+    queryKey: ["posts"],
+    queryFn: fetchPosts,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const isLoading = isClientsLoading || isPostsLoading;
 
   const [selectedClientFilter, setSelectedClientFilter] = useState<string | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<PostStatus | null>(null);
@@ -76,69 +80,145 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [addPostDay, setAddPostDay] = useState<DayOfWeek | null>(null);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
-  // Load initial data
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [clientsRes, postsRes] = await Promise.all([
-          fetch("/api/clients").then(r => r.json()),
-          fetch("/api/posts").then(r => r.json())
-        ]);
+  // --- CLIENT MUTATIONS ---
 
-        if (clientsRes.success) setClients(clientsRes.data);
-        if (postsRes.success) setPosts(postsRes.data);
-      } catch (error) {
-        toast.error("Erro ao carregar os dados.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadData();
-  }, []);
-
-  const addClient = useCallback(async (client: CreateClientDTO) => {
-    try {
-      const res = await fetch("/api/clients", {
+  const addClientMutation = useMutation({
+    mutationFn: (newClient: CreateClientDTO) =>
+      fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(client),
-      });
-      const data = await res.json();
+        body: JSON.stringify(newClient),
+      }).then(r => r.json()),
+    onSuccess: (data) => {
       if (data.success) {
-        setClients(prev => [...prev, data.data]);
+        queryClient.invalidateQueries({ queryKey: ["clients"] });
         toast.success("Agência adicionada!");
-      } else throw new Error();
-    } catch {
-      toast.error("Erro ao adicionar agência");
-    }
-  }, []);
+      }
+    },
+    onError: () => toast.error("Erro ao adicionar agência")
+  });
 
-  const updateClient = useCallback(async (id: string, updates: Partial<Client>) => {
-    // Optimistic UI update
-    setClients(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
-
-    try {
-      await fetch(`/api/clients/${id}`, {
+  const updateClientMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Client> }) =>
+      fetch(`/api/clients/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
-      });
-    } catch {
+      }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["clients"] });
+      const previousClients = queryClient.getQueryData<Client[]>(["clients"]);
+      queryClient.setQueryData<Client[]>(["clients"], prev =>
+        prev?.map(c => c.id === id ? { ...c, ...updates } : c)
+      );
+      return { previousClients };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["clients"], context?.previousClients);
       toast.error("Erro ao atualizar agência");
-      // Mudar back? Muito complexo pra MVP, ok no toast
-    }
-  }, []);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
 
-  const deleteClient = useCallback(async (id: string) => {
-    setClients(prev => prev.filter(c => c.id !== id));
-    setPosts(prev => prev.filter(p => p.clientId !== id));
+  const deleteClientMutation = useMutation({
+    mutationFn: (id: string) => fetch(`/api/clients/${id}`, { method: "DELETE" }),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["clients"] });
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      const prevClients = queryClient.getQueryData<Client[]>(["clients"]);
+      const prevPosts = queryClient.getQueryData<Post[]>(["posts"]);
 
-    try {
-      await fetch(`/api/clients/${id}`, { method: "DELETE" });
-    } catch {
+      queryClient.setQueryData<Client[]>(["clients"], prev => prev?.filter(c => c.id !== id));
+      queryClient.setQueryData<Post[]>(["posts"], prev => prev?.filter(p => p.clientId !== id));
+
+      return { prevClients, prevPosts };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(["clients"], context?.prevClients);
+      queryClient.setQueryData(["posts"], context?.prevPosts);
       toast.error("Erro ao excluir agência");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     }
-  }, []);
+  });
+
+  // --- POST MUTATIONS ---
+
+  const addPostMutation = useMutation({
+    mutationFn: (newPost: CreatePostDTO) =>
+      fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPost),
+      }).then(r => r.json()),
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+      }
+    },
+    onError: () => toast.error("Erro ao adicionar post")
+  });
+
+  const updatePostMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Post> }) =>
+      fetch(`/api/posts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
+
+      queryClient.setQueryData<Post[]>(["posts"], prev =>
+        prev?.map(p => p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p)
+      );
+
+      if (selectedPost?.id === id) {
+        setSelectedPost(prev => prev ? { ...prev, ...updates } : null);
+      }
+
+      return { previousPosts };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["posts"], context?.previousPosts);
+      toast.error("Erro ao atualizar post");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    }
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: (id: string) => fetch(`/api/posts/${id}`, { method: "DELETE" }),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
+      queryClient.setQueryData<Post[]>(["posts"], prev => prev?.filter(p => p.id !== id));
+
+      setIsPostModalOpen(false);
+      setSelectedPost(null);
+
+      return { previousPosts };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(["posts"], context?.previousPosts);
+      toast.error("Erro ao excluir post");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    }
+  });
+
+  // --- CALLBACKS ---
+
+  const addClient = useCallback((client: CreateClientDTO) => addClientMutation.mutate(client), [addClientMutation]);
+  const updateClient = useCallback((id: string, updates: Partial<Client>) => updateClientMutation.mutate({ id, updates }), [updateClientMutation]);
+  const deleteClient = useCallback((id: string) => deleteClientMutation.mutate(id), [deleteClientMutation]);
 
   const openClientModal = useCallback((client?: Client) => {
     setEditingClient(client ?? null);
@@ -150,51 +230,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setEditingClient(null);
   }, []);
 
-  const addPost = useCallback(async (post: CreatePostDTO) => {
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(post),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setPosts(prev => [...prev, data.data]);
-      } else throw new Error();
-    } catch {
-      toast.error("Erro ao adicionar post");
-    }
-  }, []);
-
-  const updatePost = useCallback(async (id: string, updates: Partial<Post>) => {
-    // Optimistic Update
-    setPosts(prev => prev.map(p =>
-      p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
-    ));
-    setSelectedPost(prev => prev?.id === id ? { ...prev, ...updates } : prev);
-
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-    } catch {
-      toast.error("Erro ao atualizar post");
-    }
-  }, []);
-
-  const deletePost = useCallback(async (id: string) => {
-    setPosts(prev => prev.filter(p => p.id !== id));
-    setIsPostModalOpen(false);
-    setSelectedPost(null);
-
-    try {
-      await fetch(`/api/posts/${id}`, { method: "DELETE" });
-    } catch {
-      toast.error("Erro ao excluir post");
-    }
-  }, []);
+  const addPost = useCallback((post: CreatePostDTO) => addPostMutation.mutate(post), [addPostMutation]);
+  const updatePost = useCallback((id: string, updates: Partial<Post>) => updatePostMutation.mutate({ id, updates }), [updatePostMutation]);
+  const deletePost = useCallback((id: string) => deletePostMutation.mutate(id), [deletePostMutation]);
 
   const updatePostStatus = useCallback((id: string, status: PostStatus) => {
     updatePost(id, { status });
@@ -245,7 +283,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const getWeekDates = useCallback(() => {
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday...
+    const dayOfWeek = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + currentWeekOffset * 7);
 

@@ -4,6 +4,8 @@ import { ClientAPI } from "@/lib/api-contracts";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
 
+import { unstable_cache, revalidateTag } from "next/cache";
+
 const createSchema = z.object({
     name: z.string().min(1),
     brandColor: z.string().min(4),
@@ -20,12 +22,18 @@ export async function GET() {
     const { user } = auth;
 
     try {
-        const clients = await prisma.client.findMany({
-            where: {
-                accountId: user.accountId,
+        const getClients = unstable_cache(
+            async (accountId: string) => {
+                return await prisma.client.findMany({
+                    where: { accountId },
+                    orderBy: { createdAt: "asc" },
+                });
             },
-            orderBy: { createdAt: "asc" },
-        });
+            [`clients-${user.accountId}`],
+            { tags: ["clients", `clients-${user.accountId}`] }
+        );
+
+        const clients = await getClients(user.accountId);
 
         return NextResponse.json({
             success: true,
@@ -55,6 +63,9 @@ export async function POST(req: Request) {
                 accountId: user.accountId,
             },
         });
+
+        // Invalida o cache
+        revalidateTag(`clients-${user.accountId}`);
 
         return NextResponse.json({
             success: true,

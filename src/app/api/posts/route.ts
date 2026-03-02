@@ -19,6 +19,8 @@ const createSchema = z.object({
     notes: z.string().optional().nullable(),
 });
 
+import { unstable_cache, revalidateTag } from "next/cache";
+
 export async function GET(req: Request) {
     const auth = await requireAuth();
     if (auth.error) return auth.error;
@@ -29,14 +31,23 @@ export async function GET(req: Request) {
         const clientId = searchParams.get("clientId");
         const status = searchParams.get("status");
 
-        const whereClause: any = { accountId: user.accountId };
-        if (clientId) whereClause.clientId = clientId;
-        if (status) whereClause.status = status;
+        // Cache dinâmico baseado nos filtros
+        const getPosts = unstable_cache(
+            async (accountId: string, cId: string | null, st: string | null) => {
+                const whereClause: any = { accountId };
+                if (cId) whereClause.clientId = cId;
+                if (st) whereClause.status = st;
 
-        const posts = await prisma.post.findMany({
-            where: whereClause,
-            orderBy: { createdAt: "desc" },
-        });
+                return await prisma.post.findMany({
+                    where: whereClause,
+                    orderBy: { createdAt: "desc" },
+                });
+            },
+            [`posts-${user.accountId}-${clientId || 'all'}-${status || 'all'}`],
+            { tags: ["posts", `posts-${user.accountId}`] }
+        );
+
+        const posts = await getPosts(user.accountId, clientId, status);
 
         return NextResponse.json({
             success: true,
@@ -59,7 +70,6 @@ export async function POST(req: Request) {
         const body = await req.json();
         const data = createSchema.parse(body);
 
-        // Valida se cliente existe e pertence à conta
         const client = await prisma.client.findUnique({ where: { id: data.clientId } });
         if (!client || client.accountId !== user.accountId) {
             return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "Invalid client" } }, { status: 400 });
@@ -71,6 +81,9 @@ export async function POST(req: Request) {
                 accountId: user.accountId,
             },
         });
+
+        // Invalida o cache
+        revalidateTag(`posts-${user.accountId}`);
 
         return NextResponse.json({
             success: true,

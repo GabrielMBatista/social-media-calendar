@@ -29,7 +29,7 @@ interface PostCardProps {
   client: Client;
 }
 
-export function PostCard({ post, client }: PostCardProps) {
+export const PostCard = React.memo(function PostCard({ post, client }: PostCardProps) {
   const { openPostModal, updatePostStatus } = useApp();
   const statusCfg = STATUS_CONFIG[post.status];
   const typeCfg = POST_TYPE_CONFIG[post.type];
@@ -93,7 +93,7 @@ export function PostCard({ post, client }: PostCardProps) {
           {post.driveLink && (
             <ExternalLink
               size={9}
-              className="text-slate-300 group-hover:text-blue-400 transition-colors flex-shrink-0"
+              className="text-slate-300 dark:text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0"
             />
           )}
         </div>
@@ -109,7 +109,7 @@ export function PostCard({ post, client }: PostCardProps) {
         {/* Post type */}
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 text-[9px] font-medium">
           <TypeIcon className={cn("flex-shrink-0 size-2.5", typeCfg.color)} />
-          <span className="text-slate-500">{typeCfg.label}</span>
+          <span className="text-slate-500 dark:text-slate-400">{typeCfg.label}</span>
         </span>
 
         {/* Status — inline toggle via Popover */}
@@ -145,10 +145,10 @@ export function PostCard({ post, client }: PostCardProps) {
                   key={s}
                   onClick={(e) => handleStatusChange(e, s)}
                   className={cn(
-                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors",
+                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors cursor-pointer",
                     isActive
                       ? cn(cfg.bg, cfg.color, "font-semibold")
-                      : "hover:bg-slate-50 text-slate-700"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
                   )}
                 >
                   <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot)} />
@@ -162,7 +162,7 @@ export function PostCard({ post, client }: PostCardProps) {
 
         {/* Time */}
         {post.scheduledTime && (
-          <span className="ml-auto inline-flex items-center gap-0.5 text-[9px] text-slate-400">
+          <span className="ml-auto inline-flex items-center gap-0.5 text-[9px] text-slate-400 dark:text-slate-500">
             <Clock size={8} />
             {post.scheduledTime}
           </span>
@@ -170,4 +170,4 @@ export function PostCard({ post, client }: PostCardProps) {
       </div>
     </button>
   );
-}
+});

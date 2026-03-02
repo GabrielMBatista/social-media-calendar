@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { QueryProvider } from "@/contexts/QueryProvider";
 import { TopLoader } from "@/components/TopLoader";
 import { Suspense } from "react";
 import "@/index.css";
@@ -32,18 +33,20 @@ export default function RootLayout({
     modal: React.ReactNode;
 }) {
     return (
-        <html lang="pt-BR" suppressHydrationWarning>
+        <html lang="pt-BR" suppressHydrationWarning className="antialiased">
             <body className={`${inter.variable} ${outfit.variable}`}>
-                <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-                    <TooltipProvider>
-                        <Suspense fallback={null}>
-                            <TopLoader />
-                        </Suspense>
-                        <Toaster richColors position="top-right" />
-                        {children}
-                        {modal}
-                    </TooltipProvider>
-                </ThemeProvider>
+                <QueryProvider>
+                    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+                        <TooltipProvider>
+                            <Suspense fallback={null}>
+                                <TopLoader />
+                            </Suspense>
+                            <Toaster richColors position="top-right" />
+                            {children}
+                            {modal}
+                        </TooltipProvider>
+                    </ThemeProvider>
+                </QueryProvider>
             </body>
         </html>
     );

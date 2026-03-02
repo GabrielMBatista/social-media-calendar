@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 // Utiliza o cliente Prisma global a partir da lib/prisma
 // importado acima diretamente.
@@ -137,15 +138,15 @@ export async function signOutAction() {
  * Consulta Sessão e Agência
  * Omitir senhas e dados desnecessários por segurança e serialização
  */
-export async function getMyProfile() {
+export const getMyProfile = cache(async () => {
     try {
         const supabase = await createClient();
-        const { data: authData } = await supabase.auth.getUser();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
 
-        if (!authData?.user) return null;
+        if (!authUser) return null;
 
         const user = await prisma.user.findFirst({
-            where: { authId: authData.user.id },
+            where: { authId: authUser.id },
             include: { account: true }
         });
 
@@ -166,7 +167,7 @@ export async function getMyProfile() {
     } catch (e) {
         return null;
     }
-}
+});
 
 /**
  * Atualizar Perfil do Usuário

@@ -23,8 +23,8 @@ import { signOutAction } from "@/app/actions/auth";
 
 export function CalendarHeader() {
   const { navigateWeek, currentWeekOffset, getWeekDates, filteredPosts, openAddPostModal, openAccountModal } = useApp();
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [userName, setUserName] = useState<string>("Carregando...");
   const [mounted, setMounted] = useState(false);
 
@@ -93,7 +93,7 @@ export function CalendarHeader() {
               <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-none" style={{ fontFamily: "Outfit, sans-serif" }}>
                 SM Calendar
               </h1>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-none mt-0.5">Social Media Pro</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-400 leading-none mt-0.5">Social Media Pro</p>
             </div>
           </div>
 
@@ -105,7 +105,7 @@ export function CalendarHeader() {
               variant="outline"
               size="sm"
               onClick={() => navigateWeek("prev")}
-              className="h-8 w-8 p-0 border-slate-200"
+              className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-colors"
             >
               <ChevronLeft size={14} />
             </Button>
@@ -113,9 +113,9 @@ export function CalendarHeader() {
             <div className="text-center min-w-[160px] px-1">
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight">{formatWeekRange()}</p>
               {currentWeekOffset === 0 ? (
-                <p className="text-[10px] text-blue-500 font-semibold">Semana atual</p>
+                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider">Semana atual</p>
               ) : (
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-slate-400 dark:text-slate-400">
                   {currentWeekOffset < 0
                     ? `${Math.abs(currentWeekOffset)} sem. atrás`
                     : `${currentWeekOffset} sem. à frente`}
@@ -127,7 +127,7 @@ export function CalendarHeader() {
               variant="outline"
               size="sm"
               onClick={() => navigateWeek("next")}
-              className="h-8 w-8 p-0 border-slate-200"
+              className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-colors"
             >
               <ChevronRight size={14} />
             </Button>
@@ -137,7 +137,7 @@ export function CalendarHeader() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigateWeek("current")}
-                className="h-8 px-2 gap-1 text-xs border-slate-200 hidden sm:flex"
+                className="h-8 px-2 gap-1 text-xs bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-all hidden sm:flex"
               >
                 <RotateCcw size={11} />
                 Hoje
@@ -177,7 +177,7 @@ export function CalendarHeader() {
             variant="outline"
             size="sm"
             onClick={toggleTheme}
-            className="h-8 w-8 p-0 border-slate-200 dark:border-slate-700 dark:text-slate-300"
+            className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-all"
             title={isDark ? "Modo claro" : "Modo escuro"}
           >
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -211,7 +211,7 @@ export function CalendarHeader() {
                 onClick={openAccountModal}
                 className="text-xs gap-2 py-2 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-800"
               >
-                <User size={14} className="text-slate-500" />
+                <User size={14} className="text-slate-500 dark:text-slate-400" />
                 Minha Conta
               </DropdownMenuItem>
               <DropdownMenuSeparator />
