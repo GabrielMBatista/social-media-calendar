@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TopLoader } from "@/components/TopLoader";
+import { Suspense } from "react";
 import "@/index.css";
 
 const inter = Inter({
@@ -35,7 +36,9 @@ export default function RootLayout({
             <body className={`${inter.variable} ${outfit.variable}`}>
                 <ThemeProvider defaultTheme="light" storageKey="ui-theme">
                     <TooltipProvider>
-                        <TopLoader />
+                        <Suspense fallback={null}>
+                            <TopLoader />
+                        </Suspense>
                         <Toaster richColors position="top-right" />
                         {children}
                         {modal}

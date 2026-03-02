@@ -6,6 +6,7 @@ import { Client, Post } from "./types";
 export const SAMPLE_CLIENTS: Client[] = [
   {
     id: "c1",
+    accountId: "sample",
     name: "Bella Estética",
     brandColor: "#E91E8C",
     brandColorSecondary: "#FF6EC7",
@@ -16,6 +17,7 @@ export const SAMPLE_CLIENTS: Client[] = [
   },
   {
     id: "c2",
+    accountId: "sample",
     name: "TechFlow",
     brandColor: "#2563EB",
     brandColorSecondary: "#60A5FA",
@@ -26,6 +28,7 @@ export const SAMPLE_CLIENTS: Client[] = [
   },
   {
     id: "c3",
+    accountId: "sample",
     name: "Sabor & Arte",
     brandColor: "#D97706",
     brandColorSecondary: "#FCD34D",
@@ -36,6 +39,7 @@ export const SAMPLE_CLIENTS: Client[] = [
   },
   {
     id: "c4",
+    accountId: "sample",
     name: "FitLife",
     brandColor: "#059669",
     brandColorSecondary: "#34D399",
@@ -46,6 +50,7 @@ export const SAMPLE_CLIENTS: Client[] = [
   },
   {
     id: "c5",
+    accountId: "sample",
     name: "Casa & Decor",
     brandColor: "#7C3AED",
     brandColorSecondary: "#A78BFA",
@@ -56,6 +61,7 @@ export const SAMPLE_CLIENTS: Client[] = [
   },
   {
     id: "c6",
+    accountId: "sample",
     name: "Moda Única",
     brandColor: "#DC2626",
     brandColorSecondary: "#FCA5A5",
@@ -70,6 +76,7 @@ export const SAMPLE_POSTS: Post[] = [
   // Bella Estética
   {
     id: "p1",
+    accountId: "sample",
     clientId: "c1",
     title: "Promoção Dia das Mães",
     description: "Post promocional para o pacote especial Dia das Mães. Destacar os serviços inclusos: manicure, pedicure e massagem relaxante. Usar paleta rosa com elementos florais.",
@@ -86,6 +93,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p2",
+    accountId: "sample",
     clientId: "c1",
     title: "Tutorial Nail Art",
     description: "Reels mostrando passo a passo de nail art primavera. Duração: 30-45 segundos. Música trending do momento.",
@@ -102,6 +110,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p3",
+    accountId: "sample",
     clientId: "c1",
     title: "Stories: Agenda da Semana",
     description: "Stories mostrando os horários disponíveis para agendamento na semana. Incluir link de agendamento online.",
@@ -116,6 +125,7 @@ export const SAMPLE_POSTS: Post[] = [
   // TechFlow
   {
     id: "p4",
+    accountId: "sample",
     clientId: "c2",
     title: "Lançamento App v2.0",
     description: "Post de lançamento da nova versão do aplicativo. Destacar as 5 principais funcionalidades novas. Design tech e moderno.",
@@ -132,6 +142,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p5",
+    accountId: "sample",
     clientId: "c2",
     title: "LinkedIn: Case de Sucesso",
     description: "Artigo no LinkedIn sobre o case de sucesso do cliente Empresa X. Métricas de crescimento e depoimento.",
@@ -146,6 +157,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p6",
+    accountId: "sample",
     clientId: "c2",
     title: "Carrossel: 5 Tendências Tech 2026",
     description: "Carrossel educativo sobre as 5 maiores tendências de tecnologia para 2026. Infográficos modernos.",
@@ -162,6 +174,7 @@ export const SAMPLE_POSTS: Post[] = [
   // Sabor & Arte
   {
     id: "p7",
+    accountId: "sample",
     clientId: "c3",
     title: "Receita: Bolo de Limão",
     description: "Reels com receita rápida de bolo de limão siciliano. Mostrar o processo completo em 60 segundos.",
@@ -177,6 +190,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p8",
+    accountId: "sample",
     clientId: "c3",
     title: "Menu Especial Fim de Semana",
     description: "Post apresentando o menu especial do fim de semana. Fotos dos pratos principais com preços.",
@@ -191,6 +205,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p9",
+    accountId: "sample",
     clientId: "c3",
     title: "TikTok: Bastidores da Cozinha",
     description: "Vídeo mostrando os bastidores da cozinha, preparação dos pratos e equipe. Conteúdo autêntico.",
@@ -205,6 +220,7 @@ export const SAMPLE_POSTS: Post[] = [
   // FitLife
   {
     id: "p10",
+    accountId: "sample",
     clientId: "c4",
     title: "Treino da Semana",
     description: "Carrossel com o treino completo da semana. 7 exercícios com instruções e repetições.",
@@ -220,6 +236,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p11",
+    accountId: "sample",
     clientId: "c4",
     title: "Reels: Transformação 30 dias",
     description: "Reels motivacional mostrando transformação de aluno em 30 dias. Depoimento e antes/depois.",
@@ -236,6 +253,7 @@ export const SAMPLE_POSTS: Post[] = [
   // Casa & Decor
   {
     id: "p12",
+    accountId: "sample",
     clientId: "c5",
     title: "Tendências Decoração 2026",
     description: "Carrossel com as principais tendências de decoração para 2026. Paletas de cores, materiais e estilos.",
@@ -250,6 +268,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p13",
+    accountId: "sample",
     clientId: "c5",
     title: "Antes e Depois: Sala de Estar",
     description: "Post mostrando a transformação completa de uma sala de estar. Fotos profissionais do projeto.",
@@ -266,6 +285,7 @@ export const SAMPLE_POSTS: Post[] = [
   // Moda Única
   {
     id: "p14",
+    accountId: "sample",
     clientId: "c6",
     title: "Nova Coleção Outono",
     description: "Post de lançamento da coleção outono/inverno 2026. Fotos editoriais com modelos.",
@@ -280,6 +300,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p15",
+    accountId: "sample",
     clientId: "c6",
     title: "Stories: Enquete de Estilo",
     description: "Stories interativo com enquete sobre preferências de estilo para a nova coleção.",
@@ -294,6 +315,7 @@ export const SAMPLE_POSTS: Post[] = [
   },
   {
     id: "p16",
+    accountId: "sample",
     clientId: "c6",
     title: "Reels: Look do Dia",
     description: "Reels rápido com look completo do dia. Mostrar peças, combinações e onde comprar.",
