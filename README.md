@@ -2,7 +2,7 @@
 
 > Uma plataforma SaaS completa de gestão inteligente de calendário editorial para agências e criadores de conteúdo.
 
-![Screenshot da Aplicação](https://via.placeholder.com/1200x630.png?text=Social+Media+Calendar+Pro)
+<!-- ![Screenshot da Aplicação](https://via.placeholder.com/1200x630.png?text=Social+Media+Calendar+Pro) -->
 
 ## 📌 Sobre o Projeto
 
