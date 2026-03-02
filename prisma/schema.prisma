@@ -1,0 +1,95 @@
+// This file configures the initialization of Prisma Client on the server.
+// The framework you're using might have its own way of handling this.
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==========================================
+// MULTI-TENANT FOUNDATION
+// ==========================================
+
+model Account {
+  id        String   @id @default(cuid())
+  name      String
+  plan      String   @default("free") // "free" | "pro"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users   User[]
+  clients Client[]
+  posts   Post[]
+
+  @@map("accounts")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  email     String   @unique
+  name      String
+  phone     String?
+  role      String   @default("member") // "owner" | "admin" | "member"
+  authId    String?  @unique @map("auth_id") // Supabase Auth UID
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("users")
+}
+
+// ==========================================
+// DOMAIN ENTITIES
+// ==========================================
+
+model Client {
+  id                   String   @id @default(cuid())
+  accountId            String   @map("account_id")
+  name                 String
+  brandColor           String   @map("brand_color")
+  brandColorSecondary  String?  @map("brand_color_secondary")
+  logoUrl              String?  @map("logo_url")
+  logoInitials         String   @map("logo_initials")
+  industry             String?
+  instagramHandle      String?  @map("instagram_handle")
+  active               Boolean  @default(true)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  posts   Post[]
+
+  @@map("clients")
+}
+
+model Post {
+  id             String   @id @default(cuid())
+  accountId      String   @map("account_id")
+  clientId       String   @map("client_id")
+  title          String
+  description    String   @default("")
+  type           String   // PostType: feed | reels | stories | carrossel | tiktok | youtube | linkedin | twitter
+  status         String   @default("rascunho") // PostStatus: rascunho | em_producao | pronto | publicado | cancelado
+  dayOfWeek      String   @map("day_of_week") // DayOfWeek: seg | ter | qua | qui | sex | sab | dom
+  scheduledDate  String?  @map("scheduled_date") // ISO date string YYYY-MM-DD
+  scheduledTime  String?  @map("scheduled_time") // HH:MM
+  driveLink      String?  @map("drive_link")
+  caption        String?
+  hashtags       String?
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("posts")
+}
