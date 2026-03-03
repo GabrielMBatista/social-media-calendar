@@ -350,13 +350,15 @@ export function PostModal() {
 
           {/* Metadata */}
           <div className="pt-2 border-t border-slate-100">
-            <div className="flex items-center gap-4 text-xs text-slate-400">
-              <span>
-                <Circle size={8} className="inline mr-1" />
-                Criado: {new Date(selectedPost.createdAt).toLocaleDateString("pt-BR")}
+            <div className="flex items-center gap-4 text-[11px] text-slate-400">
+              <span className="flex items-center">
+                <Circle size={8} className="inline mr-1 opacity-50" />
+                Criado: {new Date(selectedPost.createdAt).toLocaleDateString("pt-BR")} às {new Date(selectedPost.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                {selectedPost.createdBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.createdBy.name}</span>}
               </span>
-              <span>
-                Atualizado: {new Date(selectedPost.updatedAt).toLocaleDateString("pt-BR")}
+              <span className="flex items-center">
+                Atualizado: {new Date(selectedPost.updatedAt).toLocaleDateString("pt-BR")} às {new Date(selectedPost.updatedAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                {selectedPost.updatedBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.updatedBy.name}</span>}
               </span>
             </div>
           </div>

@@ -23,9 +23,9 @@ model Account {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users   User[]
-  clients Client[]
-  posts   Post[]
+  users        User[]
+  clients      Client[]
+  posts        Post[]
 
   @@map("accounts")
 }
@@ -42,6 +42,8 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdPosts Post[]  @relation("PostCreatedBy")
+  updatedPosts Post[]  @relation("PostUpdatedBy")
 
   @@map("users")
 }
@@ -87,9 +89,13 @@ model Post {
   notes          String?
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
+  createdById    String?  @map("created_by_id")
+  updatedById    String?  @map("updated_by_id")
 
-  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation("PostCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User?   @relation("PostUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@map("posts")
 }

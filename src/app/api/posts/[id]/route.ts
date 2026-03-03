@@ -49,7 +49,10 @@ export async function PATCH(
 
         const post = await prisma.post.update({
             where: { id: resolvedParams.id },
-            data,
+            data: {
+                ...data,
+                updatedById: user.id,
+            },
         });
 
         revalidateTag(`posts`);

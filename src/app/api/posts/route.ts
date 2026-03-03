@@ -41,6 +41,10 @@ export async function GET(req: Request) {
                 return await prisma.post.findMany({
                     where: whereClause,
                     orderBy: { createdAt: "desc" },
+                    include: {
+                        createdBy: { select: { id: true, name: true, email: true } },
+                        updatedBy: { select: { id: true, name: true, email: true } },
+                    }
                 });
             },
             [`posts-${user.accountId}-${clientId || 'all'}-${status || 'all'}`],
@@ -79,6 +83,8 @@ export async function POST(req: Request) {
             data: {
                 ...data,
                 accountId: user.accountId,
+                createdById: user.id,
+                updatedById: user.id,
             },
         });
 

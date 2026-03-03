@@ -64,10 +64,14 @@ export interface Post {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  createdById?: string | null;
+  updatedById?: string | null;
+  createdBy?: { id: string; name: string; email: string } | null;
+  updatedBy?: { id: string; name: string; email: string } | null;
 }
 
 export type CreateClientDTO = Omit<Client, "id" | "accountId" | "createdAt" | "updatedAt">;
-export type CreatePostDTO = Omit<Post, "id" | "accountId" | "createdAt" | "updatedAt">;
+export type CreatePostDTO = Omit<Post, "id" | "accountId" | "createdAt" | "updatedAt" | "createdById" | "updatedById" | "createdBy" | "updatedBy">;
 
 export interface WeekData {
   weekStart: string;  // ISO date string (Monday)

@@ -83,7 +83,7 @@ export function ListView() {
                   <button
                     key={post.id}
                     onClick={() => openPostModal(post)}
-                    className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-slate-100 hover:shadow-sm hover:border-slate-200 transition-all text-left group"
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-sm hover:border-slate-200 dark:hover:border-slate-700 transition-all text-left group"
                     style={{ borderLeftWidth: "3px", borderLeftColor: client.brandColor }}
                   >
                     {/* Client avatar */}
@@ -102,12 +102,12 @@ export function ListView() {
                     </span>
 
                     {/* Post title */}
-                    <span className="text-sm font-semibold text-slate-800 flex-1 truncate">
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex-1 truncate">
                       {post.title}
                     </span>
 
                     {/* Type */}
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-xs text-slate-500 flex-shrink-0">
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex-shrink-0">
                       <TypeIcon className={cn("size-3", typeCfg.color)} />
                       {typeCfg.label}
                     </span>
