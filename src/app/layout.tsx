@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { QueryProvider } from "@/contexts/QueryProvider";
 import { TopLoader } from "@/components/TopLoader";
 import { Suspense } from "react";
+import "react-day-picker/dist/style.css";
 import "@/index.css";
 
 const inter = Inter({

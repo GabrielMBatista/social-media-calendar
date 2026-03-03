@@ -83,8 +83,10 @@ function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode
 
 function AppLayout() {
     const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         if (window.innerWidth < 768) {
             setViewMode("list");
         }
@@ -119,12 +121,12 @@ function AppLayout() {
 
                 {/* Desktop View */}
                 <main className="hidden md:flex flex-1 overflow-hidden flex-col w-full">
-                    {viewMode === "calendar" ? <CalendarGrid /> : <ListView />}
+                    {!mounted ? null : (viewMode === "calendar" ? <CalendarGrid /> : <ListView />)}
                 </main>
 
                 {/* Mobile View */}
                 <main className="flex md:hidden flex-1 overflow-hidden flex-col w-full">
-                    {viewMode === "calendar" ? <MobileCalendarView /> : <ListView />}
+                    {!mounted ? null : (viewMode === "calendar" ? <MobileCalendarView /> : <ListView />)}
                 </main>
             </div>
 
