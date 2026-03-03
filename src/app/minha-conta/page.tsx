@@ -69,7 +69,7 @@ export default async function MinhaContaPage() {
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Plano Atual</span>
                                     <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded flex items-center gap-1 border border-emerald-200 dark:border-emerald-500/20 uppercase tracking-wide">
-                                        {user.account.plan === "FREE" ? "Gratuito" : "Profissional"}
+                                        {user.account?.plan === "FREE" ? "Gratuito" : "Profissional"}
                                     </span>
                                 </div>
                                 <button className="w-full h-10 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-sm font-bold transition-colors">
@@ -137,7 +137,7 @@ export default async function MinhaContaPage() {
                                 <div className="flex items-start gap-4">
                                     <div className="flex-1">
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nome da Agência / Empresa</label>
-                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mt-0.5">{user.account.name}</p>
+                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mt-0.5">{user.account?.name}</p>
                                     </div>
                                     <button className="text-xs font-semibold text-blue-600 hover:text-blue-700 px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-md">Gerenciar Agência</button>
                                 </div>
