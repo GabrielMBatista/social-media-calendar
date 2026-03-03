@@ -15,12 +15,13 @@ export function MobileCalendarView() {
     const [selectedDayKey, setSelectedDayKey] = useState<string>("");
 
     useEffect(() => {
-        // When week dates change, default to 'today' if it's in the week, otherwise the first day
-        if (weekDates.length > 0) {
+        // Inicializa com 'hoje' ou o primeiro dia na primeira vez que monta
+        if (!selectedDayKey && weekDates.length > 0) {
             const today = weekDates.find(d => d.isToday);
             setSelectedDayKey(today ? today.key : weekDates[0].key);
         }
-    }, [weekDates]);
+        // Quando muda a semana, o selectedDayKey (ex: 'seg') continua o mesmo, a menos que esteja vazio.
+    }, [weekDates, selectedDayKey]);
 
     if (!selectedDayKey) return null;
 
@@ -129,8 +130,9 @@ export function MobileCalendarView() {
                 ) : (
                     <div className="space-y-3 relative z-0">
                         {dayPosts.map((post, idx) => {
-                            const client = getClientById(post.clientId);
-                            if (!client) return null;
+                            const client = getClientById(post.clientId) || ({
+                                id: "unknown", name: "Cliente Removido", brandColor: "#94a3b8", logoInitials: "?", logoUrl: undefined
+                            } as any);
                             return (
                                 <div
                                     key={post.id}

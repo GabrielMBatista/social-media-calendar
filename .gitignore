@@ -45,3 +45,4 @@ next-env.d.ts
 
 # Temp tools
 *.log
+implementation_plan.md.resolved

@@ -42,7 +42,7 @@ export function ClientSidebar() {
   };
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+    <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full sm:h-[100dvh] overflow-hidden">
       {/* Header */}
       <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
         <div className="flex items-center justify-between mb-4 mt-1">

@@ -38,7 +38,18 @@ export function ListView() {
     date,
     label,
     isToday,
-    posts: filteredPosts.filter(p => p.dayOfWeek === key),
+    posts: filteredPosts.filter(p => {
+      if (p.dayOfWeek !== key) return false;
+      if (p.scheduledDate) {
+        const scheduled = new Date(p.scheduledDate + "T00:00:00");
+        return (
+          scheduled.getFullYear() === date.getFullYear() &&
+          scheduled.getMonth() === date.getMonth() &&
+          scheduled.getDate() === date.getDate()
+        );
+      }
+      return true;
+    }),
   }));
 
   return (
@@ -73,8 +84,10 @@ export function ListView() {
           ) : (
             <div className="space-y-1.5">
               {posts.map(post => {
-                const client = getClientById(post.clientId);
-                if (!client) return null;
+                const client = getClientById(post.clientId) || ({
+                  id: "unknown", name: "Cliente Removido", brandColor: "#94a3b8", logoInitials: "?", logoUrl: undefined
+                } as any);
+
                 const statusCfg = STATUS_CONFIG[post.status];
                 const typeCfg = POST_TYPE_CONFIG[post.type];
                 const TypeIcon = ICON_MAP[typeCfg.icon] ?? Image;
@@ -97,7 +110,7 @@ export function ListView() {
                     </div>
 
                     {/* Client name */}
-                    <span className="text-xs font-semibold w-28 truncate flex-shrink-0" style={{ color: client.brandColor }}>
+                    <span className="text-xs font-semibold w-20 sm:w-28 truncate flex-shrink-0" style={{ color: client.brandColor }}>
                       {client.name}
                     </span>
 
