@@ -205,7 +205,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
 
   const deletePostMutation = useMutation({
-    mutationFn: (id: string) => fetch(`/api/posts/${id}`, { method: "DELETE" }),
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data?.error?.message || "Erro ao excluir post");
+      }
+      return data;
+    },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["posts"] });
       const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
@@ -218,7 +225,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     },
     onError: (err, id, context) => {
       queryClient.setQueryData(["posts"], context?.previousPosts);
-      toast.error("Erro ao excluir post");
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir post");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });

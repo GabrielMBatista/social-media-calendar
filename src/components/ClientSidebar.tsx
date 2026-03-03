@@ -13,6 +13,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 
 export function ClientSidebar() {
   const {
@@ -32,14 +33,6 @@ export function ClientSidebar() {
 
   const getStatusCount = (status: PostStatus) =>
     posts.filter(p => p.status === status).length;
-
-  const handleDeleteClient = (clientId: string, clientName: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm(`Excluir o cliente "${clientName}" e todos os seus posts?`)) {
-      deleteClient(clientId);
-      toast.success("Cliente excluído");
-    }
-  };
 
   return (
     <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full sm:h-[100dvh] overflow-hidden">
@@ -194,12 +187,19 @@ export function ClientSidebar() {
                     >
                       <Edit2 size={11} /> Editar cliente
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={e => handleDeleteClient(client.id, client.name, e)}
-                      className="gap-2 text-xs text-red-600 focus:text-red-600"
+                    <ConfirmActionDialog
+                      title={`Excluir "${client.name}"?`}
+                      description={`Tem certeza que deseja excluir o cliente "${client.name}" e todos os seus posts? Esta ação não pode ser desfeita.`}
+                      actionText="Excluir"
+                      onConfirm={() => { deleteClient(client.id); toast.success("Cliente excluído"); }}
                     >
-                      <Trash2 size={11} /> Excluir
-                    </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={e => e.preventDefault()}
+                        className="gap-2 text-xs text-red-600 focus:text-red-600 cursor-pointer"
+                      >
+                        <Trash2 size={11} /> Excluir
+                      </DropdownMenuItem>
+                    </ConfirmActionDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image, Play, Clock, LayoutGrid, Music, Youtube, Linkedin, Twitter,
@@ -76,10 +77,8 @@ export function PostModal() {
   };
 
   const handleDelete = () => {
-    if (confirm(`Excluir o post "${selectedPost.title}"?`)) {
-      deletePost(selectedPost.id);
-      toast.success("Post excluído");
-    }
+    deletePost(selectedPost.id);
+    toast.success("Post excluído");
   };
 
   const handleOpenDrive = () => {
@@ -182,15 +181,22 @@ export function PostModal() {
                 <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-8 gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 pointer-events-auto cursor-pointer relative z-50">
                   <Edit3 size={13} /> Editar
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleDelete}
+                <ConfirmActionDialog
+                  title="Excluir postagem?"
+                  description={`Tem certeza que deseja excluir o post "${selectedPost.title}"? Esta ação não pode ser desfeita.`}
+                  actionText="Excluir"
+                  onConfirm={handleDelete}
                   disabled={deletePostMutation.isPending}
-                  className="h-8 text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 pointer-events-auto cursor-pointer relative z-50"
                 >
-                  {deletePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={deletePostMutation.isPending}
+                    className="h-8 text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 pointer-events-auto cursor-pointer relative z-50"
+                  >
+                    {deletePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                  </Button>
+                </ConfirmActionDialog>
               </>
             )}
           </div>
