@@ -129,12 +129,12 @@ export function PostModal() {
             </DialogTitle>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               {/* Type badge */}
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 border border-slate-200 text-xs font-medium">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-medium shadow-sm transition-all">
                 <TypeIcon className={cn("size-3", typeCfg.color)} />
-                <span className="text-slate-600">{typeCfg.label}</span>
+                <span className="text-slate-600 dark:text-slate-300">{typeCfg.label}</span>
               </span>
               {/* Day + time */}
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 border border-slate-200 text-xs text-slate-600">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 shadow-sm transition-all">
                 <Calendar size={11} />
                 {dayLabel}
                 {selectedPost.scheduledTime && (
@@ -151,10 +151,10 @@ export function PostModal() {
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {isEditing ? (
               <>
-                <Button size="sm" onClick={handleSaveEdit} className="h-8 gap-1.5">
+                <Button size="sm" onClick={handleSaveEdit} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white shadow-md transition-all active:scale-95">
                   <Save size={13} /> Salvar
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
+                <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8 border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                   <X size={13} />
                 </Button>
               </>
@@ -192,15 +192,15 @@ export function PostModal() {
                     key={status}
                     onClick={() => handleStatusChange(status)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all",
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer",
                       isActive
                         ? cn(cfg.bg, cfg.color, "shadow-sm ring-1", `ring-${cfg.dot.replace("bg-", "")}`)
-                        : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                        : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300"
                     )}
                   >
                     <span className={cn(
                       "w-2 h-2 rounded-full flex-shrink-0",
-                      isActive ? cfg.dot : "bg-slate-200"
+                      isActive ? cfg.dot : "bg-slate-200 dark:bg-slate-700"
                     )} />
                     {cfg.label}
                     {isActive && <CheckCircle2 size={11} className="ml-0.5" />}
@@ -253,11 +253,11 @@ export function PostModal() {
                 value={(editData as any).description ?? ""}
                 onChange={e => setEditData(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
-                className="text-sm resize-none"
+                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-blue-500/20"
                 placeholder="Descreva o conteúdo do post..."
               />
             ) : (
-              <div className="bg-slate-50 rounded-xl px-4 py-3 text-sm text-slate-700 leading-relaxed border border-slate-100">
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 transition-colors">
                 {selectedPost.description || <span className="text-slate-400 italic">Sem descrição</span>}
               </div>
             )}
@@ -274,15 +274,15 @@ export function PostModal() {
                 value={(editData as any).caption ?? ""}
                 onChange={e => setEditData(prev => ({ ...prev, caption: e.target.value }))}
                 rows={3}
-                className="text-sm resize-none"
+                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                 placeholder="Legenda para publicação..."
               />
             ) : selectedPost.caption ? (
-              <div className="bg-slate-50 rounded-xl px-4 py-3 text-sm text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-wrap">
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 whitespace-pre-wrap transition-colors">
                 {selectedPost.caption}
               </div>
             ) : (
-              <div className="bg-slate-50 rounded-xl px-4 py-3 text-sm text-slate-400 italic border border-dashed border-slate-200">
+              <div className="bg-slate-50 dark:bg-slate-900/30 rounded-xl px-4 py-3 text-sm text-slate-400 italic border border-dashed border-slate-200 dark:border-slate-700">
                 Nenhuma legenda adicionada
               </div>
             )}
@@ -299,16 +299,16 @@ export function PostModal() {
                 value={(editData as any).hashtags ?? ""}
                 onChange={e => setEditData(prev => ({ ...prev, hashtags: e.target.value }))}
                 placeholder="#hashtag1 #hashtag2..."
-                className="text-sm"
+                className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
               />
             ) : selectedPost.hashtags ? (
               <div className="flex flex-wrap gap-1.5">
                 {selectedPost.hashtags.split(" ").filter(Boolean).map((tag, i) => (
                   <span
                     key={i}
-                    className="px-2 py-0.5 rounded-md text-xs font-medium"
+                    className="px-2 py-0.5 rounded-md text-xs font-medium shadow-sm transition-all"
                     style={{
-                      backgroundColor: `${client.brandColor}15`,
+                      backgroundColor: `${client.brandColor}20`,
                       color: client.brandColor,
                     }}
                   >
@@ -317,7 +317,7 @@ export function PostModal() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400 italic">Nenhuma hashtag</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">Nenhuma hashtag</p>
             )}
           </div>
 
@@ -332,15 +332,15 @@ export function PostModal() {
                 value={(editData as any).notes ?? ""}
                 onChange={e => setEditData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={2}
-                className="text-sm resize-none"
+                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                 placeholder="Notas internas, pendências..."
               />
             ) : selectedPost.notes ? (
-              <div className="bg-amber-50 rounded-xl px-4 py-3 text-sm text-amber-800 leading-relaxed border border-amber-100">
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-200 leading-relaxed border border-amber-100 dark:border-amber-900/30 transition-colors">
                 {selectedPost.notes}
               </div>
             ) : (
-              <p className="text-sm text-slate-400 italic">Sem observações</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 italic">Sem observações</p>
             )}
           </div>
 

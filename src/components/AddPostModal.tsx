@@ -56,7 +56,7 @@ export function AddPostModal() {
 
   return (
     <Dialog open={isAddPostModalOpen} onOpenChange={open => !open && closeAddPostModal()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-6 flex flex-col gap-4">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">
             Novo Post
@@ -69,75 +69,76 @@ export function AddPostModal() {
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Client selector */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Cliente *
-            </Label>
-            <Select value={form.clientId} onValueChange={v => setForm(p => ({ ...p, clientId: v }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o cliente..." />
-              </SelectTrigger>
-              <SelectContent>
-                {activeClients.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0"
-                        style={{ backgroundColor: c.brandColor }}
-                      >
-                        {c.logoInitials}
+          {/* Title + Client row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="md:col-span-1">
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Cliente *
+              </Label>
+              <Select value={form.clientId} onValueChange={v => setForm(p => ({ ...p, clientId: v }))}>
+                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {activeClients.map(c => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0"
+                          style={{ backgroundColor: c.brandColor }}
+                        >
+                          {c.logoInitials}
+                        </div>
+                        <span className="text-xs">{c.name}</span>
                       </div>
-                      {c.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Título do Post *
+              </Label>
+              <Input
+                value={form.title}
+                onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                placeholder="Ex: Campanha Dia dos Pais"
+                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20"
+              />
+            </div>
           </div>
 
-          {/* Title */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Título *
-            </Label>
-            <Input
-              value={form.title}
-              onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-              placeholder="Ex: Promoção Dia das Mães"
-            />
-          </div>
-
-          {/* Type + Status row */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Type + Status + Time row */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div>
-              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-                Tipo de Post
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Tipo
               </Label>
               <Select value={form.type} onValueChange={v => setForm(p => ({ ...p, type: v as PostType }))}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(POST_TYPE_CONFIG).map(([key, cfg]) => (
-                    <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                    <SelectItem key={key} value={key} className="text-xs">{cfg.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Status
               </Label>
               <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v as PostStatus }))}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                    <SelectItem key={key} value={key}>
+                    <SelectItem key={key} value={key} className="text-xs">
                       <div className="flex items-center gap-2">
-                        <span className={cn("w-2 h-2 rounded-full", cfg.dot)} />
+                        <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
                         {cfg.label}
                       </div>
                     </SelectItem>
@@ -145,100 +146,102 @@ export function AddPostModal() {
                 </SelectContent>
               </Select>
             </div>
+            <div className={cn("col-span-1", addPostDay ? "" : "hidden md:block")}>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Horário
+              </Label>
+              <Input
+                type="time"
+                value={form.scheduledTime}
+                onChange={e => setForm(p => ({ ...p, scheduledTime: e.target.value }))}
+                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+              />
+            </div>
           </div>
 
-          {/* Day + Time */}
+          {/* Day selection only if not fixed */}
           {!addPostDay && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-                  Dia da Semana
-                </Label>
-                <Select value={form.dayOfWeek} onValueChange={v => setForm(p => ({ ...p, dayOfWeek: v as DayOfWeek }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DAYS_OF_WEEK.map(d => (
-                      <SelectItem key={d.key} value={d.key}>{d.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-                  Horário
-                </Label>
-                <Input
-                  type="time"
-                  value={form.scheduledTime}
-                  onChange={e => setForm(p => ({ ...p, scheduledTime: e.target.value }))}
-                />
-              </div>
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Dia da Semana
+              </Label>
+              <Select value={form.dayOfWeek} onValueChange={v => setForm(p => ({ ...p, dayOfWeek: v as DayOfWeek }))}>
+                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DAYS_OF_WEEK.map(d => (
+                    <SelectItem key={d.key} value={d.key} className="text-xs">{d.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
-          {/* Drive link */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Link do Drive
-            </Label>
-            <Input
-              value={form.driveLink}
-              onChange={e => setForm(p => ({ ...p, driveLink: e.target.value }))}
-              placeholder="https://drive.google.com/..."
-            />
+          {/* Links + Hashtags row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Link do Drive
+              </Label>
+              <Input
+                value={form.driveLink}
+                onChange={e => setForm(p => ({ ...p, driveLink: e.target.value }))}
+                placeholder="https://drive.google.com/..."
+                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+              />
+            </div>
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Hashtags
+              </Label>
+              <Input
+                value={form.hashtags}
+                onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))}
+                placeholder="#hashtag1 #hashtag2..."
+                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+              />
+            </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Descrição / Briefing
-            </Label>
-            <Textarea
-              value={form.description}
-              onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              rows={3}
-              placeholder="Descreva o conteúdo do post..."
-              className="resize-none"
-            />
-          </div>
-
-          {/* Caption */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Legenda
-            </Label>
-            <Textarea
-              value={form.caption}
-              onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
-              rows={2}
-              placeholder="Legenda para publicação..."
-              className="resize-none"
-            />
-          </div>
-
-          {/* Hashtags */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Hashtags
-            </Label>
-            <Input
-              value={form.hashtags}
-              onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))}
-              placeholder="#hashtag1 #hashtag2..."
-            />
+          {/* Description + Caption row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Descrição / Briefing
+              </Label>
+              <Textarea
+                value={form.description}
+                onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                rows={4}
+                placeholder="Descreva o conteúdo do post..."
+                className="text-xs resize-none bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Legenda
+              </Label>
+              <Textarea
+                value={form.caption}
+                onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
+                rows={4}
+                placeholder="Legenda para publicação..."
+                className="text-xs resize-none bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
+              />
+            </div>
           </div>
 
           {/* Notes */}
           <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Observações
+            <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+              Observações Internas
             </Label>
             <Input
               value={form.notes}
               onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Notas internas..."
+              placeholder="Notas para a agência ou designer..."
+              className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
             />
           </div>
         </div>
