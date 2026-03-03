@@ -208,8 +208,8 @@ export function ClientSidebar() {
         })}
       </div>
 
-      {/* Status filters */}
-      <div className="border-t border-slate-100 dark:border-slate-800 px-3 py-3">
+      {/* Status filters — flex-shrink-0 garante visibilidade mesmo com muitos clientes */}
+      <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 px-3 py-3">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">
           Por Status
         </p>

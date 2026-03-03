@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2 } from "lucide-react";
-import { getMyProfile, updateProfileAction, updateAccountAction } from "@/app/actions/auth";
+import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2, LogOut } from "lucide-react";
+import { getMyProfile, updateProfileAction, updateAccountAction, signOutAction } from "@/app/actions/auth";
 import { useApp } from "@/contexts/AppContext";
 import { toast } from "sonner";
 
@@ -98,6 +98,19 @@ export function AccountModal() {
                     >
                         <X size={20} />
                     </button>
+                </div>
+
+                {/* Botão de Sair — visível apenas no mobile */}
+                <div className="md:hidden px-6 py-3 border-b border-slate-200/50 dark:border-slate-800/50 bg-red-50/50 dark:bg-red-900/10">
+                    <form action={signOutAction}>
+                        <button
+                            type="submit"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors active:scale-95"
+                        >
+                            <LogOut size={16} />
+                            Sair da Conta
+                        </button>
+                    </form>
                 </div>
 
                 <div className="p-6 sm:p-8 min-h-[400px]">
