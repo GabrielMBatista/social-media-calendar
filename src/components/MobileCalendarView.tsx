@@ -128,17 +128,13 @@ export function MobileCalendarView() {
                         <p className="text-xs text-slate-500 text-center mt-1">Toque para adicionar o primeiro post deste dia</p>
                     </div>
                 ) : (
-                    <div className="space-y-3 relative z-0">
-                        {dayPosts.map((post, idx) => {
+                    <div className="space-y-3">
+                        {dayPosts.map((post) => {
                             const client = getClientById(post.clientId) || ({
                                 id: "unknown", name: "Cliente Removido", brandColor: "#94a3b8", logoInitials: "?", logoUrl: undefined
                             } as any);
                             return (
-                                <div
-                                    key={post.id}
-                                    className="animate-in fade-in slide-in-from-bottom-2 duration-300 w-full"
-                                    style={{ animationDelay: `${idx * 50}ms`, animationFillMode: "both" }}
-                                >
+                                <div key={post.id} className="w-full relative z-10">
                                     {/* Reuse Desktop's PostCard but rendered inside the 1-column mobile view */}
                                     <PostCard post={post} client={client} />
                                 </div>
