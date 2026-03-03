@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PostAPI } from "@/lib/api-contracts";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 
 const updateSchema = z.object({
     title: z.string().optional(),
@@ -92,6 +92,10 @@ export async function DELETE(
         if (result.count === 0) {
             return NextResponse.json({ success: false, error: { code: "NOT_FOUND", message: "Post not found or already deleted" } }, { status: 404 });
         }
+
+        revalidateTag("posts");
+        revalidateTag(`posts-${user.accountId}`);
+        revalidatePath("/");
 
         return NextResponse.json({
             success: true,
