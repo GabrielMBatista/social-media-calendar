@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PostAPI } from "@/lib/api-contracts";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
+import { revalidateTag } from "next/cache";
 
 const updateSchema = z.object({
     title: z.string().optional(),
@@ -50,6 +51,9 @@ export async function PATCH(
             where: { id: resolvedParams.id },
             data,
         });
+
+        revalidateTag(`posts`);
+        revalidateTag(`posts-${user.accountId}`);
 
         return NextResponse.json({
             success: true,

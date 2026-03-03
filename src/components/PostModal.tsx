@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import {
   ExternalLink, Trash2, Edit3, Save, X, Clock, Calendar,
   Hash, FileText, Link2, Image, Play, LayoutGrid, Music,
-  Youtube, Linkedin, Twitter, CheckCircle2, AlertCircle, Circle
+  Youtube, Linkedin, Twitter, CheckCircle2, AlertCircle, Circle,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -28,7 +29,8 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 const STATUS_ORDER: PostStatus[] = ["rascunho", "em_producao", "pronto", "publicado", "cancelado"];
 
 export function PostModal() {
-  const { selectedPost, isPostModalOpen, closePostModal, updatePost, deletePost, getClientById, clients } = useApp();
+  const { selectedPost, isPostModalOpen, closePostModal, updatePost, deletePost, getClientById, clients, updatePostMutation, deletePostMutation } = useApp();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<typeof selectedPost>>({});
 
@@ -118,12 +120,12 @@ export function PostModal() {
                 <span className="text-slate-400 font-normal ml-2">{client.instagramHandle}</span>
               )}
             </p>
-            <DialogTitle className="text-lg font-bold text-slate-800 leading-tight">
+            <DialogTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
               {isEditing ? (
                 <Input
                   value={(editData as any).title ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, title: e.target.value }))}
-                  className="text-lg font-bold h-auto py-1 border-slate-200"
+                  className="text-lg font-bold h-auto py-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
               ) : selectedPost.title}
             </DialogTitle>
@@ -151,25 +153,27 @@ export function PostModal() {
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {isEditing ? (
               <>
-                <Button size="sm" onClick={handleSaveEdit} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95">
-                  <Save size={13} /> Salvar
+                <Button size="sm" onClick={handleSaveEdit} disabled={updatePostMutation.isPending} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95">
+                  {updatePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                  Salvar
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8 border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                <Button size="sm" variant="ghost" onClick={handleCancelEdit} disabled={updatePostMutation.isPending} className="h-8 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200">
                   <X size={13} />
                 </Button>
               </>
             ) : (
               <>
-                <Button size="sm" variant="outline" onClick={handleStartEdit} className="h-8 gap-1.5">
+                <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-8 gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200">
                   <Edit3 size={13} /> Editar
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="ghost"
                   onClick={handleDelete}
-                  className="h-8 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/20"
+                  disabled={deletePostMutation.isPending}
+                  className="h-8 text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                 >
-                  <Trash2 size={13} />
+                  {deletePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                 </Button>
               </>
             )}
@@ -194,7 +198,7 @@ export function PostModal() {
                     className={cn(
                       "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer",
                       isActive
-                        ? cn(cfg.bg, cfg.color, "shadow-sm ring-1", `ring-${cfg.dot.replace("bg-", "")}`)
+                        ? cn(cfg.bg, cfg.color, "shadow-sm ring-1", cfg.ring)
                         : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300"
                     )}
                   >
@@ -221,7 +225,7 @@ export function PostModal() {
                   value={(editData as any).driveLink ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, driveLink: e.target.value }))}
                   placeholder="https://drive.google.com/..."
-                  className="text-sm"
+                  className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                 />
               </div>
             ) : selectedPost.driveLink ? (

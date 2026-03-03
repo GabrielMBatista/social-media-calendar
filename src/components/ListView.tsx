@@ -10,13 +10,26 @@ import {
   Image, Play, Clock, LayoutGrid, Music, Youtube, Linkedin, Twitter,
   ExternalLink, ChevronRight
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image, Play, Clock, LayoutGrid, Music, Youtube, Linkedin, Twitter,
 };
 
+function ListViewSkeletonRow() {
+  return (
+    <div className="w-full flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+      <Skeleton className="w-7 h-7 rounded-lg flex-shrink-0" />
+      <Skeleton className="h-3 w-24 border-none flex-shrink-0" />
+      <Skeleton className="h-3 flex-1 border-none" />
+      <Skeleton className="h-4 w-16 rounded-md flex-shrink-0 hidden sm:block" />
+      <Skeleton className="h-4 w-20 rounded-md flex-shrink-0" />
+    </div>
+  );
+}
+
 export function ListView() {
-  const { filteredPosts, getClientById, openPostModal, getWeekDates } = useApp();
+  const { filteredPosts, getClientById, openPostModal, getWeekDates, isLoading } = useApp();
   const weekDates = getWeekDates();
 
   // Group posts by day
@@ -50,7 +63,12 @@ export function ListView() {
           </div>
 
           {/* Posts */}
-          {posts.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-2">
+              <ListViewSkeletonRow />
+              <ListViewSkeletonRow />
+            </div>
+          ) : posts.length === 0 ? (
             <div className="text-xs text-slate-400 italic px-4 py-2">Nenhum post neste dia</div>
           ) : (
             <div className="space-y-1.5">

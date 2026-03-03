@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -171,3 +172,25 @@ export const PostCard = React.memo(function PostCard({ post, client }: PostCardP
     </button>
   );
 });
+
+export function PostCardSkeleton() {
+  return (
+    <div className="w-full text-left rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden shadow-sm">
+      <div className="px-2.5 pt-2.5 pb-1.5 flex flex-col gap-2.5">
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="w-5 h-5 rounded-md flex-shrink-0" />
+          <Skeleton className="h-2.5 w-16" />
+        </div>
+        <div className="space-y-1.5 mb-1">
+          <Skeleton className="h-3 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+      </div>
+      <div className="px-2.5 pb-2.5 flex items-center gap-1.5 mt-1">
+        <Skeleton className="h-4 w-12 rounded-md" />
+        <Skeleton className="h-4 w-16 rounded-md" />
+        <Skeleton className="h-2.5 w-8 rounded-md ml-auto" />
+      </div>
+    </div>
+  );
+}

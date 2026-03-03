@@ -43,6 +43,9 @@ interface AppContextValue extends AppState {
   getClientById: (id: string) => Client | undefined;
   getWeekDates: () => { key: DayOfWeek; date: Date; label: string; isToday: boolean }[];
   isLoading: boolean;
+  updatePostMutation: any;
+  deletePostMutation: any;
+  addPostMutation: any;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -354,6 +357,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       getClientById,
       getWeekDates,
       isLoading,
+      updatePostMutation,
+      deletePostMutation,
+      addPostMutation,
     }}>
       {children}
     </AppContext.Provider>

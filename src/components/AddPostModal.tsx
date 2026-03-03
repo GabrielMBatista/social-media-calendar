@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 export function AddPostModal() {
-  const { isAddPostModalOpen, closeAddPostModal, addPost, clients, addPostDay } = useApp();
+  const { isAddPostModalOpen, closeAddPostModal, addPost, clients, addPostDay, addPostMutation } = useApp();
 
   const [form, setForm] = useState({
     clientId: "",
@@ -53,6 +54,7 @@ export function AddPostModal() {
   };
 
   const activeClients = clients.filter(c => c.active);
+  const { clientId, title } = form; // Destructure for easier access in disabled prop
 
   return (
     <Dialog open={isAddPostModalOpen} onOpenChange={open => !open && closeAddPostModal()}>
@@ -76,7 +78,7 @@ export function AddPostModal() {
                 Cliente *
               </Label>
               <Select value={form.clientId} onValueChange={v => setForm(p => ({ ...p, clientId: v }))}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -104,7 +106,7 @@ export function AddPostModal() {
                 value={form.title}
                 onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
                 placeholder="Ex: Campanha Dia dos Pais"
-                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20"
+                className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20"
               />
             </div>
           </div>
@@ -116,7 +118,7 @@ export function AddPostModal() {
                 Tipo
               </Label>
               <Select value={form.type} onValueChange={v => setForm(p => ({ ...p, type: v as PostType }))}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,7 +133,7 @@ export function AddPostModal() {
                 Status
               </Label>
               <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v as PostStatus }))}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -154,7 +156,7 @@ export function AddPostModal() {
                 type="time"
                 value={form.scheduledTime}
                 onChange={e => setForm(p => ({ ...p, scheduledTime: e.target.value }))}
-                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+                className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
           </div>
@@ -166,7 +168,7 @@ export function AddPostModal() {
                 Dia da Semana
               </Label>
               <Select value={form.dayOfWeek} onValueChange={v => setForm(p => ({ ...p, dayOfWeek: v as DayOfWeek }))}>
-                <SelectTrigger className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -188,7 +190,7 @@ export function AddPostModal() {
                 value={form.driveLink}
                 onChange={e => setForm(p => ({ ...p, driveLink: e.target.value }))}
                 placeholder="https://drive.google.com/..."
-                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+                className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
             <div>
@@ -199,7 +201,7 @@ export function AddPostModal() {
                 value={form.hashtags}
                 onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))}
                 placeholder="#hashtag1 #hashtag2..."
-                className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+                className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
           </div>
@@ -215,7 +217,7 @@ export function AddPostModal() {
                 onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
                 rows={4}
                 placeholder="Descreva o conteúdo do post..."
-                className="text-xs resize-none bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
+                className="text-xs resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
               />
             </div>
             <div>
@@ -227,7 +229,7 @@ export function AddPostModal() {
                 onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
                 rows={4}
                 placeholder="Legenda para publicação..."
-                className="text-xs resize-none bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
+                className="text-xs resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-blue-500/20 shadow-sm"
               />
             </div>
           </div>
@@ -241,7 +243,7 @@ export function AddPostModal() {
               value={form.notes}
               onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
               placeholder="Notas para a agência ou designer..."
-              className="h-9 text-xs bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
+              className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
             />
           </div>
         </div>

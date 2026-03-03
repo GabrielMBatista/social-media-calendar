@@ -12,6 +12,7 @@ import Link from "next/link";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChevronLeft, ChevronRight, CalendarDays, RotateCcw,
   Plus, TrendingUp, Sun, Moon, User, LogOut
@@ -57,7 +58,47 @@ export function CalendarHeader() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-5 py-3 flex-shrink-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                <CalendarDays size={16} className="text-white shadow-sm" />
+              </div>
+              <div className="hidden sm:block">
+                <Skeleton className="h-3.5 w-[90px] mb-1" />
+                <Skeleton className="h-2.5 w-[80px]" />
+              </div>
+            </div>
+            <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <div className="text-center min-w-[160px] px-1 flex flex-col items-center justify-center">
+                <Skeleton className="h-3.5 w-32 mb-1.5" />
+                <Skeleton className="h-2 w-20" />
+              </div>
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </div>
+          <div className="hidden xl:flex items-center gap-1.5 flex-1 justify-center">
+            <Skeleton className="h-7 w-[90px] rounded-lg" />
+            <Skeleton className="h-7 w-[110px] rounded-lg" />
+            <Skeleton className="h-7 w-[90px] rounded-lg" />
+            <Skeleton className="h-7 w-[90px] rounded-lg" />
+            <Skeleton className="h-7 w-[100px] rounded-lg" />
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Skeleton className="h-8 w-8 rounded-md hidden sm:block" />
+            <Skeleton className="h-8 w-24 rounded-md hidden sm:block" />
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 ml-1 hidden sm:block" />
+            <Skeleton className="w-8 h-8 rounded-full" />
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const toggleTheme = () => setTheme(isDark ? "light" : "dark");
 
@@ -203,8 +244,17 @@ export function CalendarHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <div className="p-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{userFullName}</p>
-                <p className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Admin</p>
+                {userName === "Carregando..." ? (
+                  <>
+                    <Skeleton className="h-4 w-[120px] rounded mb-1 bg-slate-200 dark:bg-slate-700" />
+                    <Skeleton className="h-2.5 w-[40px] rounded bg-slate-200 dark:bg-slate-700" />
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{userFullName}</p>
+                    <p className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Admin</p>
+                  </>
+                )}
               </div>
               <DropdownMenuItem
                 onClick={openAccountModal}

@@ -1,9 +1,10 @@
 import React from "react";
 import { DayOfWeek } from "@/lib/types";
 import { useApp } from "@/contexts/AppContext";
-import { PostCard } from "./PostCard";
+import { PostCard, PostCardSkeleton } from "./PostCard";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DayColumnProps {
   dayKey: DayOfWeek;
@@ -13,7 +14,7 @@ interface DayColumnProps {
 }
 
 export const DayColumn = React.memo(function DayColumn({ dayKey, date, label, isToday }: DayColumnProps) {
-  const { filteredPosts, getClientById, openAddPostModal } = useApp();
+  const { filteredPosts, getClientById, openAddPostModal, isLoading } = useApp();
 
   const dayPosts = filteredPosts.filter(p => {
     if (p.dayOfWeek !== dayKey) return false;
@@ -101,7 +102,13 @@ export const DayColumn = React.memo(function DayColumn({ dayKey, date, label, is
 
       {/* Posts list */}
       <div className="flex-1 p-2 space-y-2 overflow-y-auto min-h-[120px]">
-        {dayPosts.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-2 px-1">
+            <PostCardSkeleton />
+            <PostCardSkeleton />
+            <PostCardSkeleton />
+          </div>
+        ) : dayPosts.length === 0 ? (
           <div
             className="flex flex-col items-center justify-center py-8 gap-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 cursor-pointer hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-950/30 transition-all"
             onClick={() => openAddPostModal(dayKey)}

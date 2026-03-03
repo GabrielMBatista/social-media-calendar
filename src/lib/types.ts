@@ -75,36 +75,41 @@ export interface WeekData {
   posts: Post[];
 }
 
-export const STATUS_CONFIG: Record<PostStatus, { label: string; color: string; bg: string; dot: string }> = {
+export const STATUS_CONFIG: Record<PostStatus, { label: string; color: string; bg: string; dot: string; ring: string }> = {
   pronto: {
     label: "Pronto",
-    color: "text-emerald-700 dark:text-emerald-400",
-    bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20",
+    color: "text-emerald-700 dark:text-emerald-200",
+    bg: "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30",
     dot: "bg-emerald-500 dark:bg-emerald-400",
+    ring: "ring-emerald-500 dark:ring-emerald-400",
   },
   em_producao: {
     label: "Em Produção",
-    color: "text-amber-700 dark:text-amber-400",
-    bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20",
+    color: "text-amber-700 dark:text-amber-200",
+    bg: "bg-amber-50 dark:bg-amber-500/20 border-amber-200 dark:border-amber-500/30",
     dot: "bg-amber-500 dark:bg-amber-400",
+    ring: "ring-amber-500 dark:ring-amber-400",
   },
   rascunho: {
     label: "Rascunho",
-    color: "text-purple-700 dark:text-purple-400",
-    bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20",
+    color: "text-purple-700 dark:text-purple-200",
+    bg: "bg-purple-50 dark:bg-purple-500/20 border-purple-200 dark:border-purple-500/30",
     dot: "bg-purple-500 dark:bg-purple-400",
+    ring: "ring-purple-500 dark:ring-purple-400",
   },
   publicado: {
     label: "Publicado",
-    color: "text-blue-700 dark:text-blue-400",
-    bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
+    color: "text-blue-700 dark:text-blue-200",
+    bg: "bg-blue-50 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30",
     dot: "bg-blue-500 dark:bg-blue-400",
+    ring: "ring-blue-500 dark:ring-blue-400",
   },
   cancelado: {
     label: "Cancelado",
-    color: "text-red-600 dark:text-red-400",
-    bg: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20",
-    dot: "bg-red-400",
+    color: "text-red-700 dark:text-red-200",
+    bg: "bg-red-50 dark:bg-red-500/20 border-red-200 dark:border-red-500/30",
+    dot: "bg-red-500 dark:bg-red-400",
+    ring: "ring-red-500 dark:ring-red-400",
   },
 };
 

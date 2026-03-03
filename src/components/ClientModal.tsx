@@ -136,6 +136,7 @@ export function ClientModal() {
               value={form.name}
               onChange={e => handleNameChange(e.target.value)}
               placeholder="Ex: Bella Estética"
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
             />
           </div>
 
@@ -150,7 +151,7 @@ export function ClientModal() {
                 onChange={e => setForm(p => ({ ...p, logoInitials: e.target.value.toUpperCase().slice(0, 2) }))}
                 placeholder="BE"
                 maxLength={2}
-                className="font-bold text-center text-lg"
+                className="font-bold text-center text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
             <div>
@@ -161,6 +162,7 @@ export function ClientModal() {
                 value={form.industry}
                 onChange={e => setForm(p => ({ ...p, industry: e.target.value }))}
                 placeholder="Ex: Beleza & Estética"
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
           </div>
@@ -175,6 +177,7 @@ export function ClientModal() {
               value={form.instagramHandle}
               onChange={e => setForm(p => ({ ...p, instagramHandle: e.target.value }))}
               placeholder="@usuario"
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
             />
           </div>
 
@@ -188,6 +191,7 @@ export function ClientModal() {
               value={form.logoUrl}
               onChange={e => setForm(p => ({ ...p, logoUrl: e.target.value }))}
               placeholder="https://exemplo.com/logo.png"
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
             />
             <p className="text-[11px] text-slate-400 mt-1">
               Cole a URL de uma imagem. Se não informado, as iniciais serão usadas.
@@ -211,7 +215,7 @@ export function ClientModal() {
                 value={form.brandColor}
                 onChange={e => setForm(p => ({ ...p, brandColor: e.target.value }))}
                 placeholder="#000000"
-                className="font-mono text-sm w-32"
+                className="font-mono text-sm w-32 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />
             </div>
             {/* Preset colors */}
