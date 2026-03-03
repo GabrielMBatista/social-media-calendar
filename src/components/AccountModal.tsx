@@ -138,7 +138,7 @@ export function AccountModal() {
                                                 {user.account.plan === "free" ? "Gratuito" : "Profissional"}
                                             </span>
                                         </div>
-                                        <button className="w-full h-11 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-blue-500/20">
+                                        <button className="w-full h-11 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white dark:text-white text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-blue-500/20">
                                             Fazer Upgrade
                                         </button>
                                     </div>

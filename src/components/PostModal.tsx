@@ -151,7 +151,7 @@ export function PostModal() {
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {isEditing ? (
               <>
-                <Button size="sm" onClick={handleSaveEdit} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white shadow-md transition-all active:scale-95">
+                <Button size="sm" onClick={handleSaveEdit} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95">
                   <Save size={13} /> Salvar
                 </Button>
                 <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8 border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
@@ -167,7 +167,7 @@ export function PostModal() {
                   size="sm"
                   variant="outline"
                   onClick={handleDelete}
-                  className="h-8 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200"
+                  className="h-8 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/20"
                 >
                   <Trash2 size={13} />
                 </Button>

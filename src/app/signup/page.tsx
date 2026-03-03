@@ -138,7 +138,7 @@ export default function SignupPage() {
                             </div>
                         )}
 
-                        <Button disabled={isPending} className="w-full h-10 mt-4 bg-blue-600 hover:bg-blue-700 text-white gap-2 font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+                        <Button disabled={isPending} className="w-full h-10 mt-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white gap-2 font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
                             <Save size={16} /> {isPending ? "Configurando Conta..." : "Completar Cadastro"}
                         </Button>
                     </form>

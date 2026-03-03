@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
                                     <p className="text-sm font-black uppercase tracking-widest">{successMsg}</p>
                                     <p className="text-[10px] opacity-70 mt-1 uppercase font-bold">Acesse agora sua dashboard premium.</p>
                                 </div>
-                                <Link href="/login" className="block w-full h-11 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-widest hover:bg-black transition-all">
+                                <Link href="/login" className="block w-full h-11 bg-slate-900 hover:bg-black dark:bg-slate-900 dark:hover:bg-black text-white dark:text-white rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-widest transition-all">
                                     Fazer Login
                                 </Link>
                             </div>
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
                                     </div>
                                 </div>
 
-                                <Button disabled={isPending} className="w-full h-11 mt-2 bg-blue-600 hover:bg-blue-700 text-white gap-2 font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-lg shadow-blue-500/20">
+                                <Button disabled={isPending} className="w-full h-11 mt-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white gap-2 font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-lg shadow-blue-500/20">
                                     {isPending ? "Salvando..." : "Redefinir e Salvar Senha"}
                                 </Button>
                             </>

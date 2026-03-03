@@ -122,7 +122,7 @@ export default function LoginPage() {
                                 </div>
                             )}
 
-                            <Button disabled={isPending} className="w-full h-10 mt-2 bg-slate-900 hover:bg-slate-800 text-white gap-2 font-semibold">
+                            <Button disabled={isPending} className="w-full h-10 mt-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 text-white dark:text-white gap-2 font-semibold">
                                 {loginMode === "magic" ? <Save size={16} /> : <LogIn size={16} />}
                                 {isPending ? (loginMode === "magic" ? "Enviando..." : "Entrando...") : (loginMode === "magic" ? "Enviar Link de Acesso" : "Entrar no sistema")}
                             </Button>

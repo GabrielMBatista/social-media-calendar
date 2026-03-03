@@ -25,7 +25,7 @@ export default async function MinhaContaPage() {
                 <div className="bg-white p-8 rounded-2xl shadow-sm text-center">
                     <h1 className="text-xl font-bold text-slate-800 mb-2">Perfil Incompleto</h1>
                     <p className="text-slate-500 text-sm mb-6">Não localizamos a agência vinculada a este usuário no banco de dados.</p>
-                    <Link href="/" className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">Voltar</Link>
+                    <Link href="/" className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white dark:text-white rounded-lg text-sm font-semibold transition-colors">Voltar</Link>
                 </div>
             </div>
         );

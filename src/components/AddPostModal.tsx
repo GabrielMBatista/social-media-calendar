@@ -248,7 +248,7 @@ export function AddPostModal() {
 
         <DialogFooter>
           <Button variant="outline" onClick={closeAddPostModal}>Cancelar</Button>
-          <Button onClick={handleSubmit}>Adicionar Post</Button>
+          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white">Adicionar Post</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

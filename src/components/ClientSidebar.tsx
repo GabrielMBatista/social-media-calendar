@@ -56,7 +56,7 @@ export function ClientSidebar() {
           </div>
           <Button
             onClick={() => openClientModal()}
-            className="h-7 px-3 text-xs font-semibold gap-1 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm transition-all"
+            className="h-7 px-3 text-xs font-semibold gap-1 bg-blue-600 hover:bg-blue-700 text-white dark:text-white dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm transition-all"
           >
             <Plus size={14} />
             Novo
@@ -91,15 +91,15 @@ export function ClientSidebar() {
           className={cn(
             "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
             selectedClientFilter === null
-              ? "bg-slate-900 text-white shadow-sm"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              ? "bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700/50"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
           )}
         >
           <LayoutGrid size={13} className="flex-shrink-0" />
           <span className="flex-1 text-left text-xs text-slate-800 dark:text-slate-200">Todos os Clientes</span>
           <span className={cn(
             "text-[10px] px-1.5 py-0.5 rounded-md font-bold",
-            selectedClientFilter === null ? "bg-white/20 text-white dark:text-slate-900" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+            selectedClientFilter === null ? "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
           )}>
             {posts.length}
           </span>
@@ -150,7 +150,7 @@ export function ClientSidebar() {
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   "text-[11px] font-bold truncate leading-none",
-                  isSelected ? "text-white" : "text-slate-800"
+                  isSelected ? "text-white" : "text-slate-800 dark:text-slate-200"
                 )}>
                   {client.name}
                 </p>
@@ -168,7 +168,7 @@ export function ClientSidebar() {
               <div className="flex items-center gap-0.5">
                 <span className={cn(
                   "text-[10px] font-bold px-1.5 py-0.5 rounded-md",
-                  isSelected ? "bg-white/20 text-white dark:text-slate-900" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                  isSelected ? "bg-white/20 text-white dark:text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                 )}>
                   {count}
                 </span>
@@ -219,15 +219,15 @@ export function ClientSidebar() {
             className={cn(
               "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
               selectedStatusFilter === null
-                ? "bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900 font-semibold"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                ? "bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-semibold border border-slate-200 dark:border-slate-700/50 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
             )}
           >
             <span className="w-2 h-2 rounded-full bg-slate-400 flex-shrink-0" />
             <span className="flex-1 text-left">Todos</span>
             <span className={cn(
               "text-[10px] font-bold px-1 py-0.5 rounded",
-              selectedStatusFilter === null ? "bg-white/20 text-white dark:text-slate-900" : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500"
+              selectedStatusFilter === null ? "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm" : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500"
             )}>
               {posts.length}
             </span>

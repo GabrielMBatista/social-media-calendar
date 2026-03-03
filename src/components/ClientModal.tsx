@@ -249,7 +249,7 @@ export function ClientModal() {
           <Button
             onClick={handleSubmit}
             style={{ backgroundColor: form.brandColor }}
-            className="text-white hover:opacity-90"
+            className="text-white dark:text-white hover:opacity-90"
           >
             {editingClient ? "Salvar Alterações" : "Adicionar Cliente"}
           </Button>

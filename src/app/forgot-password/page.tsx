@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                                     </div>
                                 </div>
 
-                                <Button disabled={isPending} className="w-full h-11 mt-2 bg-slate-900 hover:bg-slate-800 text-white gap-2 font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-lg shadow-slate-200">
+                                <Button disabled={isPending} className="w-full h-11 mt-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 text-white dark:text-white gap-2 font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-lg shadow-slate-200">
                                     {isPending ? "Processando..." : "Enviar link de recuperação"}
                                 </Button>
                             </>
