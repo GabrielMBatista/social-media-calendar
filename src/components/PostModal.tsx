@@ -3,8 +3,9 @@
 // Social Media Calendar Pro — PostModal Component
 // Design: Studio Criativo — painel lateral deslizante com detalhes do post
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK } from "@/lib/types";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
@@ -17,7 +18,7 @@ import {
   ExternalLink, Trash2, Edit3, Save, X, Clock, Calendar,
   Hash, FileText, Link2, Image, Play, LayoutGrid, Music,
   Youtube, Linkedin, Twitter, CheckCircle2, AlertCircle, Circle,
-  Loader2
+  Loader2, RotateCcw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -29,11 +30,41 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 const STATUS_ORDER: PostStatus[] = ["rascunho", "em_producao", "pronto", "publicado", "cancelado"];
 
+type PostVersionData = {
+  savedAt: string;
+  savedBy?: { name: string } | null;
+  title: string | null;
+  description: string | null;
+  caption: string | null;
+  hashtags: string | null;
+  status: string;
+};
+
 export function PostModal() {
   const { selectedPost, isPostModalOpen, closePostModal, updatePost, deletePost, getClientById, clients, updatePostMutation, deletePostMutation } = useApp();
+  const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<typeof selectedPost>>({});
+
+  // PostVersion state
+  const [version, setVersion] = useState<PostVersionData | null>(null);
+  const [versionLoading, setVersionLoading] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  // Fetch version whenever modal opens with a post
+  useEffect(() => {
+    if (!selectedPost || !isPostModalOpen) {
+      setVersion(null);
+      return;
+    }
+    setVersionLoading(true);
+    fetch(`/api/posts/${selectedPost.id}/version`)
+      .then(r => r.json())
+      .then(res => setVersion(res.data ?? null))
+      .catch(() => setVersion(null))
+      .finally(() => setVersionLoading(false));
+  }, [selectedPost?.id, isPostModalOpen]);
 
   if (!selectedPost) return null;
 
@@ -64,6 +95,13 @@ export function PostModal() {
     updatePost(selectedPost.id, editData as any);
     setIsEditing(false);
     toast.success("Post atualizado com sucesso!");
+    // Reload version after edit
+    setTimeout(() => {
+      fetch(`/api/posts/${selectedPost.id}/version`)
+        .then(r => r.json())
+        .then(res => setVersion(res.data ?? null))
+        .catch(() => { });
+    }, 500);
   };
 
   const handleCancelEdit = () => {
@@ -84,6 +122,27 @@ export function PostModal() {
   const handleOpenDrive = () => {
     if (selectedPost.driveLink) {
       window.open(selectedPost.driveLink, "_blank");
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!version) return;
+    setRestoring(true);
+    try {
+      const res = await fetch(`/api/posts/${selectedPost.id}/version`, { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Versão anterior restaurada!");
+        // Recarrega o post na lista
+        queryClient?.invalidateQueries({ queryKey: ["posts"] });
+        closePostModal();
+      } else {
+        toast.error("Erro ao restaurar versão");
+      }
+    } catch {
+      toast.error("Erro ao restaurar versão");
+    } finally {
+      setRestoring(false);
     }
   };
 
@@ -201,6 +260,34 @@ export function PostModal() {
             )}
           </div>
         </div>
+
+        {/* Restore version banner */}
+        {version && !isEditing && (
+          <div className="flex items-center justify-between px-6 py-2.5 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800/40 gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <RotateCcw size={13} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+              <p className="text-xs text-amber-700 dark:text-amber-300 truncate">
+                Versão anterior salva em {formatSafeDate(version.savedAt)}
+                {version.savedBy?.name && <span className="font-medium"> por {version.savedBy.name}</span>}
+              </p>
+            </div>
+            <ConfirmActionDialog
+              title="Restaurar versão anterior?"
+              description="O estado atual do post será salvo como 'versão anterior', e o post voltará para como estava antes da última edição. Você pode alternar entre versões a qualquer momento."
+              actionText="Restaurar"
+              onConfirm={handleRestore}
+              disabled={restoring}
+            >
+              <button
+                disabled={restoring}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors active:scale-95 disabled:opacity-50"
+              >
+                {restoring ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
+                Restaurar
+              </button>
+            </ConfirmActionDialog>
+          </div>
+        )}
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5">

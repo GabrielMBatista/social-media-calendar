@@ -54,6 +54,25 @@ export async function PATCH(
             }
         }
 
+        // Salva snapshot do estado ATUAL como JSON antes de editar (upsert — 1 versão por post)
+        const snapshot = JSON.stringify({
+            title: existing.title,
+            description: existing.description,
+            caption: existing.caption,
+            hashtags: existing.hashtags,
+            driveLink: existing.driveLink,
+            notes: existing.notes,
+            status: existing.status,
+            scheduledTime: existing.scheduledTime,
+            savedAt: new Date().toISOString(),
+        });
+
+        await prisma.postVersion.upsert({
+            where: { postId: existing.id },
+            create: { postId: existing.id, createdById: user.id, snapshot },
+            update: { createdById: user.id, snapshot },
+        });
+
         const post = await prisma.post.update({
             where: { id: resolvedParams.id },
             data: { ...data },
@@ -82,7 +101,6 @@ export async function DELETE(
     try {
         const resolvedParams = await params;
 
-        // Usa deleteMany com accountId para garantir segurança contra deleções de outros tenants
         const result = await prisma.post.deleteMany({
             where: {
                 id: resolvedParams.id,
