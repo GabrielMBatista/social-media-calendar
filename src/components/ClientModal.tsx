@@ -83,14 +83,14 @@ export function ClientModal() {
 
   return (
     <Dialog open={isClientModalOpen} onOpenChange={open => !open && closeClientModal()}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md max-h-[85dvh] flex flex-col overflow-hidden p-0 sm:p-6">
+        <DialogHeader className="px-6 pt-6 sm:px-0 sm:pt-0 pb-2 border-b sm:border-0 border-slate-100 dark:border-slate-800">
           <DialogTitle className="text-lg font-bold">
             {editingClient ? "Editar Cliente" : "Novo Cliente"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="space-y-4 px-6 py-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
           {/* Preview */}
           <div
             className="rounded-xl p-4 flex items-center gap-4 border"
@@ -141,7 +141,7 @@ export function ClientModal() {
           </div>
 
           {/* Initials + Industry row */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
                 Iniciais (2 letras)
@@ -236,7 +236,7 @@ export function ClientModal() {
           </div>
 
           {/* Active toggle */}
-          <div className="flex items-center justify-between py-2 border-t border-slate-100">
+          <div className="flex items-center justify-between py-2 border-t border-slate-100 pb-6 sm:pb-2">
             <div>
               <p className="text-sm font-semibold text-slate-700">Cliente Ativo</p>
               <p className="text-xs text-slate-400">Aparece no calendário e filtros</p>
@@ -248,12 +248,12 @@ export function ClientModal() {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={closeClientModal}>Cancelar</Button>
+        <DialogFooter className="px-6 pb-6 pt-2 sm:px-0 sm:pb-0 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800 flex-col sm:flex-row gap-2 mt-auto">
+          <Button variant="outline" onClick={closeClientModal} className="w-full sm:w-auto">Cancelar</Button>
           <Button
             onClick={handleSubmit}
             style={{ backgroundColor: form.brandColor }}
-            className="text-white dark:text-white hover:opacity-90"
+            className="text-white dark:text-white hover:opacity-90 w-full sm:w-auto"
           >
             {editingClient ? "Salvar Alterações" : "Adicionar Cliente"}
           </Button>

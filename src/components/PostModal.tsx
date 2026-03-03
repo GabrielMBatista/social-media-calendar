@@ -88,7 +88,7 @@ export function PostModal() {
 
   return (
     <Dialog open={isPostModalOpen} onOpenChange={open => !open && closePostModal()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
         {/* Header with client identity */}
         <div
           className="px-6 py-4 flex items-start gap-4"
@@ -181,7 +181,7 @@ export function PostModal() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5 no-scrollbar">
           {/* Status selector — editável com clique */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">

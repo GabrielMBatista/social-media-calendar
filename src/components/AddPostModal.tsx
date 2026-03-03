@@ -74,21 +74,21 @@ export function AddPostModal() {
 
   return (
     <Dialog open={isAddPostModalOpen} onOpenChange={open => !open && closeAddPostModal()}>
-      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-6 flex flex-col gap-4">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold">
+      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] flex flex-col overflow-hidden p-0 sm:p-6">
+        <DialogHeader className="px-6 pt-6 sm:px-0 sm:pt-0 pb-2 border-b sm:border-0 border-slate-100 dark:border-slate-800">
+          <DialogTitle className="text-lg font-bold flex items-center flex-wrap gap-2">
             Novo Post
             {addPostDay && (
-              <span className="ml-2 text-sm font-normal text-slate-500">
+              <span className="text-sm font-normal text-slate-500 whitespace-nowrap">
                 — {DAYS_OF_WEEK.find(d => d.key === addPostDay)?.label}
               </span>
             )}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="space-y-4 px-6 py-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
           {/* Title + Client row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="md:col-span-1">
               <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Cliente *
@@ -128,7 +128,7 @@ export function AddPostModal() {
           </div>
 
           {/* Type + Status + Time row */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             <div>
               <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Tipo
@@ -164,7 +164,7 @@ export function AddPostModal() {
                 </SelectContent>
               </Select>
             </div>
-            <div className={cn("col-span-1", addPostDay ? "" : "hidden md:block")}>
+            <div className={cn("col-span-2 md:col-span-1", addPostDay ? "" : "hidden md:block")}>
               <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Horário
               </Label>
@@ -197,7 +197,7 @@ export function AddPostModal() {
           )}
 
           {/* Links + Hashtags row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div>
               <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Link do Drive
@@ -223,7 +223,7 @@ export function AddPostModal() {
           </div>
 
           {/* Description + Caption row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div>
               <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
                 Descrição / Briefing
@@ -251,7 +251,7 @@ export function AddPostModal() {
           </div>
 
           {/* Notes */}
-          <div>
+          <div className="pb-6 sm:pb-2">
             <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
               Observações Internas
             </Label>
@@ -264,9 +264,9 @@ export function AddPostModal() {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={closeAddPostModal}>Cancelar</Button>
-          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white">Adicionar Post</Button>
+        <DialogFooter className="px-6 pb-6 pt-2 sm:px-0 sm:pb-0 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800 flex-col sm:flex-row gap-2 mt-auto">
+          <Button variant="outline" onClick={closeAddPostModal} className="w-full sm:w-auto">Cancelar</Button>
+          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white w-full sm:w-auto">Adicionar Post</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

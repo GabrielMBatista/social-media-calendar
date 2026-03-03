@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { PostStatus, STATUS_CONFIG } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCcw, TrendingUp } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 export function MobileWeekHeader() {
-    const { navigateWeek, currentWeekOffset, getWeekDates, filteredPosts } = useApp();
+    const { navigateWeek, jumpToDate, currentWeekOffset, getWeekDates, filteredPosts } = useApp();
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
     const weekDates = getWeekDates();
     const weekStart = weekDates[0]?.date;
@@ -40,21 +44,39 @@ export function MobileWeekHeader() {
                         <ChevronLeft size={16} />
                     </Button>
 
-                    <div className="flex flex-col items-center min-w-[120px]">
-                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                            {formatWeekRange()}
-                        </span>
-                        <span className={cn(
-                            "text-[9px] uppercase tracking-wider font-semibold",
-                            currentWeekOffset === 0 ? "text-blue-600 dark:text-blue-400" : "text-slate-400"
-                        )}>
-                            {currentWeekOffset === 0
-                                ? "Semana atual"
-                                : currentWeekOffset < 0
-                                    ? `${Math.abs(currentWeekOffset)} sem. atrás`
-                                    : `${currentWeekOffset} sem. à frente`}
-                        </span>
-                    </div>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                        <PopoverTrigger asChild>
+                            <div className="flex flex-col items-center flex-1 overflow-hidden group cursor-pointer px-2 py-1 rounded-md transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center justify-center gap-1">
+                                    {formatWeekRange()}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="m6 9 6 6 6-6" /></svg>
+                                </span>
+                                <span className={cn(
+                                    "text-[9px] uppercase tracking-wider font-semibold mt-0.5",
+                                    currentWeekOffset === 0 ? "text-blue-600 dark:text-blue-400" : "text-slate-400"
+                                )}>
+                                    {currentWeekOffset === 0
+                                        ? "Semana atual"
+                                        : currentWeekOffset < 0
+                                            ? `${Math.abs(currentWeekOffset)} sem. atrás`
+                                            : `${currentWeekOffset} sem. à frente`}
+                                </span>
+                            </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="center">
+                            <Calendar
+                                mode="single"
+                                selected={weekStart}
+                                onSelect={(date: Date | undefined) => {
+                                    if (date) {
+                                        jumpToDate(date.toISOString().split("T")[0]);
+                                        setIsCalendarOpen(false);
+                                    }
+                                }}
+                                initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
 
                     <Button
                         variant="ghost"

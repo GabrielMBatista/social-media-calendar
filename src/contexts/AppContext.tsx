@@ -37,6 +37,7 @@ interface AppContextValue extends AppState {
   setClientFilter: (clientId: string | null) => void;
   setStatusFilter: (status: PostStatus | null) => void;
   navigateWeek: (direction: "prev" | "next" | "current") => void;
+  jumpToDate: (dateStr: string) => void;
   openAccountModal: () => void;
   closeAccountModal: () => void;
   filteredPosts: Post[];
@@ -287,6 +288,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const jumpToDate = useCallback((dateStr: string) => {
+    const selected = new Date(dateStr + "T12:00:00");
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+
+    // Encontra a segunda-feira da semana de "today"
+    const todayDay = today.getDay();
+    const todayMonday = new Date(today);
+    todayMonday.setDate(today.getDate() - (todayDay === 0 ? 6 : todayDay - 1));
+    todayMonday.setHours(12, 0, 0, 0);
+
+    // Encontra a segunda-feira da semana "selecionada"
+    const selDay = selected.getDay();
+    const selMonday = new Date(selected);
+    selMonday.setDate(selected.getDate() - (selDay === 0 ? 6 : selDay - 1));
+    selMonday.setHours(12, 0, 0, 0);
+
+    // Calcula a diferença em semanas entre as duas segundas-feiras
+    const diffTime = selMonday.getTime() - todayMonday.getTime();
+    const diffWeeks = Math.round(diffTime / (1000 * 3600 * 24 * 7));
+
+    setCurrentWeekOffset(diffWeeks);
+  }, []);
+
   const getClientById = useCallback((id: string) => {
     return clients.find(c => c.id === id);
   }, [clients]);
@@ -351,6 +376,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setClientFilter,
       setStatusFilter,
       navigateWeek,
+      jumpToDate,
       openAccountModal,
       closeAccountModal,
       filteredPosts,
