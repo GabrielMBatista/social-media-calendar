@@ -46,7 +46,7 @@ export function ListView() {
               </span>
             </div>
             <div className="flex-1 h-px bg-slate-100" />
-            <span className="text-xs text-slate-400">{posts.length} post{posts.length !== 1 ? "s" : ""}</span>
+            <span className="text-xs text-slate-400">{posts.length} {posts.length === 1 ? "post" : "posts"}</span>
           </div>
 
           {/* Posts */}

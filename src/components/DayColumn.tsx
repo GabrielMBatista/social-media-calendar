@@ -65,10 +65,10 @@ export const DayColumn = React.memo(function DayColumn({ dayKey, date, label, is
               {monthShort}
             </p>
             <p className={cn(
-              "text-xs font-bold leading-none",
+              "text-xs font-bold leading-none mt-1",
               isToday ? "text-blue-700 dark:text-blue-400" : "text-slate-600 dark:text-slate-300"
             )}>
-              {dayPosts.length} post{dayPosts.length !== 1 ? "s" : ""}
+              {dayPosts.length} {dayPosts.length === 1 ? "post" : "posts"}
             </p>
           </div>
         </div>

@@ -89,10 +89,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newClient),
       }).then(r => r.json()),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["clients"] });
+        await queryClient.invalidateQueries({ queryKey: ["clients"] });
         toast.success("Agência adicionada!");
+        setIsClientModalOpen(false);
+      } else {
+        toast.error(data.error || "Erro ao adicionar agência");
       }
     },
     onError: () => toast.error("Erro ao adicionar agência")
@@ -155,9 +158,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),
       }).then(r => r.json()),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["posts"] });
+        await queryClient.invalidateQueries({ queryKey: ["posts"] });
+        toast.success("Post adicionado sucesso!");
+        setIsAddPostModalOpen(false);
+      } else {
+        toast.error(data.error || "Erro ao adicionar post");
       }
     },
     onError: () => toast.error("Erro ao adicionar post")

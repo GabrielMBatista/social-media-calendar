@@ -45,21 +45,20 @@ export function ClientSidebar() {
     <aside className="w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 mt-1">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-              <Users size={12} className="text-blue-600 dark:text-blue-400" />
+            <div className="w-7 h-7 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <Users size={14} className="text-slate-700 dark:text-slate-300" />
             </div>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest font-outfit">
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Clientes
             </span>
           </div>
           <Button
-            size="sm"
             onClick={() => openClientModal()}
-            className="h-7 px-2.5 text-[10px] font-black uppercase tracking-widest gap-1 bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-500 shadow-md transition-all active:scale-95"
+            className="h-7 px-3 text-xs font-semibold gap-1 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm transition-all"
           >
-            <Plus size={12} />
+            <Plus size={14} />
             Novo
           </Button>
         </div>

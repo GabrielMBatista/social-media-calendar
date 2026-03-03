@@ -86,8 +86,8 @@ export function CalendarHeader() {
         <div className="flex items-center gap-3">
           {/* Logo */}
           <div className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-sm">
-              <CalendarDays size={16} className="text-white" />
+            <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-blue-600 flex items-center justify-center shadow-sm">
+              <CalendarDays size={16} className="text-white dark:text-white shadow-sm" />
             </div>
             <div className="hidden sm:block">
               <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-none" style={{ fontFamily: "Outfit, sans-serif" }}>
@@ -103,9 +103,9 @@ export function CalendarHeader() {
           <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => navigateWeek("prev")}
-              className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-colors"
+              className="h-8 w-8 shadow-sm transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               <ChevronLeft size={14} />
             </Button>
@@ -125,9 +125,9 @@ export function CalendarHeader() {
 
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => navigateWeek("next")}
-              className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-colors"
+              className="h-8 w-8 shadow-sm transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               <ChevronRight size={14} />
             </Button>
@@ -137,7 +137,7 @@ export function CalendarHeader() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigateWeek("current")}
-                className="h-8 px-2 gap-1 text-xs bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-all hidden sm:flex"
+                className="h-8 px-2 gap-1 text-xs shadow-sm transition-all hidden sm:flex bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 <RotateCcw size={11} />
                 Hoje
@@ -154,8 +154,7 @@ export function CalendarHeader() {
               <div
                 key={status}
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold",
-                  "dark:bg-opacity-10 dark:text-opacity-90 dark:border-opacity-20",
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-colors",
                   cfg.bg, cfg.color
                 )}
               >
@@ -175,9 +174,9 @@ export function CalendarHeader() {
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={toggleTheme}
-            className="h-8 w-8 p-0 bg-white dark:bg-slate-50 border-slate-200 dark:border-slate-400 text-slate-900 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-200 transition-all"
+            className="h-8 w-8 shadow-sm transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
             title={isDark ? "Modo claro" : "Modo escuro"}
           >
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -185,7 +184,7 @@ export function CalendarHeader() {
           <Button
             onClick={() => openAddPostModal("seg")}
             size="sm"
-            className="h-8 gap-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white"
+            className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white shadow-sm font-semibold"
           >
             <Plus size={14} />
             <span className="hidden sm:inline">Novo Post</span>
@@ -197,7 +196,7 @@ export function CalendarHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 p-1 transition-colors outline-none focus:ring-2 focus:ring-blue-500/20">
-                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center border border-blue-200 dark:border-blue-800">
+                <div className="w-8 h-8 sm:w-8 sm:h-8 bg-blue-100 dark:bg-slate-800 rounded-full flex items-center justify-center border border-blue-200 dark:border-slate-700 shadow-sm">
                   <span className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-400">{userInitials}</span>
                 </div>
               </button>
@@ -224,8 +223,8 @@ export function CalendarHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </div>
+        </div >
+      </div >
     </header >
   );
 }

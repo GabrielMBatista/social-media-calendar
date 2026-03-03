@@ -3,10 +3,12 @@
 // Social Media Calendar Pro — App UI (Home Page)
 // Agora portado nativamente para o Next.js App Router
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppProvider } from "@/contexts/AppContext";
 import { ClientSidebar } from "@/components/ClientSidebar";
 import { CalendarHeader } from "@/components/CalendarHeader";
+import { MobileHeader } from "@/components/MobileHeader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DayColumn } from "@/components/DayColumn";
 import { ListView } from "@/components/ListView";
 import { PostModal } from "@/components/PostModal";
@@ -80,12 +82,21 @@ function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode
 function AppLayout() {
     const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 
+    useEffect(() => {
+        if (window.innerWidth < 768) {
+            setViewMode("list");
+        }
+    }, []);
+
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-            <CalendarHeader />
+        <div className="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 pb-16 md:pb-0">
+            <MobileHeader />
+            <div className="hidden md:flex flex-col flex-shrink-0">
+                <CalendarHeader />
+            </div>
 
             {/* View toggle bar */}
-            <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-6 py-2 flex items-center justify-between flex-shrink-0">
+            <div className="hidden md:flex bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 sm:px-6 py-2 items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-2">
                     <ViewToggle view={viewMode} onChange={setViewMode} />
                 </div>
@@ -94,12 +105,16 @@ function AppLayout() {
                 </p>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
-                <ClientSidebar />
-                <main className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex flex-1 overflow-hidden relative">
+                <div className="hidden md:flex flex-shrink-0">
+                    <ClientSidebar />
+                </div>
+                <main className="flex-1 overflow-hidden flex flex-col w-full">
                     {viewMode === "calendar" ? <CalendarGrid /> : <ListView />}
                 </main>
             </div>
+
+            <MobileBottomNav view={viewMode} onChangeView={setViewMode} />
 
             {/* Modals */}
             <PostModal />
