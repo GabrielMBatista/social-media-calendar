@@ -218,7 +218,7 @@ export async function updateAccountAction(formData: FormData) {
             select: { accountId: true }
         });
 
-        if (!dbUser) return { error: "Conta não encontrada" };
+        if (!dbUser || !dbUser.accountId) return { error: "Conta não encontrada" };
 
         await prisma.account.update({
             where: { id: dbUser.accountId },

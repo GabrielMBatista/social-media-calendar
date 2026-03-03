@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PostAPI } from "@/lib/api-contracts";
 import { z } from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireTenantAuth } from "@/lib/auth-utils";
 
 const createSchema = z.object({
     clientId: z.string(),
@@ -25,7 +25,7 @@ const createSchema = z.object({
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 

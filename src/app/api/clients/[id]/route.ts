@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ClientAPI } from "@/lib/api-contracts";
 import { z } from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireTenantAuth } from "@/lib/auth-utils";
 
 const updateSchema = z.object({
     name: z.string().optional(),
@@ -19,7 +19,7 @@ export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 
@@ -55,7 +55,7 @@ export async function DELETE(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 

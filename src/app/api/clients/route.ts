@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ClientAPI } from "@/lib/api-contracts";
 import { z } from "zod";
-import { requireAuth } from "@/lib/auth-utils";
-
-import { unstable_cache, revalidateTag } from "next/cache";
+import { requireTenantAuth } from "@/lib/auth-utils";
 
 const createSchema = z.object({
     name: z.string().min(1),
@@ -16,29 +14,23 @@ const createSchema = z.object({
     instagramHandle: z.string().optional(),
 });
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 
     try {
-        const getClients = unstable_cache(
-            async (accountId: string) => {
-                return await prisma.client.findMany({
-                    where: { accountId },
-                    orderBy: { createdAt: "asc" },
-                });
-            },
-            [`clients-${user.accountId}`],
-            { tags: ["clients", `clients-${user.accountId}`] }
+        const clients = await prisma.client.findMany({
+            where: { accountId: user.accountId },
+            orderBy: { createdAt: "asc" },
+        });
+
+        return NextResponse.json(
+            { success: true, data: clients as any } satisfies ClientAPI.GetListResponse,
+            { headers: { "Cache-Control": "no-store" } }
         );
-
-        const clients = await getClients(user.accountId);
-
-        return NextResponse.json({
-            success: true,
-            data: clients as any,
-        } satisfies ClientAPI.GetListResponse);
     } catch (error) {
         return NextResponse.json(
             { success: false, error: { code: "SERVER_ERROR", message: "Failed to fetch clients" } },
@@ -48,7 +40,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-    const auth = await requireAuth();
+    const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
 
@@ -64,13 +56,10 @@ export async function POST(req: Request) {
             },
         });
 
-        // Invalida o cache
-        revalidateTag(`clients-${user.accountId}`);
-
-        return NextResponse.json({
-            success: true,
-            data: client as any,
-        } satisfies ClientAPI.CreateResponse);
+        return NextResponse.json(
+            { success: true, data: client as any } satisfies ClientAPI.CreateResponse,
+            { headers: { "Cache-Control": "no-store" } }
+        );
     } catch (error) {
         return NextResponse.json(
             { success: false, error: { code: "BAD_REQUEST", message: "Invalid request data" } },
