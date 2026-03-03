@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -27,31 +28,51 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
-    // Atualiza o token do usuário se estiver expirando e pega a sessão
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
+    const pathname = request.nextUrl.pathname;
+
     // Bypass para testes do Agente em localhost
     const isBypass = request.nextUrl.searchParams.get("bypass") === "true";
 
-    // Rotas restritas e proteção:
-    // Se não estiver logado e pedir a Dashboard (/), redireciona pra Login.
-    if (!user && request.nextUrl.pathname === "/" && !isBypass) {
+    // Rotas públicas que nunca redirecionam
+    const isPublicRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth"].some(
+        (p) => pathname === p || pathname.startsWith(p + "/")
+    );
+
+    // 1. Sem sessão → redireciona para login (exceto rotas públicas)
+    if (!user && !isPublicRoute && !isBypass) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         return NextResponse.redirect(url);
     }
 
-    // Se já estiver logado e tentar acessar login ou signup, manda pra Dashboard.
-    if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/";
-        return NextResponse.redirect(url);
+    // 2. Com sessão em rota de login/signup → verificar se tem perfil no DB
+    //    Se tiver perfil → manda para dashboard
+    //    Se NÃO tiver perfil → deixa acessar /signup para recrear o perfil
+    if (user && (pathname === "/login" || pathname === "/signup")) {
+        try {
+            const dbUser = await prisma.user.findUnique({
+                where: { authId: user.id },
+                select: { id: true }
+            });
+
+            if (dbUser) {
+                // Tem perfil → manda para dashboard
+                const url = request.nextUrl.clone();
+                url.pathname = "/";
+                return NextResponse.redirect(url);
+            }
+            // Sem perfil → deixa acessar /signup para recrear
+        } catch {
+            // Em caso de erro de DB, deixa passar normalmente
+        }
     }
 
     if (isBypass) {
-        supabaseResponse.cookies.set("auth-bypass", "true", { maxAge: 60 * 10 }); // 10 minutos
+        supabaseResponse.cookies.set("auth-bypass", "true", { maxAge: 60 * 10 });
     }
 
     return supabaseResponse;
