@@ -17,17 +17,20 @@ import {
   ChevronLeft, ChevronRight, CalendarDays, RotateCcw,
   Plus, TrendingUp, Sun, Moon, User, LogOut
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { signOutAction } from "@/app/actions/auth";
 
 
 export function CalendarHeader() {
-  const { navigateWeek, currentWeekOffset, getWeekDates, filteredPosts, openAddPostModal, openAccountModal } = useApp();
+  const { navigateWeek, jumpToDate, currentWeekOffset, getWeekDates, filteredPosts, openAddPostModal, openAccountModal } = useApp();
   const { setTheme, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const [userName, setUserName] = useState<string>("Carregando...");
   const [mounted, setMounted] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const capitalizeWords = (str: string) => {
     return str
@@ -151,18 +154,38 @@ export function CalendarHeader() {
               <ChevronLeft size={14} />
             </Button>
 
-            <div className="text-center min-w-[160px] px-1">
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight">{formatWeekRange()}</p>
-              {currentWeekOffset === 0 ? (
-                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider">Semana atual</p>
-              ) : (
-                <p className="text-[10px] text-slate-400 dark:text-slate-400">
-                  {currentWeekOffset < 0
-                    ? `${Math.abs(currentWeekOffset)} sem. atrás`
-                    : `${currentWeekOffset} sem. à frente`}
-                </p>
-              )}
-            </div>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <div className="text-center min-w-[160px] px-1 py-1 rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight flex items-center justify-center gap-1">
+                    {formatWeekRange()}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"><path d="m6 9 6 6 6-6" /></svg>
+                  </p>
+                  {currentWeekOffset === 0 ? (
+                    <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider">Semana atual</p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 dark:text-slate-400">
+                      {currentWeekOffset < 0
+                        ? `${Math.abs(currentWeekOffset)} sem. atrás`
+                        : `${currentWeekOffset} sem. à frente`}
+                    </p>
+                  )}
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  selected={weekStart}
+                  onSelect={(date: Date | undefined) => {
+                    if (date) {
+                      jumpToDate(date.toISOString().split("T")[0]);
+                      setIsCalendarOpen(false);
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
 
             <Button
               variant="outline"

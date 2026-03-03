@@ -88,7 +88,7 @@ export function PostModal() {
 
   return (
     <Dialog open={isPostModalOpen} onOpenChange={open => !open && closePostModal()}>
-      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 pointer-events-auto">
         {/* Header with client identity */}
         <div
           className="px-6 py-4 flex items-start gap-4"
@@ -153,17 +153,17 @@ export function PostModal() {
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {isEditing ? (
               <>
-                <Button size="sm" onClick={handleSaveEdit} disabled={updatePostMutation.isPending} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95">
+                <Button size="sm" onClick={handleSaveEdit} disabled={updatePostMutation.isPending} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95 pointer-events-auto">
                   {updatePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   Salvar
                 </Button>
-                <Button size="sm" variant="ghost" onClick={handleCancelEdit} disabled={updatePostMutation.isPending} className="h-8 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200">
+                <Button size="sm" variant="ghost" onClick={handleCancelEdit} disabled={updatePostMutation.isPending} className="h-8 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 pointer-events-auto">
                   <X size={13} />
                 </Button>
               </>
             ) : (
               <>
-                <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-8 gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200">
+                <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-8 gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 pointer-events-auto cursor-pointer relative z-50">
                   <Edit3 size={13} /> Editar
                 </Button>
                 <Button
@@ -171,7 +171,7 @@ export function PostModal() {
                   variant="ghost"
                   onClick={handleDelete}
                   disabled={deletePostMutation.isPending}
-                  className="h-8 text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                  className="h-8 text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 pointer-events-auto cursor-pointer relative z-50"
                 >
                   {deletePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                 </Button>
