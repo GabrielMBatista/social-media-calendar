@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDays, LogIn, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signInAction, signInWithOtpAction } from "@/app/actions/auth";
 import { Save } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
     const [loginMode, setLoginMode] = useState<"password" | "magic">("magic");
@@ -19,7 +21,10 @@ export default function LoginPage() {
             setSuccessMsg(null);
             if (loginMode === "magic") {
                 const res = await signInWithOtpAction(formData);
-                if (res.success) setSuccessMsg(res.success);
+                if (res.success) {
+                    setSuccessMsg(res.success);
+                    return null; // sucesso: não mostrar erro
+                }
                 return res;
             }
             return await signInAction(formData);
@@ -27,6 +32,20 @@ export default function LoginPage() {
         null
     );
     const [showPassword, setShowPassword] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Fallback: troca o ?code= por sessão se o Supabase redirecionou aqui em vez de /auth/callback
+    useEffect(() => {
+        const code = searchParams.get("code");
+        if (!code) return;
+        createClient().auth.exchangeCodeForSession(code).then(({ error }) => {
+            if (!error) {
+                // Redireciona para / — o middleware detecta se é primeiro acesso e manda para /signup
+                router.replace("/");
+            }
+        });
+    }, []);
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
