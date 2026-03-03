@@ -159,10 +159,10 @@ export const getMyProfile = cache(async () => {
             phone: user.phone,
             role: user.role,
             accountId: user.accountId,
-            account: {
+            account: user.account ? {
                 name: user.account.name,
                 plan: user.account.plan
-            }
+            } : null
         };
     } catch (e) {
         return null;
