@@ -83,14 +83,14 @@ export function ClientModal() {
 
   return (
     <Dialog open={isClientModalOpen} onOpenChange={open => !open && closeClientModal()}>
-      <DialogContent className="max-w-md max-h-[85dvh] flex flex-col overflow-hidden p-0 sm:p-6">
+      <DialogContent className="max-w-md max-h-[85dvh] flex flex-col overflow-hidden p-0 sm:p-6 pointer-events-auto">
         <DialogHeader className="px-6 pt-6 sm:px-0 sm:pt-0 pb-2 border-b sm:border-0 border-slate-100 dark:border-slate-800">
           <DialogTitle className="text-lg font-bold">
             {editingClient ? "Editar Cliente" : "Novo Cliente"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
+        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
           {/* Preview */}
           <div
             className="rounded-xl p-4 flex items-center gap-4 border"
@@ -249,11 +249,11 @@ export function ClientModal() {
         </div>
 
         <DialogFooter className="px-6 pb-6 pt-2 sm:px-0 sm:pb-0 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800 flex-col sm:flex-row gap-2 mt-auto">
-          <Button variant="outline" onClick={closeClientModal} className="w-full sm:w-auto">Cancelar</Button>
+          <Button variant="outline" onClick={closeClientModal} className="w-full sm:w-auto pointer-events-auto">Cancelar</Button>
           <Button
             onClick={handleSubmit}
             style={{ backgroundColor: form.brandColor }}
-            className="text-white dark:text-white hover:opacity-90 w-full sm:w-auto"
+            className="text-white dark:text-white hover:opacity-90 w-full sm:w-auto pointer-events-auto"
           >
             {editingClient ? "Salvar Alterações" : "Adicionar Cliente"}
           </Button>

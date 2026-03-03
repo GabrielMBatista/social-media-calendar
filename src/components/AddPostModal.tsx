@@ -74,7 +74,7 @@ export function AddPostModal() {
 
   return (
     <Dialog open={isAddPostModalOpen} onOpenChange={open => !open && closeAddPostModal()}>
-      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] flex flex-col overflow-hidden p-0 sm:p-6">
+      <DialogContent className="max-w-2xl max-h-[90dvh] md:max-h-[85vh] flex flex-col overflow-hidden p-0 sm:p-6 pointer-events-auto">
         <DialogHeader className="px-6 pt-6 sm:px-0 sm:pt-0 pb-2 border-b sm:border-0 border-slate-100 dark:border-slate-800">
           <DialogTitle className="text-lg font-bold flex items-center flex-wrap gap-2">
             Novo Post
@@ -86,7 +86,7 @@ export function AddPostModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
+        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
           {/* Title + Client row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="md:col-span-1">
@@ -265,8 +265,8 @@ export function AddPostModal() {
         </div>
 
         <DialogFooter className="px-6 pb-6 pt-2 sm:px-0 sm:pb-0 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800 flex-col sm:flex-row gap-2 mt-auto">
-          <Button variant="outline" onClick={closeAddPostModal} className="w-full sm:w-auto">Cancelar</Button>
-          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white w-full sm:w-auto">Adicionar Post</Button>
+          <Button variant="outline" onClick={closeAddPostModal} className="w-full sm:w-auto pointer-events-auto">Cancelar</Button>
+          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white w-full sm:w-auto pointer-events-auto">Adicionar Post</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
