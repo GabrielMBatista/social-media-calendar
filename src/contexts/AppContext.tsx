@@ -68,7 +68,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { data: posts = [], isLoading: isPostsLoading } = useQuery<Post[]>({
     queryKey: ["posts"],
     queryFn: fetchPosts,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0, // Sempre busca dados frescos quando invalidado (ex: após delete/update)
   });
 
   const isLoading = isClientsLoading || isPostsLoading;

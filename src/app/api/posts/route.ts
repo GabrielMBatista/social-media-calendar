@@ -19,7 +19,10 @@ const createSchema = z.object({
     notes: z.string().optional().nullable(),
 });
 
-import { unstable_cache, revalidateTag } from "next/cache";
+// Sem cache server-side — React Query (client) é a camada de cache.
+// `unstable_cache` dentro de handlers é um anti-pattern: impede que
+// revalidateTag funcione corretamente após mutações (DELETE/PATCH).
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
     const auth = await requireAuth();
@@ -31,32 +34,23 @@ export async function GET(req: Request) {
         const clientId = searchParams.get("clientId");
         const status = searchParams.get("status");
 
-        // Cache dinâmico baseado nos filtros
-        const getPosts = unstable_cache(
-            async (accountId: string, cId: string | null, st: string | null) => {
-                const whereClause: any = { accountId };
-                if (cId) whereClause.clientId = cId;
-                if (st) whereClause.status = st;
+        const whereClause: Record<string, string> = { accountId: user.accountId };
+        if (clientId) whereClause.clientId = clientId;
+        if (status) whereClause.status = status;
 
-                return await prisma.post.findMany({
-                    where: whereClause,
-                    orderBy: { createdAt: "desc" },
-                    include: {
-                        createdBy: { select: { id: true, name: true, email: true } },
-                        updatedBy: { select: { id: true, name: true, email: true } },
-                    }
-                });
+        const posts = await prisma.post.findMany({
+            where: whereClause,
+            orderBy: { createdAt: "desc" },
+            include: {
+                createdBy: { select: { id: true, name: true, email: true } },
+                updatedBy: { select: { id: true, name: true, email: true } },
             },
-            [`posts-${user.accountId}-${clientId || 'all'}-${status || 'all'}`],
-            { tags: ["posts", `posts-${user.accountId}`] }
+        });
+
+        return NextResponse.json(
+            { success: true, data: posts as any } satisfies PostAPI.GetListResponse,
+            { headers: { "Cache-Control": "no-store" } }
         );
-
-        const posts = await getPosts(user.accountId, clientId, status);
-
-        return NextResponse.json({
-            success: true,
-            data: posts as any,
-        } satisfies PostAPI.GetListResponse);
     } catch (error) {
         return NextResponse.json(
             { success: false, error: { code: "SERVER_ERROR", message: "Failed to fetch posts" } },
@@ -76,7 +70,10 @@ export async function POST(req: Request) {
 
         const client = await prisma.client.findUnique({ where: { id: data.clientId } });
         if (!client || client.accountId !== user.accountId) {
-            return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "Invalid client" } }, { status: 400 });
+            return NextResponse.json(
+                { success: false, error: { code: "BAD_REQUEST", message: "Invalid client" } },
+                { status: 400 }
+            );
         }
 
         const post = await prisma.post.create({
@@ -88,13 +85,10 @@ export async function POST(req: Request) {
             },
         });
 
-        // Invalida o cache
-        revalidateTag(`posts-${user.accountId}`);
-
-        return NextResponse.json({
-            success: true,
-            data: post as any,
-        } satisfies PostAPI.CreateResponse);
+        return NextResponse.json(
+            { success: true, data: post as any } satisfies PostAPI.CreateResponse,
+            { headers: { "Cache-Control": "no-store" } }
+        );
     } catch (error) {
         return NextResponse.json(
             { success: false, error: { code: "BAD_REQUEST", message: "Invalid request data" } },
