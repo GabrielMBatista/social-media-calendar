@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 export function AddPostModal() {
-  const { isAddPostModalOpen, closeAddPostModal, addPost, clients, addPostDay, addPostMutation } = useApp();
+  const { isAddPostModalOpen, closeAddPostModal, addPost, clients, addPostDay, addPostMutation, getWeekDates } = useApp();
 
   const [form, setForm] = useState({
     clientId: "",
@@ -41,9 +41,25 @@ export function AddPostModal() {
     if (!form.clientId) { toast.error("Selecione um cliente"); return; }
     if (!form.title.trim()) { toast.error("Informe o título do post"); return; }
 
+    const finalDayOfWeek = addPostDay ?? form.dayOfWeek;
+
+    // Calcula a data específica na semana atual que o usuário está visualizando
+    const weekDates = getWeekDates();
+    const targetDayObj = weekDates.find(d => d.key === finalDayOfWeek);
+    let scheduledDateStr: string | undefined = undefined;
+
+    if (targetDayObj) {
+      const d = targetDayObj.date;
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, '0');
+      const dt = String(d.getDate()).padStart(2, '0');
+      scheduledDateStr = `${yr}-${mo}-${dt}`;
+    }
+
     addPost({
       ...form,
-      dayOfWeek: addPostDay ?? form.dayOfWeek,
+      dayOfWeek: finalDayOfWeek,
+      scheduledDate: scheduledDateStr,
     });
     toast.success("Post adicionado ao calendário!");
     closeAddPostModal();

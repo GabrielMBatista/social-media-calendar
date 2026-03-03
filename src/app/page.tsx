@@ -8,6 +8,8 @@ import { AppProvider } from "@/contexts/AppContext";
 import { ClientSidebar } from "@/components/ClientSidebar";
 import { CalendarHeader } from "@/components/CalendarHeader";
 import { MobileHeader } from "@/components/MobileHeader";
+import { MobileWeekHeader } from "@/components/MobileWeekHeader";
+import { MobileCalendarView } from "@/components/MobileCalendarView";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DayColumn } from "@/components/DayColumn";
 import { ListView } from "@/components/ListView";
@@ -89,14 +91,18 @@ function AppLayout() {
     }, []);
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 pb-16 md:pb-0">
-            <MobileHeader />
-            <div className="hidden md:flex flex-col flex-shrink-0">
-                <CalendarHeader />
+        <div className="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 pb-16 md:pb-0 relative">
+            {/* Top Fixed Area */}
+            <div className="flex-shrink-0 flex flex-col w-full z-10 relative bg-white dark:bg-slate-900">
+                <MobileHeader />
+                <MobileWeekHeader />
+                <div className="hidden md:flex flex-col w-full">
+                    <CalendarHeader />
+                </div>
             </div>
 
-            {/* View toggle bar */}
-            <div className="hidden md:flex bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 sm:px-6 py-2 items-center justify-between flex-shrink-0">
+            {/* View toggle bar - Desktop Only */}
+            <div className="hidden md:flex bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 sm:px-6 py-2 items-center justify-between flex-shrink-0 z-10">
                 <div className="flex items-center gap-2">
                     <ViewToggle view={viewMode} onChange={setViewMode} />
                 </div>
@@ -105,12 +111,20 @@ function AppLayout() {
                 </p>
             </div>
 
+            {/* Main Content Area */}
             <div className="flex flex-1 overflow-hidden relative">
-                <div className="hidden md:flex flex-shrink-0">
+                <div className="hidden md:flex flex-shrink-0 h-full">
                     <ClientSidebar />
                 </div>
-                <main className="flex-1 overflow-hidden flex flex-col w-full">
+
+                {/* Desktop View */}
+                <main className="hidden md:flex flex-1 overflow-hidden flex-col w-full">
                     {viewMode === "calendar" ? <CalendarGrid /> : <ListView />}
+                </main>
+
+                {/* Mobile View */}
+                <main className="flex md:hidden flex-1 overflow-hidden flex-col w-full">
+                    {viewMode === "calendar" ? <MobileCalendarView /> : <ListView />}
                 </main>
             </div>
 
