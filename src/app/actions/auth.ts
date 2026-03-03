@@ -95,6 +95,17 @@ export async function signUpAction(formData: FormData) {
     const finalEmail = authUser.email || emailFromForm;
 
     try {
+        // Verifica se já existe perfil no banco (ex: usuário logado após DB reset)
+        const existingUser = await prisma.user.findUnique({
+            where: { authId: authUser!.id },
+            select: { id: true }
+        });
+
+        if (existingUser) {
+            // Perfil já existe — vai direto para a dashboard
+            return redirect("/");
+        }
+
         // 2. Cria a Empresa e o Usuário Administrativo no Postgres
         await prisma.$transaction(async (tx: any) => {
             // 2.a Criar o "Account" primário

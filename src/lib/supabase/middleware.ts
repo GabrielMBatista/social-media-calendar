@@ -1,6 +1,9 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+
+// IMPORTANTE: Não importar Prisma aqui! Middleware roda no Edge Runtime
+// e o Prisma Client excede o limite de 1MB da Vercel.
+// A lógica de verificação de perfil no DB fica nas Server Actions e API routes.
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -33,42 +36,25 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const pathname = request.nextUrl.pathname;
-
-    // Bypass para testes do Agente em localhost
     const isBypass = request.nextUrl.searchParams.get("bypass") === "true";
 
-    // Rotas públicas que nunca redirecionam
     const isPublicRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth"].some(
         (p) => pathname === p || pathname.startsWith(p + "/")
     );
 
-    // 1. Sem sessão → redireciona para login (exceto rotas públicas)
+    // Sem sessão → protege rotas privadas
     if (!user && !isPublicRoute && !isBypass) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
         return NextResponse.redirect(url);
     }
 
-    // 2. Com sessão em rota de login/signup → verificar se tem perfil no DB
-    //    Se tiver perfil → manda para dashboard
-    //    Se NÃO tiver perfil → deixa acessar /signup para recrear o perfil
-    if (user && (pathname === "/login" || pathname === "/signup")) {
-        try {
-            const dbUser = await prisma.user.findUnique({
-                where: { authId: user.id },
-                select: { id: true }
-            });
-
-            if (dbUser) {
-                // Tem perfil → manda para dashboard
-                const url = request.nextUrl.clone();
-                url.pathname = "/";
-                return NextResponse.redirect(url);
-            }
-            // Sem perfil → deixa acessar /signup para recrear
-        } catch {
-            // Em caso de erro de DB, deixa passar normalmente
-        }
+    // Com sessão em /login → manda para dashboard
+    // /signup é permitido mesmo logado (para recriar perfil após reset de DB)
+    if (user && pathname === "/login") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
     }
 
     if (isBypass) {
