@@ -181,7 +181,7 @@ export function PostModal() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5 no-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5 thin-scrollbar">
           {/* Status selector — editável com clique */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">

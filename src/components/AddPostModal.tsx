@@ -86,7 +86,7 @@ export function AddPostModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
+        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 thin-scrollbar">
           {/* Title + Client row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="md:col-span-1">

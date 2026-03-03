@@ -90,7 +90,7 @@ export function ClientModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
+        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 thin-scrollbar">
           {/* Preview */}
           <div
             className="rounded-xl p-4 flex items-center gap-4 border"
