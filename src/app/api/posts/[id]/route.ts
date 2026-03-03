@@ -51,7 +51,6 @@ export async function PATCH(
             where: { id: resolvedParams.id },
             data: {
                 ...data,
-                updatedById: user.id,
             },
         });
 
@@ -81,15 +80,18 @@ export async function DELETE(
     try {
         const resolvedParams = await params;
 
-        // Verifica se pertence à conta
-        const existing = await prisma.post.findUnique({ where: { id: resolvedParams.id } });
-        if (!existing || existing.accountId !== user.accountId) {
-            return NextResponse.json({ success: false, error: { code: "NOT_FOUND", message: "Post not found" } }, { status: 404 });
-        }
-
-        await prisma.post.delete({
-            where: { id: resolvedParams.id },
+        // Usa deleteMany com accountId para garantir segurança contra deleções de outros tenants
+        // Isso evita o erro de 404 (Not Found) causado pelo findUnique() falhando em IDs recentes no cache
+        const result = await prisma.post.deleteMany({
+            where: {
+                id: resolvedParams.id,
+                accountId: user.accountId
+            },
         });
+
+        if (result.count === 0) {
+            return NextResponse.json({ success: false, error: { code: "NOT_FOUND", message: "Post not found or already deleted" } }, { status: 404 });
+        }
 
         return NextResponse.json({
             success: true,

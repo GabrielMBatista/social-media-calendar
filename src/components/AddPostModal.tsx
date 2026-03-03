@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { PostStatus, PostType, DayOfWeek, DAYS_OF_WEEK, POST_TYPE_CONFIG, STATUS_CONFIG } from "@/lib/types";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,7 @@ export function AddPostModal() {
               </span>
             )}
           </DialogTitle>
+          <DialogDescription className="sr-only">Preencha os detalhes do novo post aqui.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1">

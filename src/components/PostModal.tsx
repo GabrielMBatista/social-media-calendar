@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK } from "@/lib/types";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -142,6 +142,9 @@ export function PostModal() {
                 />
               ) : selectedPost.title}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Painel de visualização e edição desta postagem.
+            </DialogDescription>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               {/* Type badge */}
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-medium shadow-sm transition-all">

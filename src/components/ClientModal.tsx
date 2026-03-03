@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Client } from "@/lib/types";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +88,7 @@ export function ClientModal() {
           <DialogTitle className="text-lg font-bold">
             {editingClient ? "Editar Cliente" : "Novo Cliente"}
           </DialogTitle>
+          <DialogDescription className="sr-only">Gerencie as informações e identidade visual do cliente aqui.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1">
@@ -113,11 +114,11 @@ export function ClientModal() {
               ) : previewInitials}
             </div>
             <div>
-              <p className="font-bold text-slate-800 text-base">
+              <p className="font-bold text-slate-800 dark:text-slate-100 text-base">
                 {form.name || "Nome do Cliente"}
               </p>
               {form.industry && (
-                <p className="text-sm text-slate-500">{form.industry}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{form.industry}</p>
               )}
               {form.instagramHandle && (
                 <p className="text-xs font-medium mt-0.5" style={{ color: form.brandColor }}>
