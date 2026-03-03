@@ -13,37 +13,55 @@ datasource db {
 }
 
 // ==========================================
+// ENUMS
+// ==========================================
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+// ==========================================
 // MULTI-TENANT FOUNDATION
 // ==========================================
 
 model Account {
   id        String   @id @default(cuid())
   name      String
-  plan      String   @default("free") // "free" | "pro"
+  plan      Plan     @default(FREE)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users        User[]
-  clients      Client[]
-  posts        Post[]
+  users   User[]
+  clients Client[]
+  posts   Post[]
 
   @@map("accounts")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  accountId String   @map("account_id")
-  email     String   @unique
-  name      String
-  phone     String?
-  role      String   @default("member") // "owner" | "admin" | "member"
-  authId    String?  @unique @map("auth_id") // Supabase Auth UID
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(cuid())
+  accountId    String?  @map("account_id") // null para superadmins (acima dos tenants)
+  email        String   @unique
+  name         String
+  phone        String?
+  role         Role     @default(MEMBER)
+  authId       String?  @unique @map("auth_id") // Supabase Auth UID
+  isSuperAdmin Boolean  @default(false) @map("is_super_admin")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  createdPosts Post[]  @relation("PostCreatedBy")
-  updatedPosts Post[]  @relation("PostUpdatedBy")
+  account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  createdPosts Post[]        @relation("PostCreatedBy")
+  updatedPosts Post[]        @relation("PostUpdatedBy")
+  comments     Comment[]
+  postVersions PostVersion[]
 
   @@map("users")
 }
@@ -53,18 +71,18 @@ model User {
 // ==========================================
 
 model Client {
-  id                   String   @id @default(cuid())
-  accountId            String   @map("account_id")
-  name                 String
-  brandColor           String   @map("brand_color")
-  brandColorSecondary  String?  @map("brand_color_secondary")
-  logoUrl              String?  @map("logo_url")
-  logoInitials         String   @map("logo_initials")
-  industry             String?
-  instagramHandle      String?  @map("instagram_handle")
-  active               Boolean  @default(true)
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
+  id                  String   @id @default(cuid())
+  accountId           String   @map("account_id")
+  name                String
+  brandColor          String   @map("brand_color")
+  brandColorSecondary String?  @map("brand_color_secondary")
+  logoUrl             String?  @map("logo_url")
+  logoInitials        String   @map("logo_initials")
+  industry            String?
+  instagramHandle     String?  @map("instagram_handle")
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   posts   Post[]
@@ -73,29 +91,82 @@ model Client {
 }
 
 model Post {
-  id             String   @id @default(cuid())
-  accountId      String   @map("account_id")
-  clientId       String   @map("client_id")
-  title          String
-  description    String   @default("")
-  type           String   // PostType: feed | reels | stories | carrossel | tiktok | youtube | linkedin | twitter
-  status         String   @default("rascunho") // PostStatus: rascunho | em_producao | pronto | publicado | cancelado
-  dayOfWeek      String   @map("day_of_week") // DayOfWeek: seg | ter | qua | qui | sex | sab | dom
-  scheduledDate  String?  @map("scheduled_date") // ISO date string YYYY-MM-DD
-  scheduledTime  String?  @map("scheduled_time") // HH:MM
-  driveLink      String?  @map("drive_link")
-  caption        String?
-  hashtags       String?
-  notes          String?
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-  createdById    String?  @map("created_by_id")
-  updatedById    String?  @map("updated_by_id")
+  id            String   @id @default(cuid())
+  accountId     String   @map("account_id")
+  clientId      String   @map("client_id")
+  title         String
+  description   String   @default("")
+  type          String // PostType: feed | reels | stories | carrossel | tiktok | youtube | linkedin | twitter
+  status        String   @default("rascunho") // PostStatus: rascunho | em_producao | pronto | publicado | cancelado
+  dayOfWeek     String   @map("day_of_week") // DayOfWeek: seg | ter | qua | qui | sex | sab | dom
+  scheduledDate String?  @map("scheduled_date") // ISO date string YYYY-MM-DD
+  scheduledTime String?  @map("scheduled_time") // HH:MM
+  driveLink     String?  @map("drive_link")
+  caption       String?
+  hashtags      String?
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdById   String?  @map("created_by_id")
+  updatedById   String?  @map("updated_by_id")
 
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdBy User?   @relation("PostCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  updatedBy User?   @relation("PostUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  account    Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  client     Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdBy  User?         @relation("PostCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?         @relation("PostUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  shareLinks ShareLink[]
+  comments   Comment[]
+  versions   PostVersion[]
 
   @@map("posts")
+}
+
+// ==========================================
+// COLLABORATION FEATURES (PRO)
+// ==========================================
+
+/// MVP: guarda apenas 1 snapshot por post (o estado ANTES da última edição).
+/// Permite "desfazer" a última alteração com um clique.
+model PostVersion {
+  id          String   @id @default(cuid())
+  postId      String   @map("post_id")
+  /// JSON com o estado completo do post no momento da captura
+  snapshot    String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById String?  @map("created_by_id")
+
+  post      Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([postId]) // Garante máximo 1 versão por post
+  @@map("post_versions")
+}
+
+model ShareLink {
+  id           String    @id @default(cuid())
+  token        String    @unique @default(cuid()) // Token único para a URL pública
+  postId       String    @map("post_id")
+  expiresAt    DateTime? @map("expires_at")
+  allowComments Boolean  @default(false) @map("allow_comments")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("share_links")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  postId     String   @map("post_id")
+  content    String   @db.Text
+  isInternal Boolean  @default(false) @map("is_internal") // Se true, só a equipe vê
+  authorId   String?  @map("author_id")
+  authorName String?  @map("author_name") // Para clientes anônimos via ShareLink
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([postId])
+  @@map("comments")
 }

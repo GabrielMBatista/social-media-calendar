@@ -120,7 +120,7 @@ export function AccountModal() {
                                     <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">{user.name}</h2>
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 rounded-full text-[10px] uppercase font-black tracking-widest mt-2 border border-blue-100 dark:border-blue-500/20">
                                         <ShieldCheck size={12} />
-                                        {user.role === 'owner' ? 'Administrador' : 'Membro'}
+                                        {user.role === 'OWNER' ? 'Administrador' : 'Membro'}
                                     </span>
                                 </div>
 
@@ -135,7 +135,7 @@ export function AccountModal() {
                                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Assinatura</span>
                                             <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg flex items-center gap-1 uppercase tracking-widest shadow-lg shadow-emerald-500/20">
                                                 <CheckCircle2 size={10} />
-                                                {user.account.plan === "free" ? "Gratuito" : "Profissional"}
+                                                {user.account.plan === "FREE" ? "Gratuito" : "Profissional"}
                                             </span>
                                         </div>
                                         <button className="w-full h-11 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white dark:text-white text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-blue-500/20">

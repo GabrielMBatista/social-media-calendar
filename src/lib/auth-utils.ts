@@ -28,6 +28,12 @@ export const requireAuth = cache(async () => {
         return { error: NextResponse.json({ error: "Perfil de usuário não encontrado" }, { status: 404 }) };
     }
 
+    // 3. Superadmins não têm accountId — podem acessar qualquer rota admin
+    //    Usuários comuns DEVEM ter accountId para acessar as APIs de tenant
+    if (!user.accountId && !user.isSuperAdmin) {
+        return { error: NextResponse.json({ error: "Conta não vinculada" }, { status: 403 }) };
+    }
+
     // Retorna o usuário completo (Prisma) para uso nas APIs
     return { user };
 });

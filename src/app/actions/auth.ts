@@ -101,7 +101,7 @@ export async function signUpAction(formData: FormData) {
             const newAccount = await tx.account.create({
                 data: {
                     name: agency,
-                    plan: "free",
+                    plan: "FREE",
                 },
             });
 
@@ -112,7 +112,7 @@ export async function signUpAction(formData: FormData) {
                     email: finalEmail,
                     name: username,
                     phone: phone || null,
-                    role: "owner",
+                    role: "OWNER",
                     authId: authUser!.id,
                 },
             });

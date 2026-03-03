@@ -16,19 +16,28 @@ export type PostType =
 export type DayOfWeek = "seg" | "ter" | "qua" | "qui" | "sex" | "sab" | "dom";
 
 // --- Multi-Tenant Foundation ---
+export type Plan = "FREE" | "PRO";
+
 export interface Account {
   id: string;
   name: string;
-  plan: "free" | "pro";
+  plan: Plan;
   createdAt: string;
+  updatedAt: string;
 }
+
+export type UserRole = "OWNER" | "ADMIN" | "MEMBER";
 
 export interface User {
   id: string;
-  accountId: string;
+  accountId?: string | null; // null para superadmins (acima dos tenants)
   email: string;
   name: string;
-  role: "owner" | "admin" | "member";
+  phone?: string | null;
+  role: UserRole;
+  isSuperAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // --- Domain Entities ---
@@ -72,6 +81,36 @@ export interface Post {
 
 export type CreateClientDTO = Omit<Client, "id" | "accountId" | "createdAt" | "updatedAt">;
 export type CreatePostDTO = Omit<Post, "id" | "accountId" | "createdAt" | "updatedAt" | "createdById" | "updatedById" | "createdBy" | "updatedBy">;
+
+// --- Collaboration Features (PRO) ---
+export interface PostVersion {
+  id: string;
+  postId: string;
+  snapshot: string; // JSON serializado do Post
+  createdAt: string;
+  createdById?: string | null;
+  createdBy?: { id: string; name: string; email: string } | null;
+}
+
+export interface ShareLink {
+  id: string;
+  token: string;
+  postId: string;
+  expiresAt?: string | null;
+  allowComments: boolean;
+  createdAt: string;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  content: string;
+  isInternal: boolean;
+  authorId?: string | null;
+  authorName?: string | null;
+  createdAt: string;
+  author?: { id: string; name: string; email: string } | null;
+}
 
 export interface WeekData {
   weekStart: string;  // ISO date string (Monday)
