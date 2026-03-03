@@ -15,8 +15,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChevronLeft, ChevronRight, CalendarDays, RotateCcw,
-  Plus, TrendingUp, Sun, Moon, User, LogOut
+  Plus, TrendingUp, Sun, Moon, User, LogOut, Shield
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,8 @@ export function CalendarHeader() {
   const [userName, setUserName] = useState<string>("Carregando...");
   const [mounted, setMounted] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const router = useRouter();
 
   const capitalizeWords = (str: string) => {
     return str
@@ -59,7 +62,13 @@ export function CalendarHeader() {
     });
 
     setMounted(true);
+
+    // Verifica se é superadmin tentando acessar /api/admin/stats
+    fetch("/api/admin/stats").then(r => {
+      if (r.status === 200) setIsSuperAdmin(true);
+    }).catch(() => { });
   }, []);
+
 
   if (!mounted) {
     return (
@@ -279,6 +288,18 @@ export function CalendarHeader() {
                   </>
                 )}
               </div>
+              {isSuperAdmin && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/admin")}
+                    className="text-xs gap-2 py-2 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-800 text-blue-600 dark:text-blue-400"
+                  >
+                    <Shield size={14} />
+                    Painel Admin
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem
                 onClick={openAccountModal}
                 className="text-xs gap-2 py-2 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-800"

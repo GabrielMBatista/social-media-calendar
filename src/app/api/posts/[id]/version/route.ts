@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireTenantAuth } from "@/lib/auth-utils";
+import { requireTenantAuth, requirePro } from "@/lib/auth-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +47,8 @@ export async function GET(
 
 /**
  * POST /api/posts/[id]/version
- * Restaura o post para o snapshot anterior (swap atômico via transação)
+ * Restaura o post para o snapshot anterior (swap atômico via transação).
+ * Requer plano PRO.
  */
 export async function POST(
     _req: Request,
@@ -56,6 +57,10 @@ export async function POST(
     const auth = await requireTenantAuth();
     if (auth.error) return auth.error;
     const { user } = auth;
+
+    // Gate: apenas plano PRO pode restaurar versões
+    const pro = requirePro(user.account);
+    if (pro.error) return pro.error;
 
     try {
         const { id } = await params;

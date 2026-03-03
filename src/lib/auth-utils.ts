@@ -62,3 +62,27 @@ export const requireTenantAuth = cache(async () => {
     // Type narrowing: accountId é garantidamente string a partir daqui
     return { user: { ...user, accountId: user.accountId } };
 });
+
+/**
+ * Paywall — verifica se o account é PRO.
+ * Deve ser chamado APÓS requireTenantAuth.
+ * Retorna { error } se FREE, ou { account } se PRO.
+ */
+export function requirePro(account: { plan: string } | null | undefined) {
+    if (!account || account.plan !== "PRO") {
+        return {
+            error: NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "PLAN_REQUIRED",
+                        message: "Este recurso está disponível apenas no plano Profissional.",
+                    },
+                },
+                { status: 403 }
+            ),
+        };
+    }
+    return { error: null };
+}
+

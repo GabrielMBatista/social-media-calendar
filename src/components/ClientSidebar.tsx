@@ -35,9 +35,9 @@ export function ClientSidebar() {
     posts.filter(p => p.status === status).length;
 
   return (
-    <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full sm:h-[100dvh] overflow-hidden">
+    <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
+      <div className="flex-shrink-0 px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
         <div className="flex items-center justify-between mb-4 mt-1">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -78,7 +78,7 @@ export function ClientSidebar() {
       </div>
 
       {/* All clients filter */}
-      <div className="px-3 pt-2.5">
+      <div className="flex-shrink-0 px-3 pt-2.5">
         <button
           onClick={() => setClientFilter(null)}
           className={cn(
@@ -99,8 +99,8 @@ export function ClientSidebar() {
         </button>
       </div>
 
-      {/* Client list */}
-      <div className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+      {/* Client list — flex-1 min-h-0 distribui o espaço restante corretamente */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-0.5">
         {activeClients.map(client => {
           const count = getClientPostCount(client.id);
           const isSelected = selectedClientFilter === client.id;

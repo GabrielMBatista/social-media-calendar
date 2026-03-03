@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { Menu, CalendarDays, Sun, Moon, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ClientSidebar } from "./ClientSidebar";
 import { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
@@ -26,6 +26,7 @@ export function MobileHeader() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 w-[280px]">
+                        <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
                         <ClientSidebar />
                     </SheetContent>
                 </Sheet>
