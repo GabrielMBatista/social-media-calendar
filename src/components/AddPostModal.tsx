@@ -86,7 +86,7 @@ export function AddPostModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1 thin-scrollbar">
+        <div className="space-y-4 px-6 py-2 pb-12 sm:pb-2 overflow-y-auto overflow-x-hidden flex-1">
           {/* Title + Client row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="md:col-span-1">
@@ -264,10 +264,13 @@ export function AddPostModal() {
           </div>
         </div>
 
-        <DialogFooter className="px-6 pb-6 pt-2 sm:px-0 sm:pb-0 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800 flex-col sm:flex-row gap-2 mt-auto">
-          <Button variant="outline" onClick={closeAddPostModal} className="w-full sm:w-auto pointer-events-auto">Cancelar</Button>
-          <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white w-full sm:w-auto pointer-events-auto">Adicionar Post</Button>
-        </DialogFooter>
+        {/* Fixed Footer */}
+        <div className="p-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.2)]">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+            <Button variant="outline" onClick={closeAddPostModal} className="w-full sm:w-auto pointer-events-auto">Cancelar</Button>
+            <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white w-full sm:w-auto pointer-events-auto">Adicionar Post</Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

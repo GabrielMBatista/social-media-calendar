@@ -36,8 +36,10 @@ export function PostModal() {
 
   if (!selectedPost) return null;
 
-  const client = getClientById(selectedPost.clientId);
-  if (!client) return null;
+  const dbClient = getClientById(selectedPost.clientId);
+  const client = dbClient || ({
+    id: "unknown", name: "Cliente Removido", brandColor: "#94a3b8", logoInitials: "?", logoUrl: undefined
+  } as any);
 
   const statusCfg = STATUS_CONFIG[selectedPost.status];
   const typeCfg = POST_TYPE_CONFIG[selectedPost.type];
@@ -83,6 +85,17 @@ export function PostModal() {
   const handleOpenDrive = () => {
     if (selectedPost.driveLink) {
       window.open(selectedPost.driveLink, "_blank");
+    }
+  };
+
+  const formatSafeDate = (d?: string) => {
+    if (!d) return "N/A";
+    try {
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return "N/A";
+      return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`;
+    } catch {
+      return "N/A";
     }
   };
 
@@ -181,7 +194,7 @@ export function PostModal() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5 thin-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5">
           {/* Status selector — editável com clique */}
           <div>
             <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
@@ -353,11 +366,11 @@ export function PostModal() {
             <div className="flex items-center gap-4 text-[11px] text-slate-400">
               <span className="flex items-center">
                 <Circle size={8} className="inline mr-1 opacity-50" />
-                Criado: {new Date(selectedPost.createdAt).toLocaleDateString("pt-BR")} às {new Date(selectedPost.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                Criado: {formatSafeDate(selectedPost.createdAt)}
                 {selectedPost.createdBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.createdBy.name}</span>}
               </span>
               <span className="flex items-center">
-                Atualizado: {new Date(selectedPost.updatedAt).toLocaleDateString("pt-BR")} às {new Date(selectedPost.updatedAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                Atualizado: {formatSafeDate(selectedPost.updatedAt)}
                 {selectedPost.updatedBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.updatedBy.name}</span>}
               </span>
             </div>

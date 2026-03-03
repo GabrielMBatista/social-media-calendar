@@ -45,7 +45,10 @@ export const PostCard = React.memo(function PostCard({ post, client }: PostCardP
 
   return (
     <button
-      onClick={() => openPostModal(post)}
+      onClick={() => {
+        console.log(`[PostCard - onClick] Trying to open modal for post: ${post.id}`, post.title);
+        openPostModal(post);
+      }}
       className={cn(
         "w-full text-left group rounded-xl border transition-all duration-150",
         "hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-none",

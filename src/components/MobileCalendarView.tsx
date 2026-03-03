@@ -11,6 +11,13 @@ export function MobileCalendarView() {
     const { filteredPosts, getClientById, openAddPostModal, getWeekDates, isLoading } = useApp();
     const weekDates = getWeekDates();
 
+    // Vercel Debug: Log week dates generation to check UTC/BRT hydration mismatches
+    if (typeof window !== "undefined") {
+        console.log("[MobileCalendarView - Client] weekDates[0]:", weekDates[0]?.date?.toISOString());
+    } else {
+        console.log("[MobileCalendarView - Server] weekDates[0]:", weekDates[0]?.date?.toISOString());
+    }
+
     // Track selected day
     const [selectedDayKey, setSelectedDayKey] = useState<string>("");
 
@@ -27,6 +34,11 @@ export function MobileCalendarView() {
 
     const selectedDateObj = weekDates.find(d => d.key === selectedDayKey);
     const selectedDate = selectedDateObj?.date || new Date();
+
+    // Vercel Debug: Track if selectedDate shifts filtering logic between environments
+    if (typeof window !== "undefined") {
+        console.log(`[MobileCalendarView - Client] Filtering posts for ${selectedDayKey}:`, selectedDate.toISOString());
+    }
 
     // Filter posts to show only those for the selected day
     const dayPosts = filteredPosts.filter(p => {

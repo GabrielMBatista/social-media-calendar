@@ -18,6 +18,7 @@ import { AddPostModal } from "@/components/AddPostModal";
 import { ClientModal } from "@/components/ClientModal";
 import { AccountModal } from "@/components/AccountModal";
 import { useApp } from "@/contexts/AppContext";
+import { PostCardSkeleton } from "@/components/PostCard";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -126,7 +127,15 @@ function AppLayout() {
 
                 {/* Mobile View */}
                 <main className="flex md:hidden flex-1 overflow-hidden flex-col w-full">
-                    {!mounted ? null : (viewMode === "calendar" ? <MobileCalendarView /> : <ListView />)}
+                    {!mounted ? (
+                        <div className="p-4 space-y-3 w-full">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                            </div>
+                            <PostCardSkeleton />
+                            <PostCardSkeleton />
+                        </div>
+                    ) : (viewMode === "calendar" ? <MobileCalendarView /> : <ListView />)}
                 </main>
             </div>
 

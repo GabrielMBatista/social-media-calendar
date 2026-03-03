@@ -16,8 +16,6 @@ export function MobileHeader() {
 
     useEffect(() => setMounted(true), []);
 
-    if (!mounted) return null;
-
     return (
         <header className="flex md:hidden items-center justify-between bg-white dark:bg-slate-900 px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0 sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-3">
@@ -49,7 +47,7 @@ export function MobileHeader() {
                     onClick={() => setTheme(isDark ? "light" : "dark")}
                     className="h-9 w-9 text-slate-700 dark:text-slate-300"
                 >
-                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                    {mounted ? (isDark ? <Sun size={18} /> : <Moon size={18} />) : <Sun size={18} />}
                 </Button>
                 <Button
                     variant="ghost"
