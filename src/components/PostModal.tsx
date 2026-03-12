@@ -334,9 +334,10 @@ export function PostModal() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 pl-2 pr-1.5 relative">
             {isEditing ? (
               <>
+                <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 ml-1 hidden sm:block" />
                 <Button size="sm" onClick={handleSaveEdit} disabled={updatePostMutation.isPending} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-white shadow-md transition-all active:scale-95 pointer-events-auto">
                   {updatePostMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   Salvar
@@ -464,10 +465,11 @@ export function PostModal() {
             </div>
             <ConfirmActionDialog
               title="Restaurar versão anterior?"
-              description="O estado atual do post será salvo como 'versão anterior', e o post voltará para como estava antes da última edição. Você pode alternar entre versões a qualquer momento."
+              description="O estado atual do post será salvo como 'versão anterior', e o post voltará para como estava antes da última edição."
               actionText="Restaurar"
               onConfirm={handleRestore}
               disabled={restoring}
+              variant="default"
             >
               <button
                 disabled={restoring}

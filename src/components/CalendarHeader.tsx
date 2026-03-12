@@ -256,15 +256,6 @@ export function CalendarHeader() {
           >
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
           </Button>
-          <Button
-            onClick={() => openAddPostModal("seg")}
-            size="sm"
-            className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white shadow-sm font-semibold"
-          >
-            <Plus size={14} />
-            <span className="hidden sm:inline">Novo Post</span>
-          </Button>
-
           <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 ml-1 hidden sm:block" />
 
           {/* User Menu */}

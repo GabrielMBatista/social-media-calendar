@@ -68,8 +68,10 @@ export function ConfirmActionDialog({
                         onClick={handleConfirm}
                         disabled={isLoading || disabled}
                         className={cn(
-                            variant === "destructive" && "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700",
-                            "transition-colors"
+                            "transition-all active:scale-95 font-semibold rounded-xl px-6",
+                            variant === "destructive"
+                                ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 shadow-md shadow-red-500/20"
+                                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-md shadow-blue-500/20",
                         )}
                     >
                         {isLoading ? <Loader2 size={14} className="animate-spin mr-2" /> : null}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Send, User, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Comment = {
     id: string;
@@ -163,11 +164,28 @@ export function CommentsSection({
     };
 
     const renderCommentsList = () => {
-        if (loading) return <div className="p-8 text-center text-sm text-slate-400 animate-pulse">Carregando mensagens...</div>;
-        if (comments.length === 0) return <div className="p-8 text-center text-sm text-slate-400">Poxa, nenhum comentário por aqui ainda...</div>;
+        if (loading) {
+            return (
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 thin-scrollbar">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex gap-3 animate-pulse">
+                            <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-4 w-24 rounded" />
+                                <Skeleton className="h-16 w-full rounded-lg" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        if (comments.length === 0) {
+            return <div className="p-8 text-center text-sm text-slate-400">Poxa, nenhum comentário por aqui ainda...</div>;
+        }
 
         return (
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px]">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[400px]">
                 {comments.map((comment) => {
                     const isClientSided = !comment.isInternal;
                     // Se estivermos em modo público, não queremos o selo de Agency, pq a agência conversando com o publico finge ser nativa do app
