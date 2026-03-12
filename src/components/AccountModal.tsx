@@ -189,7 +189,7 @@ export function AccountModal() {
                                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">Assinatura</span>
                                             <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg flex items-center gap-1 uppercase tracking-widest shadow-lg shadow-emerald-500/20">
                                                 <CheckCircle2 size={10} />
-                                                {user.account.plan === "FREE" ? "Gratuito" : "Profissional"}
+                                                {user.account.plan === "FREE" ? "Gratuito" : user.account.plan === "PRO" ? "Profissional" : "Agência"}
                                             </span>
                                         </div>
                                         <button className="w-full h-11 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white dark:text-white text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-blue-500/20">

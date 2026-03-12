@@ -16,7 +16,7 @@ export type PostType =
 export type DayOfWeek = "seg" | "ter" | "qua" | "qui" | "sex" | "sab" | "dom";
 
 // --- Multi-Tenant Foundation ---
-export type Plan = "FREE" | "PRO";
+export type Plan = "FREE" | "PRO" | "AGENCY";
 
 export interface Account {
   id: string;
@@ -27,6 +27,7 @@ export interface Account {
 }
 
 export type UserRole = "OWNER" | "ADMIN" | "MEMBER";
+// SystemRole (Prisma) é equivalente a UserRole
 
 export interface User {
   id: string;
@@ -51,6 +52,7 @@ export interface User {
 export interface Client {
   id: string;
   accountId: string;          // Proteção Multi-Tenant
+  portfolioId?: string | null;
   name: string;
   brandColor: string;
   brandColorSecondary?: string;
@@ -88,6 +90,44 @@ export interface Post {
 
 export type CreateClientDTO = Omit<Client, "id" | "accountId" | "createdAt" | "updatedAt">;
 export type CreatePostDTO = Omit<Post, "id" | "accountId" | "createdAt" | "updatedAt" | "createdById" | "updatedById" | "createdBy" | "updatedBy">;
+
+// --- New Agency Models ---
+export interface Portfolio {
+  id: string;
+  accountId: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PermissionLevel = "VIEW" | "EDIT" | "DELETE" | "ADMIN";
+
+export interface UserAccess {
+  id: string;
+  userId: string;
+  clientId?: string | null;
+  portfolioId?: string | null;
+  level: PermissionLevel;
+  createdAt: string;
+}
+
+export interface AgencyRole {
+  id: string;
+  accountId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface Invitation {
+  id: string;
+  accountId: string;
+  email: string;
+  token: string;
+  roleName?: string | null;
+  accepted: boolean;
+  expiresAt: string;
+  createdAt: string;
+}
 
 // --- Collaboration Features (PRO) ---
 export interface PostVersion {

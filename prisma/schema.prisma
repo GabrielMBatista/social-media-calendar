@@ -19,9 +19,10 @@ datasource db {
 enum Plan {
   FREE
   PRO
+  AGENCY
 }
 
-enum Role {
+enum SystemRole {
   OWNER
   ADMIN
   MEMBER
@@ -42,6 +43,9 @@ model Account {
   clients       Client[]
   posts         Post[]
   notifications Notification[]
+  portfolios    Portfolio[]
+  roles         AgencyRole[]
+  invitations   Invitation[]
 
   @@map("accounts")
 }
@@ -52,15 +56,15 @@ model User {
   email        String   @unique
   name         String
   phone        String?
-  role         Role     @default(MEMBER)
+  role         SystemRole @default(MEMBER) // Papel base no sistema
   authId             String?  @unique @map("auth_id") // Supabase Auth UID
   isSuperAdmin       Boolean  @default(false) @map("is_super_admin")
-  emailNotifications         Boolean  @default(true) @map("email_notifications") // Preferência globall
+  emailNotifications         Boolean  @default(true) @map("email_notifications")
   notifyEmailClientComment   Boolean  @default(true) @map("notify_email_client_comment")
   notifyEmailInternalComment Boolean  @default(true) @map("notify_email_internal_comment")
   notifyEmailStatusChange    Boolean  @default(true) @map("notify_email_status_change")
   createdAt                  DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  updatedAt                  DateTime @updatedAt @map("updated_at")
 
   account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
   createdPosts Post[]        @relation("PostCreatedBy")
@@ -68,8 +72,37 @@ model User {
   comments     Comment[]
   postVersions PostVersion[]
   notifications Notification[] @relation("UserNotifications")
+  
+  // Novas relações para Agência
+  userRoles    UserRoleMapping[]
+  access       UserAccess[]
 
   @@map("users")
+}
+
+// Tabela de junção para Cargos Customizados (Múltiplos cargos por usuário)
+model UserRoleMapping {
+  id        String @id @default(cuid())
+  userId    String @map("user_id")
+  roleId    String @map("role_id")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role AgencyRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_role_mappings")
+}
+
+model AgencyRole {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  name      String   // Ex: "Designer", "Social Media Pleno"
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  users   UserRoleMapping[]
+
+  @@map("agency_roles")
 }
 
 // ==========================================
@@ -79,6 +112,7 @@ model User {
 model Client {
   id                  String   @id @default(cuid())
   accountId           String   @map("account_id")
+  portfolioId         String?  @map("portfolio_id")
   name                String
   brandColor          String   @map("brand_color")
   brandColorSecondary String?  @map("brand_color_secondary")
@@ -90,10 +124,48 @@ model Client {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  posts   Post[]
+  account   Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  portfolio Portfolio?   @relation(fields: [portfolioId], references: [id], onDelete: SetNull)
+  posts     Post[]
+  access    UserAccess[]
 
   @@map("clients")
+}
+
+model Portfolio {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  name      String   // Ex: "Carteira Varejo"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  account Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  clients Client[]
+  access  UserAccess[]
+
+  @@map("portfolios")
+}
+
+enum PermissionLevel {
+  VIEW
+  EDIT
+  DELETE
+  ADMIN
+}
+
+model UserAccess {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  clientId    String?         @map("client_id")
+  portfolioId String?         @map("portfolio_id")
+  level       PermissionLevel @default(VIEW)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client    Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("user_access")
 }
 
 model Post {
@@ -159,6 +231,21 @@ model ShareLink {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("share_links")
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  email     String
+  token     String   @unique @default(cuid())
+  roleName  String?  @map("role_name") // Nome do cargo sugerido
+  accepted  Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
 }
 
 model Comment {
