@@ -86,9 +86,6 @@ function LoginForm() {
                 <div className="px-8 pb-8 flex-1">
                     {/* Formulário */}
                     <div className="px-8 pb-8 flex-1">
-                        <p className="text-[10px] text-zinc-500 text-center mb-4">
-                            Debug Origin: {window.location.origin}
-                        </p>
                         <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
                             <button
                                 onClick={() => setLoginMode("magic")}

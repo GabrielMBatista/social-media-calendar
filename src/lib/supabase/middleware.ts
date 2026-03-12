@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     const isBypass = request.nextUrl.searchParams.get("bypass") === "true";
 
-    const isPublicRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth"].some(
+    const isPublicRoute = ["/login", "/signup", "/forgot-password", "/auth"].some(
         (p) => pathname === p || pathname.startsWith(p + "/")
     );
 
