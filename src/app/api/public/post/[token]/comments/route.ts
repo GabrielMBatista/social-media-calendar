@@ -119,7 +119,7 @@ export async function POST(
                 });
 
                 // 5. Integração com o Resend Email (Assíncrono sem await principal)
-                if (link.post.createdBy?.notifyEmailClientComment) {
+                if (link.post.createdBy && link.post.createdBy.notifyEmailClientComment) {
                     const agcEmail = link.post.createdBy.email;
                     const senderStr = process.env.RESEND_FROM_EMAIL;
                     if (senderStr) {

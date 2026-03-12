@@ -112,7 +112,7 @@ export async function PATCH(
                     }
                 });
 
-                if (existing.createdBy?.notifyEmailStatusChange && existing.createdById !== user.id) {
+                if (existing.createdBy && existing.createdBy.notifyEmailStatusChange && existing.createdById !== user.id) {
                     const senderStr = process.env.RESEND_FROM_EMAIL;
                     if (senderStr) {
                         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
