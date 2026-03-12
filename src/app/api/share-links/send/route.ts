@@ -55,7 +55,16 @@ export async function POST(req: Request) {
     const postTitle = link.post.title;
     const clientName = link.post.client.name;
     const senderName = user.name || "Sua Agência";
-    const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://gestaoconteudo.com'}/p/${link.token}`;
+
+    // Tenta pegar a origin da requisição (ex: https://dominio.vercel.app), senão cai pro NEXT_PUBLIC_SITE_URL
+    const origin = req.headers.get("origin");
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || origin;
+
+    if (!baseUrl) {
+      return NextResponse.json({ success: false, error: "A URL base do sistema não está configurada" }, { status: 500 });
+    }
+
+    const publicUrl = `${baseUrl}/p/${link.token}`;
 
     const emailsStr = data.emailTo;
     const emailsArray = emailsStr.split(",").map(e => e.trim()).filter(Boolean);
@@ -129,7 +138,11 @@ export async function POST(req: Request) {
     `;
 
     // Disparando via Resend
-    const sender = process.env.RESEND_FROM_EMAIL || "SM Calendar <noreply.smcalendar@gabrielmarquesbatista.com>";
+    const sender = process.env.RESEND_FROM_EMAIL;
+
+    if (!sender) {
+      return NextResponse.json({ success: false, error: "O e-mail remetente (RESEND_FROM_EMAIL) não está configurado" }, { status: 500 });
+    }
 
     const { error } = await resend.emails.send({
       from: sender,
