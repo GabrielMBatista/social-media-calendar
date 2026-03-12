@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createImplicitClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -49,10 +49,7 @@ export async function signInAction(formData: FormData) {
  */
 export async function signInWithOtpAction(formData: FormData) {
     const email = formData.get("email") as string;
-    const supabase = await createClient();
-
-    // Prioriza NEXT_PUBLIC_SITE_URL (URL de produção fixa);
-    // fallback para x-forwarded-host (Vercel) ou host (localhost)
+    const supabase = await createImplicitClient();
     const baseUrl = await getBaseUrl();
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -261,7 +258,8 @@ export async function updateAccountAction(formData: FormData) {
  */
 export async function forgotPasswordAction(formData: FormData) {
     const email = formData.get("email") as string;
-    const supabase = await createClient();
+    const supabase = await createImplicitClient();
+
 
     // Prioriza NEXT_PUBLIC_SITE_URL (URL de produção fixa)
     const baseUrl = await getBaseUrl();
