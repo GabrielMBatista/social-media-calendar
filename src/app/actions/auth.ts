@@ -6,6 +6,15 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { headers } from "next/headers";
 
+/** URL base do app — prioriza env var de produção, depois detecta pelo host */
+async function getBaseUrl(): Promise<string> {
+    if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+    const proto = host.includes("localhost") ? "http" : "https";
+    return `${proto}://${host}`;
+}
+
 // Utiliza o cliente Prisma global a partir da lib/prisma
 // importado acima diretamente.
 
@@ -42,11 +51,9 @@ export async function signInWithOtpAction(formData: FormData) {
     const email = formData.get("email") as string;
     const supabase = await createClient();
 
-    // Detecta a URL base dinamicamente — funciona em localhost e Vercel sem env var extra
-    const headersList = await headers();
-    const host = headersList.get("host") ?? "localhost:3000";
-    const proto = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${proto}://${host}`;
+    // Prioriza NEXT_PUBLIC_SITE_URL (URL de produção fixa);
+    // fallback para x-forwarded-host (Vercel) ou host (localhost)
+    const baseUrl = await getBaseUrl();
 
     const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -256,10 +263,8 @@ export async function forgotPasswordAction(formData: FormData) {
     const email = formData.get("email") as string;
     const supabase = await createClient();
 
-    const headersList = await headers();
-    const host = headersList.get("host") ?? "localhost:3000";
-    const proto = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${proto}://${host}`;
+    // Prioriza NEXT_PUBLIC_SITE_URL (URL de produção fixa)
+    const baseUrl = await getBaseUrl();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${baseUrl}/auth/callback?next=/reset-password`,
