@@ -18,7 +18,7 @@ import {
   ExternalLink, Trash2, Edit3, Save, X, Clock, Calendar,
   Hash, FileText, Link2, Image, Play, LayoutGrid, Music,
   Youtube, Linkedin, Twitter, CheckCircle2, AlertCircle, Circle,
-  Loader2, RotateCcw
+  Loader2, RotateCcw, Share2, Copy, Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -53,9 +53,36 @@ export function PostModal() {
   const [restoring, setRestoring] = useState(false);
 
   // Fetch version whenever modal opens with a post
+
+  // ShareLink state
+  const [shareLoading, setShareLoading] = useState(false);
+  const [activeShareLink, setActiveShareLink] = useState<{ id: string, token: string } | null>(null);
+
+  // Email sending state
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
+
+  const fetchShareLinks = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/share-links`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        // Encontra se esse post tem um link
+        const postLink = json.data.find((l: any) => l.postId === postId);
+        if (postLink) {
+          setActiveShareLink(postLink);
+        } else {
+          setActiveShareLink(null);
+        }
+      }
+    } catch { } // Ignora erro silenciosamente   
+  };
   useEffect(() => {
     if (!selectedPost || !isPostModalOpen) {
       setVersion(null);
+      setShowEmailInput(false);
+      setEmailTo("");
       return;
     }
     setVersionLoading(true);
@@ -64,6 +91,8 @@ export function PostModal() {
       .then(res => setVersion(res.data ?? null))
       .catch(() => setVersion(null))
       .finally(() => setVersionLoading(false));
+
+    fetchShareLinks(selectedPost.id);
   }, [selectedPost?.id, isPostModalOpen]);
 
   if (!selectedPost) return null;
@@ -143,6 +172,60 @@ export function PostModal() {
       toast.error("Erro ao restaurar versão");
     } finally {
       setRestoring(false);
+    }
+  };
+
+  const handleCreateShareLink = async () => {
+    if (!selectedPost) return;
+    setShareLoading(true);
+    try {
+      const res = await fetch("/api/share-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: selectedPost.id, allowComments: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Link de aprovação gerado!");
+        setActiveShareLink(json.data);
+      } else {
+        toast.error(json.error || "Erro ao gerar link");
+      }
+    } catch {
+      toast.error("Erro ao gerar link");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    if (!activeShareLink) return;
+    const url = `${window.location.origin}/p/${activeShareLink.token}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copiado para a área de transferência!");
+  };
+
+  const handleSendEmail = async () => {
+    if (!activeShareLink || !emailTo) return;
+    setEmailSending(true);
+    try {
+      const res = await fetch("/api/share-links/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: activeShareLink.token, emailTo }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("E-mail com o link enviado para aprovação!");
+        setShowEmailInput(false);
+        setEmailTo("");
+      } else {
+        toast.error(json.error || "Erro ao disparar e-mail");
+      }
+    } catch {
+      toast.error("Erro ao disparar e-mail");
+    } finally {
+      setEmailSending(false);
     }
   };
 
@@ -240,6 +323,46 @@ export function PostModal() {
                 <Button size="sm" variant="ghost" onClick={handleStartEdit} className="h-8 gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 pointer-events-auto cursor-pointer relative z-50">
                   <Edit3 size={13} /> Editar
                 </Button>
+
+                {/* Botão de Compartilhar */}
+                {client.name !== "Cliente Removido" && (
+                  <div className="relative flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={activeShareLink ? handleCopyShareLink : handleCreateShareLink}
+                      disabled={shareLoading}
+                      className={cn(
+                        "h-8 gap-1.5 pointer-events-auto cursor-pointer transition-colors",
+                        activeShareLink
+                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+                          : "hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200"
+                      )}
+                    >
+                      {shareLoading ? <Loader2 size={13} className="animate-spin" /> : (
+                        activeShareLink ? <Copy size={13} /> : <Share2 size={13} />
+                      )}
+                      {activeShareLink ? "Copiar Link" : "Compartilhar"}
+                    </Button>
+
+                    {activeShareLink && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowEmailInput(prev => !prev)}
+                        className={cn(
+                          "h-8 w-8 p-0 pointer-events-auto cursor-pointer transition-colors",
+                          showEmailInput
+                            ? "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
+                            : "hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200"
+                        )}
+                      >
+                        <Send size={13} />
+                      </Button>
+                    )}
+                  </div>
+                )}
+
                 <ConfirmActionDialog
                   title="Excluir postagem?"
                   description={`Tem certeza que deseja excluir o post "${selectedPost.title}"? Esta ação não pode ser desfeita.`}
@@ -286,6 +409,33 @@ export function PostModal() {
                 Restaurar
               </button>
             </ConfirmActionDialog>
+          </div>
+        )}
+
+        {/* Input Rápido para Enviar por E-mail */}
+        {showEmailInput && activeShareLink && !isEditing && (
+          <div className="px-6 py-3 bg-blue-50/50 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-800/20 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <div className="flex-1 min-w-0 w-full relative">
+              <Send className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
+              <Input
+                placeholder="E-mail do cliente (Ex: joao@empresa.com.br)"
+                value={emailTo}
+                onChange={(e) => setEmailTo(e.target.value)}
+                className="pl-9 h-9 text-sm border-blue-200 focus-visible:ring-blue-500/30 dark:border-blue-800/40 bg-white dark:bg-slate-900"
+                disabled={emailSending}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSendEmail()
+                }}
+              />
+            </div>
+            <Button
+              size="sm"
+              onClick={handleSendEmail}
+              disabled={!emailTo || emailSending || !emailTo.includes("@")}
+              className="h-9 w-full sm:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            >
+              {emailSending ? <Loader2 size={14} className="animate-spin mr-2" /> : "Enviar"}
+            </Button>
           </div>
         )}
 
