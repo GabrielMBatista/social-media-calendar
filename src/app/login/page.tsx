@@ -43,7 +43,16 @@ function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Fallback: se o Supabase redirecionou para /login?code=..., repassa para o handler server-side
+    // Mapeamento de error_codes do Supabase para mensagens amigáveis
+    const ERROR_MESSAGES: Record<string, string> = {
+        otp_expired: "O link de acesso expirou. Solicite um novo abaixo.",
+        access_denied: "Link inválido ou já utilizado. Solicite um novo.",
+    };
+
+    const urlErrorCode = searchParams.get("error_code") ?? "";
+    const urlError = ERROR_MESSAGES[urlErrorCode] ?? searchParams.get("error");
+
+    // Fallback: se o Supabase redirecionou parata =..., repassa para o handler server-side
     // que seta os cookies corretamente antes de redirecionar para a home
     useEffect(() => {
         const code = searchParams.get("code");
@@ -93,6 +102,13 @@ function LoginForm() {
                         </div>
 
                         <form action={formAction} className="space-y-4">
+                            {/* Erro vindo da URL (?error= ou ?error_code=) */}
+                            {urlError && (
+                                <div className="p-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold">
+                                    {urlError}
+                                </div>
+                            )}
+                            {/* Erro da action */}
                             {error && (
                                 <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold">
                                     {error.error || "Houve um erro no acesso."}
