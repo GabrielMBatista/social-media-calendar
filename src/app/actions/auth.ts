@@ -256,8 +256,13 @@ export async function forgotPasswordAction(formData: FormData) {
     const email = formData.get("email") as string;
     const supabase = await createClient();
 
+    const headersList = await headers();
+    const host = headersList.get("host") ?? "localhost:3000";
+    const proto = host.includes("localhost") ? "http" : "https";
+    const baseUrl = `${proto}://${host}`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/reset-password`,
+        redirectTo: `${baseUrl}/auth/callback?next=/reset-password`,
     });
 
     if (error) return { error: error.message };

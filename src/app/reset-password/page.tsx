@@ -14,7 +14,10 @@ export default function ResetPasswordPage() {
         async (prevState: any, formData: FormData) => {
             setSuccessMsg(null);
             const res = await resetPasswordAction(formData);
-            if (res.success) setSuccessMsg(res.success);
+            if (res.success) {
+                setSuccessMsg(res.success);
+                return null; // sucesso: não mostrar erro
+            }
             return res;
         },
         null
