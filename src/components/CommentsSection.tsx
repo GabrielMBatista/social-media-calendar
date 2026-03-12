@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Send, User, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Comment = {
     id: string;
@@ -21,6 +22,9 @@ interface CommentsSectionProps {
     token?: string; // Se vier com token, comporta-se em modo Público (ShareLink)
     brandColor?: string;
     isAgencyView?: boolean; // Define se estamos renderizando no Painel do PostModal
+    forcedTab?: "equipe" | "cliente";
+    hideTabs?: boolean;
+    onCountChange?: (count: number) => void;
 }
 
 export function CommentsSection({
@@ -28,6 +32,9 @@ export function CommentsSection({
     token,
     brandColor = "#3b82f6",
     isAgencyView = false,
+    forcedTab,
+    hideTabs = false,
+    onCountChange,
 }: CommentsSectionProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
@@ -40,7 +47,7 @@ export function CommentsSection({
 
     // Qual aba o agente da agência está visualizando?
     const [activeTab, setActiveTab] = useState<"equipe" | "cliente">(
-        isAgencyView ? "equipe" : "cliente"
+        forcedTab || (isAgencyView ? "equipe" : "cliente")
     );
 
     const isPublicMode = !!token;
@@ -70,6 +77,9 @@ export function CommentsSection({
                     );
                 }
                 setComments(filtered);
+                if (onCountChange) {
+                    onCountChange(data.data.length); // Total count including both tabs if needed, or filtered? Usually total is better for a badge.
+                }
             }
         } catch (error) {
             console.error("Failed to load comments", error);
@@ -81,7 +91,7 @@ export function CommentsSection({
     const handleSendComment = async (isApproval = false) => {
         if (!content.trim() && !isApproval) return;
         if (isPublicMode && (!guestName.trim() || !guestEmail.trim())) {
-            alert("Por favor, preencha Nome e E-mail para poder comentar.");
+            toast.error("Por favor, preencha Nome e E-mail para poder comentar.");
             return;
         }
 
@@ -112,19 +122,24 @@ export function CommentsSection({
 
             setContent("");
             fetchComments(); // Recarrega
+            if (isApproval) {
+                toast.success("Feedback de aprovação enviado!");
+            } else {
+                toast.success("Mensagem enviada com sucesso!");
+            }
         } catch (error) {
             console.error(error);
-            alert("Falha ao enviar comentário.");
+            toast.error("Falha ao enviar comentário.");
         } finally {
             setSending(false);
         }
     };
 
     const renderCommentTabs = () => {
-        if (!isAgencyView) return null; // Cliente externo não tem abas, ele só vê a timeline dele
+        if (!isAgencyView || hideTabs) return null; // Cliente externo não tem abas, ou Tabs externas configuradas
 
         return (
-            <div className="flex border-b border-slate-200 mb-4">
+            <div className="flex border-b border-slate-200 dark:border-slate-800 mb-4">
                 <button
                     onClick={() => setActiveTab("equipe")}
                     className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "equipe"
@@ -173,8 +188,8 @@ export function CommentsSection({
                                     </span>
                                 </div>
                                 <div className={`px-4 py-3 rounded-2xl text-sm inline-block max-w-[90%] break-words ${isClientSided && !isPublicMode
-                                        ? "bg-emerald-50 text-emerald-900 border border-emerald-100" // Visão da agência olhando pro cliente
-                                        : "bg-slate-100 text-slate-800" // Visão normal p/ tudo
+                                    ? "bg-emerald-50 text-emerald-900 border border-emerald-100" // Visão da agência olhando pro cliente
+                                    : "bg-slate-100 text-slate-800" // Visão normal p/ tudo
                                     }`} style={isPublicMode ? { borderLeft: `3px solid ${brandColor}` } : {}}>
                                     <p className="whitespace-pre-wrap leading-relaxed">{comment.content}</p>
                                 </div>
@@ -187,25 +202,25 @@ export function CommentsSection({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             {renderCommentTabs()}
             {renderCommentsList()}
 
             {/* Fomulário de Envio */}
-            <div className="p-4 bg-slate-50 border-t border-slate-200">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
                 {isPublicMode && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <input
                             type="text"
                             placeholder="Seu Nome (Ex: João)"
-                            className="w-full text-sm rounded-lg border border-slate-200 px-3 py-2 bg-white outline-none focus:ring-1 focus:ring-slate-300"
+                            className="w-full text-sm rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-600"
                             value={guestName}
                             onChange={(e) => setGuestName(e.target.value)}
                         />
                         <input
                             type="email"
                             placeholder="Seu E-mail (Ex: joao@empresa.com.br)"
-                            className="w-full text-sm rounded-lg border border-slate-200 px-3 py-2 bg-white outline-none focus:ring-1 focus:ring-slate-300"
+                            className="w-full text-sm rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-600"
                             value={guestEmail}
                             onChange={(e) => setGuestEmail(e.target.value)}
                         />
@@ -217,14 +232,14 @@ export function CommentsSection({
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder={activeTab === "equipe" ? "Escreva algo internamente..." : "Escreva seu feedback ou ajuste..."}
-                        className="w-full text-sm rounded-lg border border-slate-200 p-3 bg-white resize-none h-20 outline-none focus:ring-2 focus:ring-slate-200"
+                        className="w-full text-sm rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-900 resize-none h-20 outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-800"
                     />
 
                     <div className="flex flex-col sm:flex-row gap-2 w-full mt-1">
                         <button
                             onClick={() => handleSendComment(false)}
                             disabled={sending || (!content.trim() && !isPublicMode)}
-                            className="flex-1 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
                         >
                             <Send className="w-4 h-4" />
                             {isPublicMode ? "Pedir Ajuste" : "Enviar Mensagem"}

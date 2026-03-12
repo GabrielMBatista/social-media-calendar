@@ -19,12 +19,20 @@ import {
   ArrowRight, Share2, Eye, ShieldAlert,
   Save, Trash2, Calendar, Clock,
   FileText, Hash, Link2, ExternalLink, Activity, Info, AlertCircle, Circle, CheckCircle2,
-  Mail, Send, MailCheck, Image, Play, LayoutGrid, Music, Youtube, Linkedin, Twitter, Edit3, X
+  Mail, Send, MailCheck, Image, Play, LayoutGrid, Music, Youtube, Linkedin, Twitter, Edit3, X, MessageSquare
 } from "lucide-react";
 import { CommentsSection } from "./CommentsSection";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image, Play, Clock, LayoutGrid, Music, Youtube, Linkedin, Twitter,
@@ -65,6 +73,8 @@ export function PostModal() {
   const [emailTo, setEmailTo] = useState("");
   const [emailSending, setEmailSending] = useState(false);
 
+  const [commentCount, setCommentCount] = useState(0);
+
   const fetchShareLinks = async (postId: string) => {
     try {
       const res = await fetch(`/api/share-links`);
@@ -95,6 +105,16 @@ export function PostModal() {
       .finally(() => setVersionLoading(false));
 
     fetchShareLinks(selectedPost.id);
+
+    // Buscar contagem inicial de comentários
+    fetch(`/api/posts/${selectedPost.id}/comments`)
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && res.data) {
+          setCommentCount(res.data.length);
+        }
+      })
+      .catch(() => { });
   }, [selectedPost?.id, isPostModalOpen]);
 
   // Função pra abrir Link Publico
@@ -388,6 +408,47 @@ export function PostModal() {
                 </ConfirmActionDialog>
               </>
             )}
+
+            {/* Ícone de Comentários com Badge */}
+            {!isEditing && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 relative pointer-events-auto cursor-pointer"
+                  >
+                    <MessageSquare size={16} className="text-slate-700 dark:text-slate-300" />
+                    {commentCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-red-500"
+                      >
+                        {commentCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full sm:max-w-md p-0 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col h-full pt-10">
+                    <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                      <h3 className="font-bold text-lg flex items-center gap-2 dark:text-slate-100">
+                        <MessageSquare size={18} />
+                        Feedback e Equipe
+                      </h3>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      <CommentsSection
+                        postId={selectedPost.id}
+                        isAgencyView={true}
+                        brandColor={client.brandColor}
+                        onCountChange={setCommentCount}
+                      />
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
           </div>
         </div>
 
@@ -446,11 +507,10 @@ export function PostModal() {
           </div>
         )}
 
-        {/* Wrapper de Colunas Master */}
-        <div className="flex-1 flex overflow-hidden flex-col md:flex-row">
+        {/* Wrapper de Conteúdo Centralizado */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-0 dark:bg-slate-950">
+          <div className="max-w-2xl mx-auto px-6 py-5 pb-12 sm:pb-5 space-y-6">
 
-          {/* Scrollable content (Esquerda) */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5">
             {/* Status selector — editável com clique */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
@@ -617,9 +677,9 @@ export function PostModal() {
               )}
             </div>
 
-            {/* Metadata */}
-            <div className="pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-4 text-[11px] text-slate-400 flex-wrap">
+            {/* Metadata Footer */}
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-4 text-[10px] text-slate-400 flex-wrap">
                 <span className="flex items-center">
                   <Circle size={8} className="inline mr-1 opacity-50" />
                   Criado: {formatSafeDate(selectedPost.createdAt)}
@@ -631,18 +691,8 @@ export function PostModal() {
                 </span>
               </div>
             </div>
-          </div> {/* Fim da esquerda */}
-
-          {/* Right Column: Comments & Feedback */}
-          <div className="w-full md:w-[450px] flex-shrink-0 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col h-full overflow-hidden">
-            <CommentsSection
-              postId={selectedPost.id}
-              isAgencyView={true}
-              brandColor={client.brandColor}
-            />
           </div>
-
-        </div> {/* Fim do Wrapper de 2 paineis */}
+        </div>
       </DialogContent>
     </Dialog>
   );

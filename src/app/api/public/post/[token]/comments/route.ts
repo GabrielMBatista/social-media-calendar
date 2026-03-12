@@ -99,50 +99,54 @@ export async function POST(
             });
         }
 
-        // 4. Cria a Notificação no Banco (Caso o criador do post ainda exista no DB)
+        // 4. Cria a Notificação no Banco e Envia E-mail (Try/Catch Isolado p/ evitar que erro no push quebre o Post)
         if (link.post.createdById) {
-            const notifType = data.action === "APPROVE" ? "POST_APPROVED" : "NEW_COMMENT";
-            const notifTitle = data.action === "APPROVE" ? "Peça Aprovada 🎉" : "Novo Feedback Recebido";
-            const truncateFeedback = data.content.length > 50 ? data.content.substring(0, 50) + "..." : data.content;
-            const notifMsg = `**${data.authorName}** comentou no post *${link.post.title}*: ${truncateFeedback}`;
+            try {
+                const notifType = data.action === "APPROVE" ? "POST_APPROVED" : "NEW_COMMENT";
+                const notifTitle = data.action === "APPROVE" ? "Peça Aprovada 🎉" : "Novo Feedback Recebido";
+                const truncateFeedback = data.content.length > 50 ? data.content.substring(0, 50) + "..." : data.content;
+                const notifMsg = `**${data.authorName}** comentou no post *${link.post.title}*: ${truncateFeedback}`;
 
-            await prisma.notification.create({
-                data: {
-                    accountId: link.post.accountId,
-                    userId: link.post.createdById, // Dono do Post
-                    type: notifType,
-                    title: notifTitle,
-                    message: notifMsg,
-                    linkUrl: `/dashboard/posts`, // Idealmente um link de trigger p/ abrir o modal
+                await prisma.notification.create({
+                    data: {
+                        accountId: link.post.accountId,
+                        userId: link.post.createdById, // Dono do Post
+                        type: notifType,
+                        title: notifTitle,
+                        message: notifMsg,
+                        linkUrl: `/dashboard/posts`, // Idealmente um link de trigger p/ abrir o modal
+                    }
+                });
+
+                // 5. Integração com o Resend Email (Assíncrono sem await principal)
+                if (link.post.createdBy?.emailNotifications) {
+                    const agcEmail = link.post.createdBy.email;
+                    const senderStr = process.env.RESEND_FROM_EMAIL;
+                    if (senderStr) {
+                        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+                        resend.emails.send({
+                            from: senderStr,
+                            to: [agcEmail],
+                            subject: `[SM Calendar] ${notifTitle}`,
+                            html: `
+                              <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 30px;">
+                                   <div style="background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px;">
+                                        <h2 style="color: #333">${notifTitle}</h2>
+                                        <p style="color: #555">Seu cliente <strong>${data.authorName}</strong> enviou a seguinte mensagem na peça <strong>${link.post.title}</strong>:</p>
+                                        <blockquote style="font-style: italic; border-left: 4px solid #3b82f6; padding-left: 15px; background: #eef2ff; padding: 10px; margin: 20px 0;">
+                                             ${data.content}
+                                        </blockquote>
+                                        <br/>
+                                        <a href="${baseUrl}/dashboard" style="background:#3b82f6;color:white;text-decoration:none;padding:12px 20px;border-radius:4px;display:inline-block">Ver no Painel</a>
+                                   </div>
+                              </div>
+                              `
+                        }).catch((err) => console.error("Error sending user resend mail:", err));
+                    }
                 }
-            });
-
-            // 5. Integração com o Resend Email (Assíncrono sem await principal)
-            if (link.post.createdBy?.emailNotifications) {
-                const agcEmail = link.post.createdBy.email;
-                const senderStr = process.env.RESEND_FROM_EMAIL;
-                if (senderStr) {
-                    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-                    resend.emails.send({
-                        from: senderStr,
-                        to: [agcEmail],
-                        subject: `[SM Calendar] ${notifTitle}`,
-                        html: `
-                          <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 30px;">
-                               <div style="background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px;">
-                                    <h2 style="color: #333">${notifTitle}</h2>
-                                    <p style="color: #555">Seu cliente <strong>${data.authorName}</strong> enviou a seguinte mensagem na peça <strong>${link.post.title}</strong>:</p>
-                                    <blockquote style="font-style: italic; border-left: 4px solid #3b82f6; padding-left: 15px; background: #eef2ff; padding: 10px; margin: 20px 0;">
-                                         ${data.content}
-                                    </blockquote>
-                                    <br/>
-                                    <a href="${baseUrl}/dashboard" style="background:#3b82f6;color:white;text-decoration:none;padding:12px 20px;border-radius:4px;display:inline-block">Ver no Painel</a>
-                               </div>
-                          </div>
-                          `
-                    }).catch((err) => console.error("Error sending user resend mail:", err));
-                }
+            } catch (notifError) {
+                console.error("[PUBLIC_COMMENT_NOTIFICATION_ERROR]", notifError);
             }
         }
 
