@@ -57,7 +57,7 @@ export function ConfirmActionDialog({
             </AlertDialogTrigger>
             <AlertDialogContent className="pointer-events-auto rounded-[2rem] border-slate-200/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl p-8 max-w-[400px]">
                 <AlertDialogHeader className="space-y-3">
-                    <AlertDialogTitle className="text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight uppercase tracking-tight text-center">
+                    <AlertDialogTitle className="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight uppercase tracking-tight text-center font-outfit">
                         {title}
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-sm text-slate-500 dark:text-slate-400 text-center leading-relaxed">
@@ -75,7 +75,7 @@ export function ConfirmActionDialog({
                         onClick={handleConfirm}
                         disabled={isLoading || disabled}
                         className={cn(
-                            "rounded-2xl h-12 flex-1 transition-all active:scale-95 font-black uppercase tracking-widest text-[11px] px-8",
+                            "rounded-2xl h-12 flex-1 transition-all active:scale-95 font-bold uppercase tracking-widest text-xs px-8 font-outfit",
                             variant === "destructive"
                                 ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 shadow-xl shadow-red-500/30"
                                 : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-xl shadow-blue-500/30",
