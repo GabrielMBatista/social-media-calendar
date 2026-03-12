@@ -129,24 +129,26 @@ export async function POST(req: Request) {
     `;
 
     // Disparando via Resend
+    const sender = process.env.RESEND_FROM_EMAIL || "SM Calendar <noreply.smcalendar@gabrielmarquesbatista.com>";
+
     const { error } = await resend.emails.send({
-      from: `Gestão de Conteúdo <onboarding@resend.dev>`, // Trocar para o domínio verificado depois
+      from: sender,
       to: emailsArray,
       subject: `Aprovação de Conteúdo: ${postTitle}`,
       html: emailHtml,
     });
 
     if (error) {
-      console.error(error);
-      return NextResponse.json({ success: false, error: "Falha ao enviar e-mail pelo Resend" }, { status: 500 });
+      console.error("[RESEND ERROR]", error);
+      return NextResponse.json({ success: false, error: `Falha ao enviar pelo Resend: ${error.message || "Erro desconhecido"}` }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "E-mail enviado com sucesso" });
-  } catch (error) {
+    return NextResponse.json({ success: true, message: `E-mail(s) enviados com sucesso para ${emailsArray.length} destinatários.` });
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ success: false, error: "E-mail inválido", details: error.errors }, { status: 400 });
     }
-    console.error("Houve um error ao enviar email:", error);
-    return NextResponse.json({ success: false, error: "Erro de Servidor Inesperado" }, { status: 500 });
+    console.error("Houve um erro ao enviar email:", error);
+    return NextResponse.json({ success: false, error: `Erro Inesperado: ${error.message || "Descubra no log do console"}` }, { status: 500 });
   }
 }
