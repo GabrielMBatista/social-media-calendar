@@ -7,7 +7,7 @@ import { CalendarDays, LogIn, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signInAction, signInWithOtpAction } from "@/app/actions/auth";
 import { Save } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+
 
 export default function LoginPage() {
     return (
@@ -43,16 +43,12 @@ function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Fallback: troca o ?code= por sessão se o Supabase redirecionou aqui em vez de /auth/callback
+    // Fallback: se o Supabase redirecionou para /login?code=..., repassa para o handler server-side
+    // que seta os cookies corretamente antes de redirecionar para a home
     useEffect(() => {
         const code = searchParams.get("code");
         if (!code) return;
-        createClient().auth.exchangeCodeForSession(code).then(({ error }) => {
-            if (!error) {
-                // Redireciona para / — o middleware detecta se é primeiro acesso e manda para /signup
-                router.replace("/");
-            }
-        });
+        window.location.href = `/auth/callback?code=${encodeURIComponent(code)}`;
     }, []);
 
     return (

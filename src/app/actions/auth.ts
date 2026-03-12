@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { headers } from "next/headers";
 
 // Utiliza o cliente Prisma global a partir da lib/prisma
 // importado acima diretamente.
@@ -41,10 +42,16 @@ export async function signInWithOtpAction(formData: FormData) {
     const email = formData.get("email") as string;
     const supabase = await createClient();
 
+    // Detecta a URL base dinamicamente — funciona em localhost e Vercel sem env var extra
+    const headersList = await headers();
+    const host = headersList.get("host") ?? "localhost:3000";
+    const proto = host.includes("localhost") ? "http" : "https";
+    const baseUrl = `${proto}://${host}`;
+
     const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+            emailRedirectTo: `${baseUrl}/auth/callback`,
         },
     });
 
