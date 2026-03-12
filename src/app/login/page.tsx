@@ -40,7 +40,7 @@ function LoginForm() {
             const supabase = createClient();
             const { error } = await supabase.auth.signInWithOtp({
                 email,
-                options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback` },
+                options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
             });
             if (error) setMagicError(error.message);
             else setSuccessMsg("Link enviado! Verifique seu e-mail.");
@@ -97,9 +97,8 @@ function LoginForm() {
                 <div className="px-8 pb-8 flex-1">
                     {/* Formulário */}
                     <div className="px-8 pb-8 flex-1">
-                        {/* Debug temporário para ver a URL */}
-                        <p className="text-[10px] text-red-500 text-center mb-4">
-                            Debug Redirect: {process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}
+                        <p className="text-[10px] text-zinc-500 text-center mb-4">
+                            Debug Origin: {window.location.origin}
                         </p>
                         <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
                             <button
