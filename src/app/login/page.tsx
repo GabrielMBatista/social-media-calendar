@@ -5,8 +5,7 @@ import { Suspense, useActionState, useEffect, useState, useTransition } from "re
 import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDays, LogIn, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { signInAction } from "@/app/actions/auth";
-import { createClient } from "@/lib/supabase/client";
+import { signInAction, signInWithOtpAction } from "@/app/actions/auth";
 import { Save } from "lucide-react";
 
 export default function LoginPage() {
@@ -20,35 +19,25 @@ export default function LoginPage() {
 function LoginForm() {
     const [loginMode, setLoginMode] = useState<"password" | "magic">("magic");
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
-    const [magicError, setMagicError] = useState<string | null>(null);
-    const [isMagicPending, startMagicTransition] = useTransition();
 
-    // Password login — server action (precisa de cookies server-side)
-    const [passwordError, passwordFormAction, isPasswordPending] = useActionState(
-        async (_: any, formData: FormData) => await signInAction(formData),
+    const [error, formAction, isPending] = useActionState(
+        async (
+            prevState: any,
+            formData: FormData
+        ) => {
+            setSuccessMsg(null);
+            if (loginMode === "magic") {
+                const res = await signInWithOtpAction(formData);
+                if (res.success) {
+                    setSuccessMsg(res.success);
+                    return null; // sucesso: não mostrar erro
+                }
+                return res;
+            }
+            return await signInAction(formData);
+        },
         null
     );
-
-    // Magic link — client-side via createBrowserClient
-    // O PKCE verifier é gerado e armazenado no próprio browser, eliminando o problema de sincronização server-client
-    const handleMagicLink = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSuccessMsg(null);
-        setMagicError(null);
-        const email = new FormData(e.currentTarget).get("email") as string;
-        startMagicTransition(async () => {
-            const supabase = createClient();
-            const { error } = await supabase.auth.signInWithOtp({
-                email,
-                options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-            });
-            if (error) setMagicError(error.message);
-            else setSuccessMsg("Link enviado! Verifique seu e-mail.");
-        });
-    };
-
-    const error = loginMode === "magic" ? magicError : passwordError?.error;
-    const isPending = loginMode === "magic" ? isMagicPending : isPasswordPending;
 
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
@@ -115,12 +104,8 @@ function LoginForm() {
                             </button>
                         </div>
 
-                        <form
-                            onSubmit={loginMode === "magic" ? handleMagicLink : undefined}
-                            action={loginMode === "password" ? passwordFormAction : undefined}
-                            className="space-y-4"
-                        >
-                            {/* Erro vindo da URL (?error= ou ?error_code=) */}
+                        <form action={formAction} className="space-y-4">
+                            {/* erro da URL */}
                             {urlError && (
                                 <div className="p-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold">
                                     {urlError}
@@ -128,7 +113,7 @@ function LoginForm() {
                             )}
                             {error && (
                                 <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold">
-                                    {error}
+                                    {error.error || "Houve um erro no acesso."}
                                 </div>
                             )}
                             {successMsg && (

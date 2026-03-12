@@ -1,33 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { CalendarDays, Mail, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { forgotPasswordAction } from "@/app/actions/auth";
 
 export default function ForgotPasswordPage() {
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [isPending, startTransition] = useTransition();
 
-    // Client-side via createBrowserClient — PKCE verifier gerado e armazenado no browser
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSuccessMsg(null);
-        setError(null);
-        const email = new FormData(e.currentTarget).get("email") as string;
+    const [state, formAction, isPending] = useActionState(
+        async (prevState: any, formData: FormData) => {
+            setSuccessMsg(null);
+            const res = await forgotPasswordAction(formData);
+            if (res.success) {
+                setSuccessMsg(res.success);
+                return null;
+            }
+            return res;
+        },
+        null
+    );
 
-        startTransition(async () => {
-            const supabase = createClient();
-            const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback?next=/reset-password`,
-            });
-
-            if (err) setError(err.message);
-            else setSuccessMsg("Link de recuperação enviado para seu e-mail!");
-        });
-    };
+    const error = state?.error;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -51,7 +46,7 @@ export default function ForgotPasswordPage() {
                 </div>
 
                 <div className="px-8 pb-8 flex-1">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form action={formAction} className="space-y-4">
                         {error && (
                             <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-bold uppercase tracking-tight">
                                 {error}
