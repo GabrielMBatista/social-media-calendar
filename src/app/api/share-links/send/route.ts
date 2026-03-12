@@ -119,7 +119,7 @@ export async function POST(req: Request) {
           ${customMessage}
 
           <div class="button-wrapper">
-            <a href="${publicUrl}" class="button" target="_blank">Acessar Peça Completa</a>
+            <a href="${publicUrl}" class="button" target="_blank">Acessar Post Completo</a>
           </div>
 
           <p class="text" style="font-size: 14px; color: #64748b;">

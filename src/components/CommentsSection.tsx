@@ -104,7 +104,7 @@ export function CommentsSection({
 
             // Ação de Aprovação força uma mensagem padrão caso o content esteja vazio
             const finalContent = isApproval
-                ? `[APROVADO] ${content || "A peça foi aprovada."}`
+                ? `[APROVADO] ${content || "O post foi aprovado."}`
                 : content;
 
             const res = await fetch(url, {
@@ -271,7 +271,7 @@ export function CommentsSection({
                                 style={{ backgroundColor: brandColor }}
                             >
                                 <CheckCircle2 className="w-5 h-5" />
-                                Aprovar Peça
+                                Aprovar Post
                             </button>
                         )}
                     </div>

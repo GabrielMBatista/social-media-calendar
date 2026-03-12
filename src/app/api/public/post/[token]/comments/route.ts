@@ -103,7 +103,7 @@ export async function POST(
         if (link.post.createdById) {
             try {
                 const notifType = data.action === "APPROVE" ? "POST_APPROVED" : "NEW_COMMENT";
-                const notifTitle = data.action === "APPROVE" ? "Peça Aprovada 🎉" : "Novo Feedback Recebido";
+                const notifTitle = data.action === "APPROVE" ? "Post Aprovado 🎉" : "Novo Feedback Recebido";
                 const truncateFeedback = data.content.length > 50 ? data.content.substring(0, 50) + "..." : data.content;
                 const notifMsg = `**${data.authorName}** comentou no post *${link.post.title}*: ${truncateFeedback}`;
 
@@ -133,7 +133,7 @@ export async function POST(
                               <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 30px;">
                                    <div style="background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px;">
                                         <h2 style="color: #333">${notifTitle}</h2>
-                                        <p style="color: #555">Seu cliente <strong>${data.authorName}</strong> enviou a seguinte mensagem na peça <strong>${link.post.title}</strong>:</p>
+                                        <p style="color: #555">Seu cliente <strong>${data.authorName}</strong> enviou a seguinte mensagem no post <strong>${link.post.title}</strong>:</p>
                                         <blockquote style="font-style: italic; border-left: 4px solid #3b82f6; padding-left: 15px; background: #eef2ff; padding: 10px; margin: 20px 0;">
                                              ${data.content}
                                         </blockquote>

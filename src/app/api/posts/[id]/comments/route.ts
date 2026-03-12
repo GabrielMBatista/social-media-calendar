@@ -123,7 +123,7 @@ export async function POST(
                               <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 30px;">
                                    <div style="background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px;">
                                         <h2 style="color: #333">${notifTitle}</h2>
-                                        <p style="color: #555"><strong>${user.name}</strong> enviou uma mensagem na peça <strong>${post.title}</strong>:</p>
+                                        <p style="color: #555"><strong>${user.name}</strong> enviou uma mensagem no post <strong>${post.title}</strong>:</p>
                                         <blockquote style="font-style: italic; border-left: 4px solid #6366f1; padding-left: 15px; background: #f5f3ff; padding: 10px; margin: 20px 0;">
                                              ${data.content}
                                         </blockquote>
