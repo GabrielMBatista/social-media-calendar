@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK } from "@/lib/types";
+import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK, Client, Post } from "@/lib/types";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
@@ -55,7 +55,7 @@ export function PostModal() {
   const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<typeof selectedPost>>({});
+  const [editData, setEditData] = useState<Partial<Post>>({});
 
   // PostVersion state
   const [version, setVersion] = useState<PostVersionData | null>(null);
@@ -127,7 +127,7 @@ export function PostModal() {
   const dbClient = getClientById(selectedPost.clientId);
   const client = dbClient || ({
     id: "unknown", name: "Cliente Removido", brandColor: "#94a3b8", logoInitials: "?", logoUrl: undefined
-  } as any);
+  } as unknown as Client);
 
   const statusCfg = STATUS_CONFIG[selectedPost.status];
   const typeCfg = POST_TYPE_CONFIG[selectedPost.type];
@@ -148,7 +148,7 @@ export function PostModal() {
   };
 
   const handleSaveEdit = () => {
-    updatePost(selectedPost.id, editData as any);
+    updatePost(selectedPost.id, editData);
     setIsEditing(false);
     toast.success("Post atualizado com sucesso!");
     // Reload version after edit
@@ -256,10 +256,10 @@ export function PostModal() {
     }
   };
 
-  const formatSafeDate = (d?: string) => {
+  const formatSafeDate = (d?: string | null | Date) => {
     if (!d) return "N/A";
     try {
-      const date = new Date(d);
+      const date = typeof d === "string" ? new Date(d) : d;
       if (isNaN(date.getTime())) return "N/A";
       return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`;
     } catch {
@@ -304,15 +304,13 @@ export function PostModal() {
             <DialogTitle className="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
               {isEditing ? (
                 <Input
-                  value={(editData as any).title ?? ""}
+                  value={editData?.title ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, title: e.target.value }))}
                   className="text-lg font-bold h-auto py-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
               ) : selectedPost.title}
             </DialogTitle>
-            <DialogDescription className="sr-only">
-              Painel de visualização e edição desta postagem.
-            </DialogDescription>
+            <DialogDescription className="sr-only">Visualize e edite as informações da publicação, gerencie comentários e links de aprovação.</DialogDescription>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               {/* Type badge */}
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-medium shadow-sm transition-all">
@@ -453,67 +451,68 @@ export function PostModal() {
           </div>
         </div>
 
-        {/* Restore version banner */}
-        {version && !isEditing && (
-          <div className="flex items-center justify-between px-6 py-2.5 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800/40 gap-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <RotateCcw size={13} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
-              <p className="text-xs text-amber-700 dark:text-amber-300 truncate">
-                Versão anterior salva em {formatSafeDate(version.savedAt)}
-                {version.savedBy?.name && <span className="font-medium"> por {version.savedBy.name}</span>}
-              </p>
-            </div>
-            <ConfirmActionDialog
-              title="Restaurar versão anterior?"
-              description="O estado atual do post será salvo como 'versão anterior', e o post voltará para como estava antes da última edição."
-              actionText="Restaurar"
-              onConfirm={handleRestore}
-              disabled={restoring}
-              variant="default"
-            >
-              <button
+        {/* Banner de restauração e outros alertas */}
+        <div className="flex flex-col">
+          {version && !isEditing && (
+            <div className="flex items-center justify-between px-6 py-2.5 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800/40 gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <RotateCcw size={13} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-300 truncate">
+                  Versão anterior salva em {formatSafeDate(version.savedAt)}
+                  {version.savedBy?.name && <span className="font-medium"> por {version.savedBy.name}</span>}
+                </p>
+              </div>
+              <ConfirmActionDialog
+                title="Restaurar versão anterior?"
+                description="O estado atual do post será salvo como 'versão anterior', e o post voltará para como estava antes da última edição."
+                actionText="Restaurar"
+                onConfirm={handleRestore}
                 disabled={restoring}
-                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors active:scale-95 disabled:opacity-50"
+                variant="default"
               >
-                {restoring ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
-                Restaurar
-              </button>
-            </ConfirmActionDialog>
-          </div>
-        )}
-
-        {/* Input Rápido para Enviar por E-mail */}
-        {showEmailInput && activeShareLink && !isEditing && (
-          <div className="px-6 py-3 bg-blue-50/50 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-800/20 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <div className="flex-1 min-w-0 w-full relative">
-              <Send className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
-              <Input
-                placeholder="E-mails (Múltiplos sep. virgula: a@a.com, b@b.com)"
-                value={emailTo}
-                onChange={(e) => setEmailTo(e.target.value)}
-                className="pl-9 h-9 text-sm border-blue-200 focus-visible:ring-blue-500/30 dark:border-blue-800/40 bg-white dark:bg-slate-900"
-                disabled={emailSending}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSendEmail()
-                }}
-              />
+                <button
+                  disabled={restoring}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors active:scale-95 disabled:opacity-50"
+                >
+                  {restoring ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
+                  Restaurar
+                </button>
+              </ConfirmActionDialog>
             </div>
-            <Button
-              size="sm"
-              onClick={handleSendEmail}
-              disabled={!emailTo || emailSending || !emailTo.includes("@")}
-              className="h-9 w-full sm:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-            >
-              {emailSending ? <Loader2 size={14} className="animate-spin mr-2" /> : "Enviar"}
-            </Button>
-          </div>
-        )}
+          )}
 
-        {/* Wrapper de Conteúdo Centralizado */}
+          {/* Input Rápido para Enviar por E-mail */}
+          {showEmailInput && activeShareLink && !isEditing && (
+            <div className="px-6 py-3 bg-blue-50/50 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-800/20 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div className="flex-1 min-w-0 w-full relative">
+                <Send className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
+                <Input
+                  placeholder="E-mails (Múltiplos sep. virgula: a@a.com, b@b.com)"
+                  value={emailTo}
+                  onChange={(e) => setEmailTo(e.target.value)}
+                  className="pl-9 h-9 text-sm border-blue-200 focus-visible:ring-blue-500/30 dark:border-blue-800/40 bg-white dark:bg-slate-900"
+                  disabled={emailSending}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSendEmail()
+                  }}
+                />
+              </div>
+              <Button
+                size="sm"
+                onClick={handleSendEmail}
+                disabled={!emailTo || emailSending || !emailTo.includes("@")}
+                className="h-9 w-full sm:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              >
+                {emailSending ? <Loader2 size={14} className="animate-spin mr-2" /> : "Enviar"}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Content Wrapper */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-0 dark:bg-slate-950">
           <div className="max-w-2xl mx-auto px-6 py-5 pb-12 sm:pb-5 space-y-6">
-
-            {/* Status selector — editável com clique */}
+            {/* Content areas (status, drive, description, etc.) */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 Status do Post
@@ -545,7 +544,6 @@ export function PostModal() {
               </div>
             </div>
 
-            {/* Drive Link */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 Link do Drive / Conteúdo
@@ -553,7 +551,7 @@ export function PostModal() {
               {isEditing ? (
                 <div className="flex gap-2">
                   <Input
-                    value={(editData as any).driveLink ?? ""}
+                    value={editData?.driveLink ?? ""}
                     onChange={e => setEditData(prev => ({ ...prev, driveLink: e.target.value }))}
                     placeholder="https://drive.google.com/..."
                     className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
@@ -578,14 +576,13 @@ export function PostModal() {
               )}
             </div>
 
-            {/* Description */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 Descrição / Briefing
               </Label>
               {isEditing ? (
                 <Textarea
-                  value={(editData as any).description ?? ""}
+                  value={editData?.description ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, description: e.target.value }))}
                   rows={4}
                   className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-blue-500/20"
@@ -598,7 +595,6 @@ export function PostModal() {
               )}
             </div>
 
-            {/* Caption */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 <FileText size={12} className="inline mr-1" />
@@ -606,7 +602,7 @@ export function PostModal() {
               </Label>
               {isEditing ? (
                 <Textarea
-                  value={(editData as any).caption ?? ""}
+                  value={editData?.caption ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, caption: e.target.value }))}
                   rows={3}
                   className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
@@ -623,7 +619,6 @@ export function PostModal() {
               )}
             </div>
 
-            {/* Hashtags */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 <Hash size={12} className="inline mr-1" />
@@ -631,7 +626,7 @@ export function PostModal() {
               </Label>
               {isEditing ? (
                 <Input
-                  value={(editData as any).hashtags ?? ""}
+                  value={editData?.hashtags ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, hashtags: e.target.value }))}
                   placeholder="#hashtag1 #hashtag2..."
                   className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
@@ -656,7 +651,6 @@ export function PostModal() {
               )}
             </div>
 
-            {/* Notes */}
             <div>
               <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
                 <AlertCircle size={12} className="inline mr-1" />
@@ -664,7 +658,7 @@ export function PostModal() {
               </Label>
               {isEditing ? (
                 <Textarea
-                  value={(editData as any).notes ?? ""}
+                  value={editData?.notes ?? ""}
                   onChange={e => setEditData(prev => ({ ...prev, notes: e.target.value }))}
                   rows={2}
                   className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"

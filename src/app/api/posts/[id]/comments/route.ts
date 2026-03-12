@@ -111,7 +111,7 @@ export async function POST(
                     }
                 });
 
-                if (post.createdBy?.notifyEmailInternalComment) {
+                if ((post.createdBy as any)?.notifyEmailInternalComment) {
                     const senderStr = process.env.RESEND_FROM_EMAIL;
                     if (senderStr) {
                         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

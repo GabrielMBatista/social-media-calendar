@@ -38,6 +38,13 @@ export interface User {
   isSuperAdmin: boolean;
   createdAt: string;
   updatedAt: string;
+  emailNotifications: boolean;
+  notifyEmailClientComment: boolean;
+  notifyEmailInternalComment: boolean;
+  notifyEmailStatusChange: boolean;
+  notifyEmailPostApproved: boolean;
+  notifyEmailPostRejected: boolean;
+  notifyEmailPostScheduled: boolean;
 }
 
 // --- Domain Entities ---
