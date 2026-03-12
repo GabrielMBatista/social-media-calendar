@@ -15,11 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  ExternalLink, Trash2, Edit3, Save, X, Clock, Calendar,
-  Hash, FileText, Link2, Image, Play, LayoutGrid, Music,
-  Youtube, Linkedin, Twitter, CheckCircle2, AlertCircle, Circle,
-  Loader2, RotateCcw, Share2, Copy, Send
+  Loader2, RotateCcw, Copy, CalendarPlus,
+  ArrowRight, Share2, Eye, ShieldAlert,
+  Save, Trash2, Calendar, Clock,
+  FileText, Hash, Link2, ExternalLink, Activity, Info, AlertCircle, Circle, CheckCircle2,
+  Mail, Send, MailCheck, Image, Play, LayoutGrid, Music, Youtube, Linkedin, Twitter, Edit3, X
 } from "lucide-react";
+import { CommentsSection } from "./CommentsSection";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
@@ -94,6 +96,11 @@ export function PostModal() {
 
     fetchShareLinks(selectedPost.id);
   }, [selectedPost?.id, isPostModalOpen]);
+
+  // Função pra abrir Link Publico
+  const handleOpenPublicView = (token: string) => {
+    window.open(`/p/${token}`, '_blank');
+  };
 
   if (!selectedPost) return null;
 
@@ -439,190 +446,204 @@ export function PostModal() {
           </div>
         )}
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5">
-          {/* Status selector — editável com clique */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Status do Post
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {STATUS_ORDER.map(status => {
-                const cfg = STATUS_CONFIG[status];
-                const isActive = selectedPost.status === status;
-                return (
-                  <button
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer",
-                      isActive
-                        ? cn(cfg.bg, cfg.color, "shadow-sm ring-1", cfg.ring)
-                        : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300"
-                    )}
-                  >
-                    <span className={cn(
-                      "w-2 h-2 rounded-full flex-shrink-0",
-                      isActive ? cfg.dot : "bg-slate-200 dark:bg-slate-700"
-                    )} />
-                    {cfg.label}
-                    {isActive && <CheckCircle2 size={11} className="ml-0.5" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {/* Wrapper de Colunas Master */}
+        <div className="flex-1 flex overflow-hidden flex-col md:flex-row">
 
-          {/* Drive Link */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Link do Drive / Conteúdo
-            </Label>
-            {isEditing ? (
-              <div className="flex gap-2">
+          {/* Scrollable content (Esquerda) */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 pb-12 sm:pb-5 space-y-5">
+            {/* Status selector — editável com clique */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                Status do Post
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {STATUS_ORDER.map(status => {
+                  const cfg = STATUS_CONFIG[status];
+                  const isActive = selectedPost.status === status;
+                  return (
+                    <button
+                      key={status}
+                      onClick={() => handleStatusChange(status)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer",
+                        isActive
+                          ? cn(cfg.bg, cfg.color, "shadow-sm ring-1", cfg.ring)
+                          : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300"
+                      )}
+                    >
+                      <span className={cn(
+                        "w-2 h-2 rounded-full flex-shrink-0",
+                        isActive ? cfg.dot : "bg-slate-200 dark:bg-slate-700"
+                      )} />
+                      {cfg.label}
+                      {isActive && <CheckCircle2 size={11} className="ml-0.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Drive Link */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                Link do Drive / Conteúdo
+              </Label>
+              {isEditing ? (
+                <div className="flex gap-2">
+                  <Input
+                    value={(editData as any).driveLink ?? ""}
+                    onChange={e => setEditData(prev => ({ ...prev, driveLink: e.target.value }))}
+                    placeholder="https://drive.google.com/..."
+                    className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                  />
+                </div>
+              ) : selectedPost.driveLink ? (
+                <button
+                  onClick={handleOpenDrive}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors w-full text-sm font-medium"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+                    <Link2 size={14} className="text-white" />
+                  </div>
+                  <span className="truncate flex-1 text-left">{selectedPost.driveLink}</span>
+                  <ExternalLink size={14} className="flex-shrink-0 text-blue-500" />
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-sm">
+                  <Link2 size={14} />
+                  Nenhum link adicionado
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                Descrição / Briefing
+              </Label>
+              {isEditing ? (
+                <Textarea
+                  value={(editData as any).description ?? ""}
+                  onChange={e => setEditData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-blue-500/20"
+                  placeholder="Descreva o conteúdo do post..."
+                />
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 transition-colors">
+                  {selectedPost.description || <span className="text-slate-400 italic">Sem descrição</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Caption */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                <FileText size={12} className="inline mr-1" />
+                Legenda / Caption
+              </Label>
+              {isEditing ? (
+                <Textarea
+                  value={(editData as any).caption ?? ""}
+                  onChange={e => setEditData(prev => ({ ...prev, caption: e.target.value }))}
+                  rows={3}
+                  className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                  placeholder="Legenda para publicação..."
+                />
+              ) : selectedPost.caption ? (
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 whitespace-pre-wrap transition-colors">
+                  {selectedPost.caption}
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-900/30 rounded-xl px-4 py-3 text-sm text-slate-400 italic border border-dashed border-slate-200 dark:border-slate-700">
+                  Nenhuma legenda adicionada
+                </div>
+              )}
+            </div>
+
+            {/* Hashtags */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                <Hash size={12} className="inline mr-1" />
+                Hashtags
+              </Label>
+              {isEditing ? (
                 <Input
-                  value={(editData as any).driveLink ?? ""}
-                  onChange={e => setEditData(prev => ({ ...prev, driveLink: e.target.value }))}
-                  placeholder="https://drive.google.com/..."
+                  value={(editData as any).hashtags ?? ""}
+                  onChange={e => setEditData(prev => ({ ...prev, hashtags: e.target.value }))}
+                  placeholder="#hashtag1 #hashtag2..."
                   className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
                 />
-              </div>
-            ) : selectedPost.driveLink ? (
-              <button
-                onClick={handleOpenDrive}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors w-full text-sm font-medium"
-              >
-                <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <Link2 size={14} className="text-white" />
+              ) : selectedPost.hashtags ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedPost.hashtags.split(" ").filter(Boolean).map((tag, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 rounded-md text-xs font-medium shadow-sm transition-all"
+                      style={{
+                        backgroundColor: `${client.brandColor}20`,
+                        color: client.brandColor,
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <span className="truncate flex-1 text-left">{selectedPost.driveLink}</span>
-                <ExternalLink size={14} className="flex-shrink-0 text-blue-500" />
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-sm">
-                <Link2 size={14} />
-                Nenhum link adicionado
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              Descrição / Briefing
-            </Label>
-            {isEditing ? (
-              <Textarea
-                value={(editData as any).description ?? ""}
-                onChange={e => setEditData(prev => ({ ...prev, description: e.target.value }))}
-                rows={4}
-                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-blue-500/20"
-                placeholder="Descreva o conteúdo do post..."
-              />
-            ) : (
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 transition-colors">
-                {selectedPost.description || <span className="text-slate-400 italic">Sem descrição</span>}
-              </div>
-            )}
-          </div>
-
-          {/* Caption */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              <FileText size={12} className="inline mr-1" />
-              Legenda / Caption
-            </Label>
-            {isEditing ? (
-              <Textarea
-                value={(editData as any).caption ?? ""}
-                onChange={e => setEditData(prev => ({ ...prev, caption: e.target.value }))}
-                rows={3}
-                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
-                placeholder="Legenda para publicação..."
-              />
-            ) : selectedPost.caption ? (
-              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-800 whitespace-pre-wrap transition-colors">
-                {selectedPost.caption}
-              </div>
-            ) : (
-              <div className="bg-slate-50 dark:bg-slate-900/30 rounded-xl px-4 py-3 text-sm text-slate-400 italic border border-dashed border-slate-200 dark:border-slate-700">
-                Nenhuma legenda adicionada
-              </div>
-            )}
-          </div>
-
-          {/* Hashtags */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              <Hash size={12} className="inline mr-1" />
-              Hashtags
-            </Label>
-            {isEditing ? (
-              <Input
-                value={(editData as any).hashtags ?? ""}
-                onChange={e => setEditData(prev => ({ ...prev, hashtags: e.target.value }))}
-                placeholder="#hashtag1 #hashtag2..."
-                className="text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
-              />
-            ) : selectedPost.hashtags ? (
-              <div className="flex flex-wrap gap-1.5">
-                {selectedPost.hashtags.split(" ").filter(Boolean).map((tag, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-0.5 rounded-md text-xs font-medium shadow-sm transition-all"
-                    style={{
-                      backgroundColor: `${client.brandColor}20`,
-                      color: client.brandColor,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400 dark:text-slate-500 italic">Nenhuma hashtag</p>
-            )}
-          </div>
-
-          {/* Notes */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
-              <AlertCircle size={12} className="inline mr-1" />
-              Observações Internas
-            </Label>
-            {isEditing ? (
-              <Textarea
-                value={(editData as any).notes ?? ""}
-                onChange={e => setEditData(prev => ({ ...prev, notes: e.target.value }))}
-                rows={2}
-                className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
-                placeholder="Notas internas, pendências..."
-              />
-            ) : selectedPost.notes ? (
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-200 leading-relaxed border border-amber-100 dark:border-amber-900/30 transition-colors">
-                {selectedPost.notes}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400 dark:text-slate-500 italic">Sem observações</p>
-            )}
-          </div>
-
-          {/* Metadata */}
-          <div className="pt-2 border-t border-slate-100">
-            <div className="flex items-center gap-4 text-[11px] text-slate-400">
-              <span className="flex items-center">
-                <Circle size={8} className="inline mr-1 opacity-50" />
-                Criado: {formatSafeDate(selectedPost.createdAt)}
-                {selectedPost.createdBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.createdBy.name}</span>}
-              </span>
-              <span className="flex items-center">
-                Atualizado: {formatSafeDate(selectedPost.updatedAt)}
-                {selectedPost.updatedBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.updatedBy.name}</span>}
-              </span>
+              ) : (
+                <p className="text-sm text-slate-400 dark:text-slate-500 italic">Nenhuma hashtag</p>
+              )}
             </div>
+
+            {/* Notes */}
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                <AlertCircle size={12} className="inline mr-1" />
+                Observações Internas
+              </Label>
+              {isEditing ? (
+                <Textarea
+                  value={(editData as any).notes ?? ""}
+                  onChange={e => setEditData(prev => ({ ...prev, notes: e.target.value }))}
+                  rows={2}
+                  className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+                  placeholder="Notas internas, pendências..."
+                />
+              ) : selectedPost.notes ? (
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-200 leading-relaxed border border-amber-100 dark:border-amber-900/30 transition-colors">
+                  {selectedPost.notes}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 dark:text-slate-500 italic">Sem observações</p>
+              )}
+            </div>
+
+            {/* Metadata */}
+            <div className="pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-4 text-[11px] text-slate-400 flex-wrap">
+                <span className="flex items-center">
+                  <Circle size={8} className="inline mr-1 opacity-50" />
+                  Criado: {formatSafeDate(selectedPost.createdAt)}
+                  {selectedPost.createdBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.createdBy.name}</span>}
+                </span>
+                <span className="flex items-center">
+                  Atualizado: {formatSafeDate(selectedPost.updatedAt)}
+                  {selectedPost.updatedBy?.name && <span className="ml-1 text-slate-500 font-medium">por {selectedPost.updatedBy.name}</span>}
+                </span>
+              </div>
+            </div>
+          </div> {/* Fim da esquerda */}
+
+          {/* Right Column: Comments & Feedback */}
+          <div className="w-full md:w-[450px] flex-shrink-0 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+            <CommentsSection
+              postId={selectedPost.id}
+              isAgencyView={true}
+              brandColor={client.brandColor}
+            />
           </div>
-        </div>
+
+        </div> {/* Fim do Wrapper de 2 paineis */}
       </DialogContent>
-    </Dialog >
+    </Dialog>
   );
 }

@@ -38,9 +38,10 @@ model Account {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users   User[]
-  clients Client[]
-  posts   Post[]
+  users         User[]
+  clients       Client[]
+  posts         Post[]
+  notifications Notification[]
 
   @@map("accounts")
 }
@@ -52,16 +53,18 @@ model User {
   name         String
   phone        String?
   role         Role     @default(MEMBER)
-  authId       String?  @unique @map("auth_id") // Supabase Auth UID
-  isSuperAdmin Boolean  @default(false) @map("is_super_admin")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  authId             String?  @unique @map("auth_id") // Supabase Auth UID
+  isSuperAdmin       Boolean  @default(false) @map("is_super_admin")
+  emailNotifications Boolean  @default(true) @map("email_notifications") // Preferência de alertas globais
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
   createdPosts Post[]        @relation("PostCreatedBy")
   updatedPosts Post[]        @relation("PostUpdatedBy")
   comments     Comment[]
   postVersions PostVersion[]
+  notifications Notification[] @relation("UserNotifications")
 
   @@map("users")
 }
@@ -159,14 +162,37 @@ model Comment {
   id         String   @id @default(cuid())
   postId     String   @map("post_id")
   content    String   @db.Text
-  isInternal Boolean  @default(false) @map("is_internal") // Se true, só a equipe vê
-  authorId   String?  @map("author_id")
-  authorName String?  @map("author_name") // Para clientes anônimos via ShareLink
-  createdAt  DateTime @default(now()) @map("created_at")
+  isInternal  Boolean  @default(false) @map("is_internal") // Se true, só a equipe vê
+  authorId    String?  @map("author_id")
+  authorName  String?  @map("author_name") // Para clientes anônimos via ShareLink
+  authorEmail String?  @map("author_email") // E-mail obrigatório ou opcional do cliente
+  createdAt   DateTime @default(now()) @map("created_at")
 
   post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
   author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([postId])
   @@map("comments")
+}
+
+// ==========================================
+// SYSTEM NOTIFICATIONS
+// ==========================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id") // Para isolamento multi-tenant
+  userId    String   @map("user_id")    // Destinatário da Notificação
+  type      String   // Ex: "NEW_COMMENT", "POST_APPROVED"
+  title     String
+  message   String   @db.Text
+  linkUrl   String?  @map("link_url")   // Rota para redicionamento ao click
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read]) // Permite listar a contagem de não-lidas bem rápido no painel
+  @@map("notifications")
 }

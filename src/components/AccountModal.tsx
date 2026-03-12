@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2, LogOut } from "lucide-react";
+import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2, LogOut, BellRing } from "lucide-react";
 import { getMyProfile, updateProfileAction, updateAccountAction, signOutAction } from "@/app/actions/auth";
 import { useApp } from "@/contexts/AppContext";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 // Tipagem do Perfil de UI
 type UserProfile = {
@@ -29,10 +30,13 @@ export function AccountModal() {
     // States de edição
     const [editingProfile, setEditingProfile] = useState(false);
     const [editingAccount, setEditingAccount] = useState(false);
+    const [emailNotifs, setEmailNotifs] = useState<boolean>(true);
+    const [updatingPrefs, setUpdatingPrefs] = useState(false);
 
     useEffect(() => {
         if (isAccountModalOpen) {
             loadProfile();
+            loadPreferences();
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "unset";
@@ -41,6 +45,35 @@ export function AccountModal() {
         }
         return () => { document.body.style.overflow = "unset"; };
     }, [isAccountModalOpen]);
+
+    const loadPreferences = async () => {
+        try {
+            const res = await fetch("/api/notifications/preferences");
+            if (res.ok) {
+                const data = await res.json();
+                setEmailNotifs(data.emailNotifications);
+            }
+        } catch { }
+    };
+
+    const toggleEmailNotifs = async (checked: boolean) => {
+        setUpdatingPrefs(true);
+        setEmailNotifs(checked);
+        try {
+            const res = await fetch("/api/notifications/preferences", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ emailNotifications: checked })
+            });
+            if (!res.ok) throw new Error();
+            toast.success("Preferências de notificação salvas.");
+        } catch {
+            setEmailNotifs(!checked);
+            toast.error("Erro ao salvar preferência. Tente novamente.");
+        } finally {
+            setUpdatingPrefs(false);
+        }
+    };
 
     const loadProfile = async () => {
         setIsLoading(true);
@@ -154,6 +187,27 @@ export function AccountModal() {
                                         <button className="w-full h-11 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-500 text-white dark:text-white text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-blue-500/20">
                                             Fazer Upgrade
                                         </button>
+                                    </div>
+                                </div>
+
+                                {/* Preferências de Notificações */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                    <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-2">
+                                            <BellRing size={16} className="text-blue-500" />
+                                            <h3 className="font-black text-[11px] text-slate-700 dark:text-slate-300 uppercase tracking-widest">Alertas do Sistema</h3>
+                                        </div>
+                                        <Switch
+                                            checked={emailNotifs}
+                                            onCheckedChange={toggleEmailNotifs}
+                                            disabled={updatingPrefs}
+                                            className="data-[state=checked]:bg-blue-600"
+                                        />
+                                    </div>
+                                    <div className="p-5">
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                            Receber um e-mail quando o seu <strong>Cliente</strong> enviar comentários ou aprovar uma peça através do Link Compartilhado público.
+                                        </p>
                                     </div>
                                 </div>
                             </div>

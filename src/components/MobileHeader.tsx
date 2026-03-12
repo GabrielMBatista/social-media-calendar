@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { ClientSidebar } from "./ClientSidebar";
 import { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 export function MobileHeader() {
     const { setTheme, resolvedTheme } = useTheme();
@@ -42,6 +43,7 @@ export function MobileHeader() {
             </div>
 
             <div className="flex items-center gap-1">
+                <NotificationsPanel />
                 <Button
                     variant="ghost"
                     size="icon"

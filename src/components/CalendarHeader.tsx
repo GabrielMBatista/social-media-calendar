@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { signOutAction } from "@/app/actions/auth";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 
 export function CalendarHeader() {
@@ -245,6 +246,7 @@ export function CalendarHeader() {
 
         {/* Right: Theme toggle + Add post */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <NotificationsPanel />
           <Button
             variant="outline"
             size="icon"

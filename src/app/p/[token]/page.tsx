@@ -6,6 +6,7 @@ import {
     Calendar, Clock, ExternalLink, Hash, Link2,
     Image, Play, LayoutGrid, Music, Youtube, Linkedin, Twitter
 } from "lucide-react";
+import { CommentsSection } from "@/components/CommentsSection";
 
 // Forçamos dinâmico para garantir validação do token e expiração a cada acesso
 export const dynamic = "force-dynamic";
@@ -190,10 +191,15 @@ export default async function PublicPostPage(
 
                     </div>
 
-                    {/* Footer Area For Future Comments (If allowed) */}
+                    {/* Footer Area For Comments (If allowed) */}
                     {link.allowComments && (
-                        <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
-                            <p className="text-sm text-slate-500 font-medium">✨ Área de comentários será disponibilizada em breve.</p>
+                        <div className="bg-white border-t border-slate-100">
+                            <CommentsSection
+                                postId={post.id}
+                                token={link.token}
+                                brandColor={brandColor}
+                                isAgencyView={false}
+                            />
                         </div>
                     )}
                 </div>

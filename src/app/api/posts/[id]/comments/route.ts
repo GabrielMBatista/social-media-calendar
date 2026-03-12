@@ -35,12 +35,15 @@ export async function GET(
 
         const comments = await prisma.comment.findMany({
             where: { postId: id },
-            include: { author: { select: { name: true } } },
+            include: {
+                author: { select: { id: true, name: true, email: true, role: true } }
+            },
             orderBy: { createdAt: "asc" },
         });
 
         return NextResponse.json({ success: true, data: comments }, { headers: { "Cache-Control": "no-store" } });
-    } catch {
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ success: false, error: "Server error" }, { status: 500 });
     }
 }
@@ -77,11 +80,12 @@ export async function POST(
                 isInternal: data.isInternal,
                 authorId: user.id,
             },
-            include: { author: { select: { name: true } } },
+            include: { author: { select: { id: true, name: true, email: true, role: true } } },
         });
 
-        return NextResponse.json({ success: true, data: comment }, { headers: { "Cache-Control": "no-store" } });
-    } catch {
+        return NextResponse.json({ success: true, data: comment }, { headers: { "Cache-Control": "no-store", "Content-Type": "application/json" } });
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
     }
 }
