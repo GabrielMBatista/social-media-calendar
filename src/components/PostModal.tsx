@@ -418,7 +418,7 @@ export function PostModal() {
             <div className="flex-1 min-w-0 w-full relative">
               <Send className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
               <Input
-                placeholder="E-mail do cliente (Ex: joao@empresa.com.br)"
+                placeholder="E-mails (Múltiplos sep. virgula: a@a.com, b@b.com)"
                 value={emailTo}
                 onChange={(e) => setEmailTo(e.target.value)}
                 className="pl-9 h-9 text-sm border-blue-200 focus-visible:ring-blue-500/30 dark:border-blue-800/40 bg-white dark:bg-slate-900"
@@ -623,6 +623,6 @@ export function PostModal() {
           </div>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
