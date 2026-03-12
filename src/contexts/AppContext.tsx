@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Client, Post, PostStatus, DayOfWeek, CreateClientDTO, CreatePostDTO } from "@/lib/types";
+import { Client, Post, PostStatus, DayOfWeek, CreateClientDTO, CreatePostDTO, Portfolio } from "@/lib/types";
 import { toast } from "sonner";
 
 interface AppState {
@@ -18,6 +18,9 @@ interface AppState {
   isAddPostModalOpen: boolean;
   addPostDay: DayOfWeek | null;
   isAccountModalOpen: boolean;
+  isTeamModalOpen: boolean;
+  selectedPortfolioFilter: string | null;
+  portfolios: Portfolio[];
 }
 
 interface AppContextValue extends AppState {
@@ -37,9 +40,12 @@ interface AppContextValue extends AppState {
   setClientFilter: (clientId: string | null) => void;
   setStatusFilter: (status: PostStatus | null) => void;
   navigateWeek: (direction: "prev" | "next" | "current") => void;
+  setPortfolioFilter: (portfolioId: string | null) => void;
   jumpToDate: (dateStr: string) => void;
   openAccountModal: () => void;
   closeAccountModal: () => void;
+  openTeamModal: () => void;
+  closeTeamModal: () => void;
   filteredPosts: Post[];
   getClientById: (id: string) => Client | undefined;
   getWeekDates: () => { key: DayOfWeek; date: Date; label: string; isToday: boolean }[];
@@ -68,10 +74,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { data: posts = [], isLoading: isPostsLoading } = useQuery<Post[]>({
     queryKey: ["posts"],
     queryFn: fetchPosts,
-    staleTime: 0, // Sempre busca dados frescos quando invalidado (ex: após delete/update)
+    staleTime: 0,
   });
 
-  const isLoading = isClientsLoading || isPostsLoading;
+  const { data: portfolios = [], isLoading: isPortfoliosLoading } = useQuery<Portfolio[]>({
+    queryKey: ["portfolios"],
+    queryFn: () => fetch("/api/agency/portfolios").then(res => res.json()).then(d => d.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isLoading = isClientsLoading || isPostsLoading || isPortfoliosLoading;
 
   const [selectedClientFilter, setSelectedClientFilter] = useState<string | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<PostStatus | null>(null);
@@ -83,6 +95,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isAddPostModalOpen, setIsAddPostModalOpen] = useState(false);
   const [addPostDay, setAddPostDay] = useState<DayOfWeek | null>(null);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [selectedPortfolioFilter, setSelectedPortfolioFilter] = useState<string | null>(null);
+
+  const setPortfolioFilter = useCallback((id: string | null) => {
+    setSelectedPortfolioFilter(id);
+    // Reset client filter if switching portfolios to avoid impossible cross-filters
+    setSelectedClientFilter(null);
+  }, []);
 
   // --- CLIENT MUTATIONS ---
 
@@ -279,6 +299,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const openAccountModal = useCallback(() => setIsAccountModalOpen(true), []);
   const closeAccountModal = useCallback(() => setIsAccountModalOpen(false), []);
 
+  const openTeamModal = useCallback(() => setIsTeamModalOpen(true), []);
+  const closeTeamModal = useCallback(() => setIsTeamModalOpen(false), []);
+
   const setClientFilter = useCallback((clientId: string | null) => {
     setSelectedClientFilter(clientId);
   }, []);
@@ -350,6 +373,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const filteredPosts = posts.filter(post => {
     if (selectedClientFilter && post.clientId !== selectedClientFilter) return false;
     if (selectedStatusFilter && post.status !== selectedStatusFilter) return false;
+
+    // Add Portfolio filtering
+    if (selectedPortfolioFilter) {
+      const client = clients.find(c => c.id === post.clientId);
+      if (!client || client.portfolioId !== selectedPortfolioFilter) return false;
+    }
+
     return true;
   });
 
@@ -367,6 +397,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       isAddPostModalOpen,
       addPostDay,
       isAccountModalOpen,
+      isTeamModalOpen,
       addClient,
       updateClient,
       deleteClient,
@@ -386,7 +417,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       jumpToDate,
       openAccountModal,
       closeAccountModal,
+      openTeamModal,
+      closeTeamModal,
       filteredPosts,
+      selectedPortfolioFilter,
+      setPortfolioFilter,
+      portfolios,
       getClientById,
       getWeekDates,
       isLoading,

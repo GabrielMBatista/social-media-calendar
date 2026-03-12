@@ -17,6 +17,7 @@ import { PostModal } from "@/components/PostModal";
 import { AddPostModal } from "@/components/AddPostModal";
 import { ClientModal } from "@/components/ClientModal";
 import { AccountModal } from "@/components/AccountModal";
+import { TeamModal } from "@/components/TeamModal";
 import { useApp } from "@/contexts/AppContext";
 import { PostCardSkeleton } from "@/components/PostCard";
 import { LayoutGrid, List } from "lucide-react";
@@ -146,6 +147,7 @@ function AppLayout() {
             <AddPostModal />
             <ClientModal />
             <AccountModal />
+            <TeamModal />
         </div>
     );
 }

@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { CalendarDays, Save, Eye, EyeOff } from "lucide-react";
+import { useActionState, useState, useEffect, Suspense } from "react";
+import { CalendarDays, Save, Eye, EyeOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signUpAction } from "@/app/actions/auth";
-import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 
-export default function SignupPage() {
+function SignupPageContent() {
+    const searchParams = useSearchParams();
+    const inviteToken = searchParams.get("invite");
+    const [inviteData, setInviteData] = useState<any>(null);
+    const [isVerifyingInvite, setIsVerifyingInvite] = useState(!!inviteToken);
+
     const [error, formAction, isPending] = useActionState(
         async (
             prevState: any,
@@ -24,7 +29,21 @@ export default function SignupPage() {
         supabase.auth.getUser().then(({ data: { user } }) => {
             if (user) setPreAuthUser(user);
         });
-    }, []);
+
+        // Verificar Convite
+        if (inviteToken) {
+            fetch(`/api/agency/invitations/verify/${inviteToken}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        setInviteData(data.data);
+                    } else {
+                        console.error("Invite error:", data.error);
+                    }
+                })
+                .finally(() => setIsVerifyingInvite(false));
+        }
+    }, [inviteToken]);
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -38,112 +57,124 @@ export default function SignupPage() {
                 {/* Header */}
                 <div className="px-8 pt-8 pb-5 flex flex-col items-center">
                     <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg mb-4">
-                        <CalendarDays size={24} className="text-white" />
+                        {inviteData ? <Users size={24} className="text-white" /> : <CalendarDays size={24} className="text-white" />}
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-800" style={{ fontFamily: "Outfit, sans-serif" }}>
-                        {preAuthUser ? "Completar Perfil" : "Criar sua Conta"}
+                    <h1 className="text-2xl font-bold text-slate-800 text-center" style={{ fontFamily: "Outfit, sans-serif" }}>
+                        {inviteData ? `Bem-vindo à ${inviteData.accountName}` : preAuthUser ? "Completar Perfil" : "Criar sua Conta"}
                     </h1>
                     <p className="text-sm text-slate-500 mt-1.5 text-center">
-                        {preAuthUser
-                            ? `Olá ${preAuthUser.email}, finalize os detalhes da sua agência.`
-                            : "Junte-se ao Social Media Pro e gerencie clientes incrivelmente bem."}
+                        {inviteData
+                            ? `Você foi convidado para participar como ${inviteData.roleName || "Membro"}. Finalize seu acesso abaixo.`
+                            : preAuthUser
+                                ? `Olá ${preAuthUser.email}, finalize os detalhes da sua agência.`
+                                : "Junte-se ao Social Media Pro e gerencie clientes incrivelmente bem."}
                     </p>
                 </div>
 
                 <div className="px-8 pb-8 flex-1">
-                    <form action={formAction} className="space-y-4">
-                        {error && (
-                            <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold">
-                                {error.error || "Houve erro ao processar cadastro."}
-                            </div>
-                        )}
-                        {/* Split inputs for names */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <label htmlFor="username" className="text-xs font-bold text-slate-700">Seu Nome</label>
-                                <input
-                                    id="username"
-                                    name="username"
-                                    type="text"
-                                    placeholder="João Silva"
-                                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                    required
-                                    autoComplete="name"
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label htmlFor="agency" className="text-xs font-bold text-slate-700">Agência (Nome)</label>
-                                <input
-                                    id="agency"
-                                    name="agency"
-                                    type="text"
-                                    placeholder="Studio Criativo"
-                                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                    required
-                                    autoComplete="organization"
-                                />
-                            </div>
+                    {isVerifyingInvite ? (
+                        <div className="py-12 flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Validando convite...</p>
                         </div>
+                    ) : (
+                        <form action={formAction} className="space-y-4">
+                            {error && (
+                                <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold">
+                                    {error.error || "Houve erro ao processar cadastro."}
+                                </div>
+                            )}
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="phone" className="text-xs font-bold text-slate-700">Telefone (WhatsApp)</label>
-                            <input
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                placeholder="(11) 99999-9999"
-                                className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                required
-                                autoComplete="tel"
-                            />
-                        </div>
+                            {inviteToken && <input type="hidden" name="invitationToken" value={inviteToken} />}
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="email" className="text-xs font-bold text-slate-700">E-mail</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                defaultValue={preAuthUser?.email || ""}
-                                readOnly={!!preAuthUser}
-                                placeholder="seu@email.com"
-                                className={`w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all ${preAuthUser ? "opacity-60 cursor-not-allowed" : "focus:bg-white"}`}
-                                required
-                                autoComplete="email"
-                            />
-                        </div>
-
-                        {!preAuthUser && (
-                            <div className="space-y-1.5">
-                                <label htmlFor="password" className="text-xs font-bold text-slate-700">Senha Segura</label>
-                                <div className="relative">
+                            {/* Split inputs for names */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label htmlFor="username" className="text-xs font-bold text-slate-700">Seu Nome</label>
                                     <input
-                                        id="password"
-                                        name="password"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="••••••••"
-                                        className="w-full h-10 px-3 pr-10 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                        id="username"
+                                        name="username"
+                                        type="text"
+                                        placeholder="João Silva"
+                                        className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
                                         required
-                                        minLength={6}
-                                        autoComplete="new-password"
+                                        autoComplete="name"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
-                                    >
-                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                    </button>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label htmlFor="agency" className="text-xs font-bold text-slate-700">Agência (Nome)</label>
+                                    <input
+                                        id="agency"
+                                        name="agency"
+                                        type="text"
+                                        defaultValue={inviteData?.accountName || ""}
+                                        readOnly={!!inviteData}
+                                        placeholder="Studio Criativo"
+                                        className={`w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold ${inviteData ? "opacity-60 cursor-not-allowed" : "focus:bg-white"}`}
+                                        required
+                                        autoComplete="organization"
+                                    />
                                 </div>
                             </div>
-                        )}
 
-                        <Button disabled={isPending} className="w-full h-10 mt-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white gap-2 font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
-                            <Save size={16} /> {isPending ? "Configurando Conta..." : "Completar Cadastro"}
-                        </Button>
-                    </form>
+                            <div className="space-y-1.5">
+                                <label htmlFor="phone" className="text-xs font-bold text-slate-700">Telefone (WhatsApp)</label>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    placeholder="(11) 99999-9999"
+                                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
+                                    required
+                                    autoComplete="tel"
+                                />
+                            </div>
 
+                            <div className="space-y-1.5">
+                                <label htmlFor="email" className="text-xs font-bold text-slate-700">E-mail</label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    defaultValue={inviteData?.email || preAuthUser?.email || ""}
+                                    readOnly={!!inviteData || !!preAuthUser}
+                                    placeholder="seu@email.com"
+                                    className={`w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold ${inviteData || preAuthUser ? "opacity-60 cursor-not-allowed" : "focus:bg-white"}`}
+                                    required
+                                    autoComplete="email"
+                                />
+                            </div>
 
+                            {!preAuthUser && (
+                                <div className="space-y-1.5">
+                                    <label htmlFor="password" className="text-xs font-bold text-slate-700">Senha Segura</label>
+                                    <div className="relative">
+                                        <input
+                                            id="password"
+                                            name="password"
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            className="w-full h-10 px-3 pr-10 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
+                                            required
+                                            minLength={6}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                                        >
+                                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <Button disabled={isPending} className="w-full h-10 mt-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white gap-2 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+                                <Save size={16} /> {isPending ? "Configurando Conta..." : inviteData ? "Aceitar e Entrar" : "Completar Cadastro"}
+                            </Button>
+                        </form>
+                    )}
                 </div>
 
                 {/* Footer */}
@@ -157,5 +188,17 @@ export default function SignupPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <SignupPageContent />
+        </Suspense>
     );
 }

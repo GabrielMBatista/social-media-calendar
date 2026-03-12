@@ -6,7 +6,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { PostStatus, STATUS_CONFIG } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical, Search, XCircle } from "lucide-react";
+import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical, Search, XCircle, Briefcase, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,15 +18,20 @@ import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 export function ClientSidebar() {
   const {
     clients, posts, selectedClientFilter, selectedStatusFilter,
-    setClientFilter, setStatusFilter, openClientModal, deleteClient
+    setClientFilter, setStatusFilter, openClientModal, deleteClient,
+    portfolios, selectedPortfolioFilter, setPortfolioFilter
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const activeClients = clients.filter(c =>
-    c.active && (c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.industry?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const activeClients = clients.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.industry?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesPortfolio = !selectedPortfolioFilter || c.portfolioId === selectedPortfolioFilter;
+
+    return c.active && matchesSearch && matchesPortfolio;
+  });
 
   const getClientPostCount = (clientId: string) =>
     posts.filter(p => p.clientId === clientId).length;
@@ -36,6 +41,39 @@ export function ClientSidebar() {
 
   return (
     <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
+      {/* Portfolios Selector */}
+      {portfolios.length > 0 && (
+        <div className="px-3 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center justify-between px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-blue-500/50 transition-all group">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                    <Briefcase size={12} />
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-widest truncate">
+                    {selectedPortfolioFilter
+                      ? portfolios.find(p => p.id === selectedPortfolioFilter)?.name
+                      : "Todas as Carteiras"}
+                  </span>
+                </div>
+                <ChevronDown size={14} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuItem onClick={() => setPortfolioFilter(null)} className="text-xs font-bold uppercase tracking-tight">
+                Todas as Carteiras
+              </DropdownMenuItem>
+              {portfolios.map(p => (
+                <DropdownMenuItem key={p.id} onClick={() => setPortfolioFilter(p.id)} className="text-xs font-bold uppercase tracking-tight">
+                  {p.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex-shrink-0 px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
         <div className="flex items-center justify-between mb-4 mt-1">

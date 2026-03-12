@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Palette, Upload, Instagram } from "lucide-react";
+import { Palette, Upload, Instagram, Briefcase } from "lucide-react";
 
 const PRESET_COLORS = [
   "#E91E8C", "#2563EB", "#D97706", "#059669", "#7C3AED",
@@ -34,9 +34,21 @@ export function ClientModal() {
     industry: "",
     instagramHandle: "",
     active: true,
+    portfolioId: "" as string | null,
   });
 
+  const [portfolios, setPortfolios] = useState<any[]>([]);
+
   useEffect(() => {
+    if (isClientModalOpen) {
+      // Fetch portfolios
+      fetch("/api/agency/portfolios")
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) setPortfolios(data.data);
+        });
+    }
+
     if (editingClient) {
       setForm({
         name: editingClient.name,
@@ -47,11 +59,13 @@ export function ClientModal() {
         industry: editingClient.industry ?? "",
         instagramHandle: editingClient.instagramHandle ?? "",
         active: editingClient.active,
+        portfolioId: (editingClient as any).portfolioId ?? "",
       });
     } else {
       setForm({
         name: "", brandColor: "#2563EB", brandColorSecondary: "",
         logoUrl: "", logoInitials: "", industry: "", instagramHandle: "", active: true,
+        portfolioId: "",
       });
     }
   }, [editingClient, isClientModalOpen]);
@@ -129,16 +143,34 @@ export function ClientModal() {
           </div>
 
           {/* Name */}
-          <div>
-            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
-              Nome do Cliente *
-            </Label>
-            <Input
-              value={form.name}
-              onChange={e => handleNameChange(e.target.value)}
-              placeholder="Ex: Bella Estética"
-              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
+                Nome do Cliente *
+              </Label>
+              <Input
+                value={form.name}
+                onChange={e => handleNameChange(e.target.value)}
+                placeholder="Ex: Bella Estética"
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+              />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">
+                <Briefcase size={11} className="inline mr-1" />
+                Carteira
+              </Label>
+              <select
+                value={form.portfolioId || ""}
+                onChange={(e) => setForm(p => ({ ...p, portfolioId: e.target.value || null }))}
+                className="w-full h-10 px-3 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                <option value="">Nenhuma / Solo</option>
+                {portfolios.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Initials + Industry row */}

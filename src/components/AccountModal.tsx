@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2, LogOut, BellRing } from "lucide-react";
+import { User, Mail, Phone, Building2, CreditCard, X, ShieldCheck, Save, CheckCircle2, LogOut, BellRing, Users, ChevronRight } from "lucide-react";
 import { getMyProfile, updateProfileAction, updateAccountAction, signOutAction } from "@/app/actions/auth";
 import { useApp } from "@/contexts/AppContext";
 import { toast } from "sonner";
@@ -22,7 +22,7 @@ type UserProfile = {
 };
 
 export function AccountModal() {
-    const { isAccountModalOpen, closeAccountModal } = useApp();
+    const { isAccountModalOpen, closeAccountModal, openTeamModal } = useApp();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
@@ -381,6 +381,31 @@ export function AccountModal() {
                                                 className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-base font-black text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 transition-all font-outfit"
                                             />
                                         </div>
+
+                                        {/* Atalho para Equipe (Apenas Agência) */}
+                                        {user.account.plan === "AGENCY" && (
+                                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        closeAccountModal();
+                                                        openTeamModal();
+                                                    }}
+                                                    className="w-full flex items-center justify-between p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all group"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                                                            <Users size={16} />
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <p className="text-xs font-black text-blue-700 dark:text-blue-400 uppercase tracking-tight">Gerenciar Equipe</p>
+                                                            <p className="text-[10px] text-blue-600/60 font-bold uppercase">Convites, permissões e membros</p>
+                                                        </div>
+                                                    </div>
+                                                    <ChevronRight size={16} className="text-blue-400 group-hover:translate-x-1 transition-transform" />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </form>
                             </div>

@@ -74,10 +74,11 @@ export async function signUpAction(formData: FormData) {
     const username = formData.get("username") as string;
     const agency = formData.get("agency") as string;
     const phone = formData.get("phone") as string;
+    const invitationToken = formData.get("invitationToken") as string;
 
     const supabase = await createClient();
 
-    // 0. Verifica se já existe uma sessão (Caso o usuário venha do Magic Link)
+    // 0. Verifica se já existe uma sessão
     const { data: { user: currentUser } } = await supabase.auth.getUser();
 
     let authUser = currentUser;
@@ -101,46 +102,74 @@ export async function signUpAction(formData: FormData) {
         authUser = authData.user;
     }
 
-    // O email pode vir do Auth ou do Form
     const finalEmail = authUser.email || emailFromForm;
 
     try {
-        // Verifica se já existe perfil no banco (ex: usuário logado após DB reset)
         const existingUser = await prisma.user.findUnique({
             where: { authId: authUser!.id },
             select: { id: true }
         });
 
         if (existingUser) {
-            // Perfil já existe — vai direto para a dashboard
             return redirect("/");
         }
 
-        // 2. Cria a Empresa e o Usuário Administrativo no Postgres
-        await prisma.$transaction(async (tx: any) => {
-            // 2.a Criar o "Account" primário
-            const newAccount = await tx.account.create({
-                data: {
-                    name: agency,
-                    plan: "FREE",
-                },
+        // --- Lógica de Convite ---
+        let targetAccountId: string | null = null;
+        let targetRole: any = "OWNER";
+
+        if (invitationToken) {
+            const invite = await prisma.invitation.findUnique({
+                where: { token: invitationToken },
+                include: { account: true }
             });
 
-            // 2.b Criar o "User" mapeando o authId
+            if (!invite || invite.accepted || invite.expiresAt < new Date()) {
+                return { error: "Convite inválido ou expirado." };
+            }
+
+            if (invite.email.toLowerCase() !== finalEmail.toLowerCase()) {
+                return { error: "Este convite foi enviado para outro endereço de e-mail." };
+            }
+
+            targetAccountId = invite.accountId;
+            targetRole = invite.roleName === "ADMIN" ? "ADMIN" : "MEMBER";
+
+            // Marcar convite como usado
+            await prisma.invitation.update({
+                where: { id: invite.id },
+                data: { accepted: true }
+            });
+        }
+
+        // 2. Cria a Empresa (se não for convite) e o Usuário
+        await prisma.$transaction(async (tx: any) => {
+            if (!targetAccountId) {
+                // Criar nova conta se não for convite
+                const newAccount = await tx.account.create({
+                    data: {
+                        name: agency || "Minha Agência",
+                        plan: "FREE",
+                    },
+                });
+                targetAccountId = newAccount.id;
+            }
+
+            // Criar o "User"
             await tx.user.create({
                 data: {
-                    accountId: newAccount.id,
+                    accountId: targetAccountId!,
                     email: finalEmail,
                     name: username,
                     phone: phone || null,
-                    role: "OWNER",
+                    role: targetRole,
                     authId: authUser!.id,
                 },
             });
         });
     } catch (dbError) {
-        console.error("Database provisioning failed for:", finalEmail, dbError);
-        return { error: "Ocorreu um erro ao finalizar a criação da conta. Verifique se os dados estão corretos." };
+        console.error("Database provisioning failed:", dbError);
+        return { error: "Erro ao finalizar criação da conta." };
     }
 
     return redirect("/");

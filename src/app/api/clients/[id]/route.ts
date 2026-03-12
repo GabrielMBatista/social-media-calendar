@@ -13,6 +13,7 @@ const updateSchema = z.object({
     industry: z.string().optional(),
     instagramHandle: z.string().optional(),
     active: z.boolean().optional(),
+    portfolioId: z.string().optional().nullable(),
 });
 
 export async function PATCH(

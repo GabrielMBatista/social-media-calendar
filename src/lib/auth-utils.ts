@@ -86,3 +86,26 @@ export function requirePro(account: { plan: string } | null | undefined) {
     return { error: null };
 }
 
+/**
+ * Paywall — verifica se o account é AGENCY.
+ * Deve ser chamado APÓS requireTenantAuth.
+ * Retorna { error } se não for AGENCY.
+ */
+export function requireAgency(account: { plan: string } | null | undefined) {
+    if (!account || account.plan !== "AGENCY") {
+        return {
+            error: NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "AGENCY_PLAN_REQUIRED",
+                        message: "Este recurso está disponível apenas no plano Agência.",
+                    },
+                },
+                { status: 403 }
+            ),
+        };
+    }
+    return { error: null };
+}
+
