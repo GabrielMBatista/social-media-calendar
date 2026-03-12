@@ -1,30 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState, useTransition } from "react";
 import { CalendarDays, Mail, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { forgotPasswordAction } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
 
-    const [error, formAction, isPending] = useActionState(
-        async (prevState: any, formData: FormData) => {
-            setSuccessMsg(null);
-            const res = await forgotPasswordAction(formData);
-            if (res.success) {
-                setSuccessMsg(res.success);
-                return null; // sucesso: não mostrar erro
-            }
-            return res;
-        },
-        null
-    );
+    // Client-side via createBrowserClient — PKCE verifier gerado e armazenado no browser
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSuccessMsg(null);
+        setError(null);
+        const email = new FormData(e.currentTarget).get("email") as string;
+
+        startTransition(async () => {
+            const supabase = createClient();
+            const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+
+            if (err) setError(err.message);
+            else setSuccessMsg("Link de recuperação enviado para seu e-mail!");
+        });
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            {/* Background patterns */}
             <div className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-3xl" />
@@ -45,10 +51,10 @@ export default function ForgotPasswordPage() {
                 </div>
 
                 <div className="px-8 pb-8 flex-1">
-                    <form action={formAction} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
                             <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-bold uppercase tracking-tight">
-                                {error.error || "Houve um erro ao solicitar o link."}
+                                {error}
                             </div>
                         )}
                         {successMsg && (
@@ -69,7 +75,7 @@ export default function ForgotPasswordPage() {
                                             name="email"
                                             type="email"
                                             placeholder="seu@email.com"
-                                            className="w-full h-11 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-outfit"
+                                            className="w-full h-11 pl-10 pr-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all"
                                             required
                                             autoComplete="email"
                                         />
