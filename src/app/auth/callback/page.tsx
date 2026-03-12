@@ -26,9 +26,30 @@ function CallbackHandler() {
     useEffect(() => {
         const next = searchParams.get("next") ?? "/";
         const supabase = createClient();
+        const code = searchParams.get("code");
 
-        // O SDK detecta o #access_token= no hash e cria a sessão automaticamente.
-        // Escutamos o evento SIGNED_IN para redirecionar após a sessão estar pronta.
+        // Caso 1: PKCE flow — tem ?code= na URL
+        // exchangeCodeForSession no browser client consegue achar o verifier
+        // onde o browser SDK o guardou (sessionStorage/cookie)
+        if (code) {
+            supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+                if (error) {
+                    router.replace(`/login?error=${encodeURIComponent(error.message)}`);
+                    return;
+                }
+                const event = data.session?.user?.app_metadata?.provider;
+                // PASSWORD_RECOVERY: vai para reset-password
+                if (searchParams.get("next") === "/reset-password") {
+                    router.replace("/reset-password");
+                } else {
+                    router.replace(next);
+                }
+            });
+            return;
+        }
+
+        // Caso 2: Implicit flow — tem #access_token= no hash
+        // O SDK do browser detecta e dispara onAuthStateChange automaticamente
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
                 subscription.unsubscribe();
@@ -40,10 +61,9 @@ function CallbackHandler() {
             }
         });
 
-        // Timeout de segurança: se não receber evento em 5s, vai para login
         const timeout = setTimeout(() => {
             subscription.unsubscribe();
-            router.replace("/login?error=Link+expirado+ou+inválido");
+            router.replace("/login?error=Link+expirado+ou+inv%C3%A1lido");
         }, 5000);
 
         return () => {
