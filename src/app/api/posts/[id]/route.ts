@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { PostAPI } from "@/lib/api-contracts";
 import { z } from "zod";
 import { requireTenantAuth } from "@/lib/auth-utils";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const updateSchema = z.object({
     title: z.string().optional(),
@@ -34,8 +37,12 @@ export async function PATCH(
         const body = await req.json();
         const data = updateSchema.parse(body);
 
-        // Verifica se pertence à conta
-        const existing = await prisma.post.findUnique({ where: { id: resolvedParams.id } });
+        // Verifica se pertence à conta e traz o criador p/ notificar
+        const existing = await prisma.post.findUnique({
+            where: { id: resolvedParams.id },
+            include: { createdBy: true }
+        });
+
         if (!existing || existing.accountId !== user.accountId) {
             return NextResponse.json(
                 { success: false, error: { code: "NOT_FOUND", message: "Post not found" } },
@@ -78,11 +85,70 @@ export async function PATCH(
             data: { ...data },
         });
 
+        // Lógica de Notificação de Status
+        if (data.status && data.status !== existing.status && existing.createdById) {
+            const statusLabels: Record<string, string> = {
+                rascunho: "Rascunho",
+                em_producao: "Em Produção",
+                pronto: "Pronto / Aprovado",
+                publicado: "Publicado",
+                cancelado: "Cancelado"
+            };
+
+            const newStatusLabel = statusLabels[data.status] || data.status;
+
+            try {
+                const notifTitle = "Status do Post Alterado";
+                const notifMsg = `O post **${post.title}** foi movido para **${newStatusLabel}** por ${user.name}.`;
+
+                await prisma.notification.create({
+                    data: {
+                        accountId: user.accountId!,
+                        userId: existing.createdById,
+                        type: "STATUS_CHANGE",
+                        title: notifTitle,
+                        message: notifMsg,
+                        linkUrl: `/dashboard/posts`,
+                    }
+                });
+
+                if (existing.createdBy?.notifyEmailStatusChange && existing.createdById !== user.id) {
+                    const senderStr = process.env.RESEND_FROM_EMAIL;
+                    if (senderStr) {
+                        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+                        resend.emails.send({
+                            from: senderStr,
+                            to: [existing.createdBy.email],
+                            subject: `[SM Calendar] ${notifTitle}`,
+                            html: `
+                               <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 30px;">
+                                    <div style="background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px;">
+                                         <h2 style="color: #333">${notifTitle}</h2>
+                                         <p style="color: #555">O post <strong>${post.title}</strong> teve o status atualizado:</p>
+                                         <div style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                                              <span style="color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: bold;">Novo Status</span><br/>
+                                              <strong style="font-size: 18px; color: #1e293b;">${newStatusLabel}</strong>
+                                         </div>
+                                         <p style="color: #64748b; font-size: 13px;">Alterado por: ${user.name}</p>
+                                         <br/>
+                                         <a href="${baseUrl}/dashboard" style="background:#3b82f6;color:white;text-decoration:none;padding:12px 20px;border-radius:4px;display:inline-block">Ver no Painel</a>
+                                    </div>
+                               </div>
+                             `
+                        }).catch(e => console.error("Error sending status resend email", e));
+                    }
+                }
+            } catch (err) {
+                console.error("[STATUS_NOTIF_ERROR]", err);
+            }
+        }
+
         return NextResponse.json(
             { success: true, data: post as any } satisfies PostAPI.UpdateResponse,
             { headers: { "Cache-Control": "no-store" } }
         );
     } catch (error) {
+        console.error(error);
         return NextResponse.json(
             { success: false, error: { code: "BAD_REQUEST", message: "Invalid request data" } },
             { status: 400 }

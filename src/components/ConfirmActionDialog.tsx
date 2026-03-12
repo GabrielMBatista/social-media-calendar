@@ -55,23 +55,30 @@ export function ConfirmActionDialog({
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
-            <AlertDialogContent className="pointer-events-auto">
-                <AlertDialogHeader>
-                    <AlertDialogTitle>{title}</AlertDialogTitle>
-                    <AlertDialogDescription>
+            <AlertDialogContent className="pointer-events-auto rounded-[2rem] border-slate-200/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl p-8 max-w-[400px]">
+                <AlertDialogHeader className="space-y-3">
+                    <AlertDialogTitle className="text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight uppercase tracking-tight text-center">
+                        {title}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm text-slate-500 dark:text-slate-400 text-center leading-relaxed">
                         {description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter className="sm:space-x-2">
-                    <AlertDialogCancel disabled={isLoading || disabled}>{cancelText}</AlertDialogCancel>
+                <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 mt-6 sm:space-x-3">
+                    <AlertDialogCancel
+                        disabled={isLoading || disabled}
+                        className="rounded-2xl h-12 flex-1 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    >
+                        {cancelText}
+                    </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleConfirm}
                         disabled={isLoading || disabled}
                         className={cn(
-                            "transition-all active:scale-95 font-semibold rounded-xl px-6",
+                            "rounded-2xl h-12 flex-1 transition-all active:scale-95 font-black uppercase tracking-widest text-[11px] px-8",
                             variant === "destructive"
-                                ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 shadow-md shadow-red-500/20"
-                                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-md shadow-blue-500/20",
+                                ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 shadow-xl shadow-red-500/30"
+                                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 shadow-xl shadow-blue-500/30",
                         )}
                     >
                         {isLoading ? <Loader2 size={14} className="animate-spin mr-2" /> : null}

@@ -11,10 +11,23 @@ export async function GET(req: Request) {
         // Buscamos qual o estado salvo atualizado
         const data = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { emailNotifications: true }
+            select: {
+                emailNotifications: true,
+                notifyEmailClientComment: true,
+                notifyEmailInternalComment: true,
+                notifyEmailStatusChange: true
+            }
         });
 
-        return NextResponse.json({ success: true, emailNotifications: data?.emailNotifications ?? true });
+        return NextResponse.json({
+            success: true,
+            preferences: {
+                emailNotifications: data?.emailNotifications ?? true,
+                notifyEmailClientComment: data?.notifyEmailClientComment ?? true,
+                notifyEmailInternalComment: data?.notifyEmailInternalComment ?? true,
+                notifyEmailStatusChange: data?.notifyEmailStatusChange ?? true
+            }
+        });
     } catch {
         return NextResponse.json({ success: false, error: "Erro interno" }, { status: 500 });
     }
@@ -28,12 +41,15 @@ export async function PATCH(req: Request) {
 
         const body = await req.json();
 
-        // Fazemos cast pra Boolean puro 
-        const val = typeof body.emailNotifications === 'boolean' ? body.emailNotifications : true;
+        const dataToUpdate: any = {};
+        if (typeof body.emailNotifications === 'boolean') dataToUpdate.emailNotifications = body.emailNotifications;
+        if (typeof body.notifyEmailClientComment === 'boolean') dataToUpdate.notifyEmailClientComment = body.notifyEmailClientComment;
+        if (typeof body.notifyEmailInternalComment === 'boolean') dataToUpdate.notifyEmailInternalComment = body.notifyEmailInternalComment;
+        if (typeof body.notifyEmailStatusChange === 'boolean') dataToUpdate.notifyEmailStatusChange = body.notifyEmailStatusChange;
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { emailNotifications: val }
+            data: dataToUpdate
         });
 
         return NextResponse.json({ success: true, message: "Preferências salvas com sucesso!" });

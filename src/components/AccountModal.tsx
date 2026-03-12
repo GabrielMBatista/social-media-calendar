@@ -30,7 +30,12 @@ export function AccountModal() {
     // States de edição
     const [editingProfile, setEditingProfile] = useState(false);
     const [editingAccount, setEditingAccount] = useState(false);
-    const [emailNotifs, setEmailNotifs] = useState<boolean>(true);
+    const [prefs, setPrefs] = useState({
+        emailNotifications: true,
+        notifyEmailClientComment: true,
+        notifyEmailInternalComment: true,
+        notifyEmailStatusChange: true
+    });
     const [updatingPrefs, setUpdatingPrefs] = useState(false);
 
     useEffect(() => {
@@ -51,25 +56,28 @@ export function AccountModal() {
             const res = await fetch("/api/notifications/preferences");
             if (res.ok) {
                 const data = await res.json();
-                setEmailNotifs(data.emailNotifications);
+                if (data.success) {
+                    setPrefs(data.preferences);
+                }
             }
         } catch { }
     };
 
-    const toggleEmailNotifs = async (checked: boolean) => {
+    const updatePref = async (key: keyof typeof prefs, checked: boolean) => {
+        const newPrefs = { ...prefs, [key]: checked };
         setUpdatingPrefs(true);
-        setEmailNotifs(checked);
+        setPrefs(newPrefs);
         try {
             const res = await fetch("/api/notifications/preferences", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ emailNotifications: checked })
+                body: JSON.stringify({ [key]: checked })
             });
             if (!res.ok) throw new Error();
-            toast.success("Preferências de notificação salvas.");
+            toast.success("Preferências salvas.");
         } catch {
-            setEmailNotifs(!checked);
-            toast.error("Erro ao salvar preferência. Tente novamente.");
+            setPrefs(prefs); // Revert
+            toast.error("Erro ao salvar preferência.");
         } finally {
             setUpdatingPrefs(false);
         }
@@ -197,17 +205,55 @@ export function AccountModal() {
                                             <BellRing size={16} className="text-blue-500" />
                                             <h3 className="font-black text-[11px] text-slate-700 dark:text-slate-300 uppercase tracking-widest">Alertas do Sistema</h3>
                                         </div>
-                                        <Switch
-                                            checked={emailNotifs}
-                                            onCheckedChange={toggleEmailNotifs}
-                                            disabled={updatingPrefs}
-                                            className="data-[state=checked]:bg-blue-600"
-                                        />
                                     </div>
-                                    <div className="p-5">
-                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                            Receber um e-mail quando o seu <strong>Cliente</strong> enviar comentários ou aprovar uma peça através do Link Compartilhado público.
-                                        </p>
+                                    <div className="p-5 space-y-5">
+                                        {/* Cliente */}
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex-1">
+                                                <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight mb-1">Feedback do Cliente</p>
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                                                    Receber um e-mail quando o seu <strong>Cliente</strong> comentar ou aprovar via Link Público.
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={prefs.notifyEmailClientComment}
+                                                onCheckedChange={(c) => updatePref("notifyEmailClientComment", c)}
+                                                disabled={updatingPrefs}
+                                                className="data-[state=checked]:bg-blue-600 scale-75 origin-top-right"
+                                            />
+                                        </div>
+
+                                        {/* Equipe Interna */}
+                                        <div className="flex items-start justify-between gap-4 py-3 border-t border-slate-100 dark:border-slate-800/40">
+                                            <div className="flex-1">
+                                                <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight mb-1">Comentários Internos</p>
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                                                    Avisar por e-mail quando alguém da sua <strong>Equipe</strong> enviar uma mensagem no chat interno.
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={prefs.notifyEmailInternalComment}
+                                                onCheckedChange={(c) => updatePref("notifyEmailInternalComment", c)}
+                                                disabled={updatingPrefs}
+                                                className="data-[state=checked]:bg-blue-600 scale-75 origin-top-right"
+                                            />
+                                        </div>
+
+                                        {/* Mudança de Status */}
+                                        <div className="flex items-start justify-between gap-4 py-3 border-t border-slate-100 dark:border-slate-800/40">
+                                            <div className="flex-1">
+                                                <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight mb-1">Mudança de Status</p>
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                                                    Ser notificado quando um post for movido para "Pronto", "Publicado" ou "Aprovado".
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={prefs.notifyEmailStatusChange}
+                                                onCheckedChange={(c) => updatePref("notifyEmailStatusChange", c)}
+                                                disabled={updatingPrefs}
+                                                className="data-[state=checked]:bg-blue-600 scale-75 origin-top-right"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

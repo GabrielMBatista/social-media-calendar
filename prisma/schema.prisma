@@ -55,8 +55,11 @@ model User {
   role         Role     @default(MEMBER)
   authId             String?  @unique @map("auth_id") // Supabase Auth UID
   isSuperAdmin       Boolean  @default(false) @map("is_super_admin")
-  emailNotifications Boolean  @default(true) @map("email_notifications") // Preferência de alertas globais
-  createdAt          DateTime @default(now()) @map("created_at")
+  emailNotifications         Boolean  @default(true) @map("email_notifications") // Preferência globall
+  notifyEmailClientComment   Boolean  @default(true) @map("notify_email_client_comment")
+  notifyEmailInternalComment Boolean  @default(true) @map("notify_email_internal_comment")
+  notifyEmailStatusChange    Boolean  @default(true) @map("notify_email_status_change")
+  createdAt                  DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
   account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
