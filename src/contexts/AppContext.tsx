@@ -162,16 +162,47 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),
       }).then(r => r.json()),
-    onSuccess: async (data) => {
+    onMutate: async (newPost) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
+
+      // Optimistic update: insere o post temporário imediatamente
+      const optimisticPost: Post = {
+        id: `temp-${Date.now()}`,
+        accountId: "",
+        clientId: newPost.clientId,
+        title: newPost.title,
+        description: newPost.description ?? "",
+        type: newPost.type,
+        status: newPost.status,
+        dayOfWeek: newPost.dayOfWeek,
+        scheduledDate: newPost.scheduledDate ?? undefined,
+        scheduledTime: newPost.scheduledTime ?? undefined,
+        driveLink: newPost.driveLink ?? undefined,
+        caption: newPost.caption ?? undefined,
+        hashtags: newPost.hashtags ?? undefined,
+        notes: newPost.notes ?? undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData<Post[]>(["posts"], prev => [...(prev ?? []), optimisticPost]);
+      return { previousPosts };
+    },
+    onSuccess: (data) => {
       if (data.success) {
-        await queryClient.invalidateQueries({ queryKey: ["posts"] });
-        toast.success("Post adicionado sucesso!");
-        setIsAddPostModalOpen(false);
+        toast.success("Post adicionado ao calendário!");
       } else {
         toast.error(data.error || "Erro ao adicionar post");
       }
     },
-    onError: () => toast.error("Erro ao adicionar post")
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["posts"], context?.previousPosts);
+      toast.error("Erro ao adicionar post");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
   });
 
   const updatePostMutation = useMutation({

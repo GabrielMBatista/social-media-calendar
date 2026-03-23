@@ -61,7 +61,6 @@ export function AddPostModal() {
       dayOfWeek: finalDayOfWeek,
       scheduledDate: scheduledDateStr,
     });
-    toast.success("Post adicionado ao calendário!");
     closeAddPostModal();
     setForm({
       clientId: "", title: "", description: "", type: "feed", status: "rascunho",
