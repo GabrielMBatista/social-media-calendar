@@ -17,6 +17,7 @@ const createSchema = z.object({
     caption: z.string().optional().nullable(),
     hashtags: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
+    socialTheme: z.string().optional().nullable(),
 });
 
 // Sem cache server-side — React Query (client) é a camada de cache.

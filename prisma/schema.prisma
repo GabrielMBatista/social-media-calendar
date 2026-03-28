@@ -27,16 +27,23 @@ enum Role {
   MEMBER
 }
 
+enum AccountType {
+  COMERCIAL
+  ONG
+  MEI
+}
+
 // ==========================================
 // MULTI-TENANT FOUNDATION
 // ==========================================
 
 model Account {
-  id        String   @id @default(cuid())
-  name      String
-  plan      Plan     @default(FREE)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          String      @id @default(cuid())
+  name        String
+  plan        Plan        @default(FREE)
+  accountType AccountType @default(COMERCIAL) @map("account_type")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 
   users         User[]
   clients       Client[]
@@ -104,6 +111,7 @@ model Post {
   description   String   @default("")
   type          String // PostType: feed | reels | stories | carrossel | tiktok | youtube | linkedin | twitter
   status        String   @default("rascunho") // PostStatus: rascunho | em_producao | pronto | publicado | cancelado
+  socialTheme   String?  @map("social_theme") // SocialTheme: educativo | informativo | diversidade | sustentabilidade | entretenimento | outro
   dayOfWeek     String   @map("day_of_week") // DayOfWeek: seg | ter | qua | qui | sex | sab | dom
   scheduledDate String?  @map("scheduled_date") // ISO date string YYYY-MM-DD
   scheduledTime String?  @map("scheduled_time") // HH:MM

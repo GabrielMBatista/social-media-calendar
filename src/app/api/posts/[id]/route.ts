@@ -20,6 +20,7 @@ const updateSchema = z.object({
     hashtags: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
     clientId: z.string().optional(),
+    socialTheme: z.string().optional().nullable(),
 });
 
 export const dynamic = "force-dynamic";

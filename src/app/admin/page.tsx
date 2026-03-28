@@ -20,6 +20,7 @@ type Account = {
     id: string;
     name: string;
     plan: "FREE" | "PRO";
+    accountType: "COMERCIAL" | "ONG" | "MEI";
     createdAt: string;
     _count: { users: number; posts: number; clients: number };
     users: { id: string; name: string; email: string; role: string }[];
@@ -167,6 +168,7 @@ export default function AdminPage() {
                                     <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Clientes</th>
                                     <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Posts</th>
                                     <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Criada em</th>
+                                    <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Tipo</th>
                                     <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Plano</th>
                                 </tr>
                             </thead>
@@ -191,6 +193,17 @@ export default function AdminPage() {
                                             {new Date(account.createdAt).toLocaleDateString("pt-BR")}
                                         </td>
                                         <td className="px-5 py-4">
+                                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold border ${
+                                                account.accountType === "ONG"
+                                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                                    : account.accountType === "MEI"
+                                                    ? "bg-violet-500/10 border-violet-500/30 text-violet-400"
+                                                    : "bg-slate-800 border-slate-700 text-slate-400"
+                                            }`}>
+                                                {account.accountType ?? "COMERCIAL"}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-4">
                                             <PlanToggle
                                                 accountId={account.id}
                                                 plan={account.plan}
@@ -202,7 +215,7 @@ export default function AdminPage() {
                                 ))}
                                 {accounts.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="px-5 py-12 text-center text-slate-500 text-sm">
+                                        <td colSpan={7} className="px-5 py-12 text-center text-slate-500 text-sm">
                                             Nenhuma conta encontrada
                                         </td>
                                     </tr>

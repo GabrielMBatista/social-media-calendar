@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK, Client, Post } from "@/lib/types";
+import { PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG, DAYS_OF_WEEK, Client, Post, SocialTheme, SOCIAL_THEME_CONFIG } from "@/lib/types";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
@@ -143,6 +143,7 @@ export function PostModal() {
       driveLink: selectedPost.driveLink,
       notes: selectedPost.notes,
       scheduledTime: selectedPost.scheduledTime,
+      socialTheme: selectedPost.socialTheme,
     });
     setIsEditing(true);
   };
@@ -648,6 +649,31 @@ export function PostModal() {
                 </div>
               ) : (
                 <p className="text-sm text-slate-400 dark:text-slate-500 italic">Nenhuma hashtag</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 block">
+                <Activity size={12} className="inline mr-1" />
+                Tema Social (ODS)
+              </Label>
+              {isEditing ? (
+                <select
+                  value={editData?.socialTheme ?? ""}
+                  onChange={e => setEditData(prev => ({ ...prev, socialTheme: e.target.value as SocialTheme || null }))}
+                  className="w-full h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                >
+                  <option value="">Sem tema social</option>
+                  {(Object.keys(SOCIAL_THEME_CONFIG) as SocialTheme[]).map(theme => (
+                    <option key={theme} value={theme}>{SOCIAL_THEME_CONFIG[theme].label}</option>
+                  ))}
+                </select>
+              ) : selectedPost.socialTheme ? (
+                <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold border ${SOCIAL_THEME_CONFIG[selectedPost.socialTheme as SocialTheme]?.bg ?? ""} ${SOCIAL_THEME_CONFIG[selectedPost.socialTheme as SocialTheme]?.color ?? ""}`}>
+                  {SOCIAL_THEME_CONFIG[selectedPost.socialTheme as SocialTheme]?.label ?? selectedPost.socialTheme}
+                </span>
+              ) : (
+                <p className="text-sm text-slate-400 dark:text-slate-500 italic">Sem tema social definido</p>
               )}
             </div>
 

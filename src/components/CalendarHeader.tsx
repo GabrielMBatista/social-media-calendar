@@ -15,7 +15,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChevronLeft, ChevronRight, CalendarDays, RotateCcw,
-  Plus, TrendingUp, Sun, Moon, User, LogOut, Shield
+  Plus, TrendingUp, Sun, Moon, User, LogOut, Shield, BarChart2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -293,6 +293,13 @@ export function CalendarHeader() {
                   <DropdownMenuSeparator />
                 </>
               )}
+              <DropdownMenuItem
+                onClick={() => router.push("/relatorio")}
+                className="text-xs gap-2 py-2 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-800"
+              >
+                <BarChart2 size={14} className="text-slate-500 dark:text-slate-400" />
+                Relatório de Impacto
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={openAccountModal}
                 className="text-xs gap-2 py-2 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-800"

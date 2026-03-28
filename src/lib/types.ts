@@ -15,13 +15,39 @@ export type PostType =
 
 export type DayOfWeek = "seg" | "ter" | "qua" | "qui" | "sex" | "sab" | "dom";
 
+export type SocialTheme =
+  | "educativo"
+  | "informativo"
+  | "diversidade"
+  | "sustentabilidade"
+  | "entretenimento"
+  | "outro";
+
+export const SOCIAL_THEME_CONFIG: Record<SocialTheme, { label: string; color: string; bg: string }> = {
+  educativo:       { label: "Educativo",       color: "text-blue-700 dark:text-blue-300",   bg: "bg-blue-50 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30" },
+  informativo:     { label: "Informativo",     color: "text-sky-700 dark:text-sky-300",     bg: "bg-sky-50 dark:bg-sky-500/20 border-sky-200 dark:border-sky-500/30" },
+  diversidade:     { label: "Diversidade",     color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-50 dark:bg-purple-500/20 border-purple-200 dark:border-purple-500/30" },
+  sustentabilidade:{ label: "Sustentabilidade",color: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30" },
+  entretenimento:  { label: "Entretenimento",  color: "text-amber-700 dark:text-amber-300", bg: "bg-amber-50 dark:bg-amber-500/20 border-amber-200 dark:border-amber-500/30" },
+  outro:           { label: "Outro",           color: "text-slate-600 dark:text-slate-300", bg: "bg-slate-50 dark:bg-slate-500/20 border-slate-200 dark:border-slate-500/30" },
+};
+
 // --- Multi-Tenant Foundation ---
 export type Plan = "FREE" | "PRO";
+
+export type AccountType = "COMERCIAL" | "ONG" | "MEI";
+
+export const ACCOUNT_TYPE_CONFIG: Record<AccountType, { label: string; description: string }> = {
+  COMERCIAL: { label: "Comercial", description: "Empresa ou agência comercial" },
+  ONG: { label: "ONG", description: "Organização sem fins lucrativos" },
+  MEI: { label: "MEI", description: "Microempreendedor individual" },
+};
 
 export interface Account {
   id: string;
   name: string;
   plan: Plan;
+  accountType: AccountType;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,6 +104,7 @@ export interface Post {
   caption?: string;
   hashtags?: string;
   notes?: string;
+  socialTheme?: SocialTheme | null;
   createdAt: string;
   updatedAt: string;
   createdById?: string | null;

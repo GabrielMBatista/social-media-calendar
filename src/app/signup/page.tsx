@@ -85,17 +85,32 @@ export default function SignupPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="phone" className="text-xs font-bold text-slate-700">Telefone (WhatsApp)</label>
-                            <input
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                placeholder="(11) 99999-9999"
-                                className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                required
-                                autoComplete="tel"
-                            />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <label htmlFor="phone" className="text-xs font-bold text-slate-700">Telefone (WhatsApp)</label>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    placeholder="(11) 99999-9999"
+                                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                    required
+                                    autoComplete="tel"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label htmlFor="accountType" className="text-xs font-bold text-slate-700">Tipo de Organização</label>
+                                <select
+                                    id="accountType"
+                                    name="accountType"
+                                    defaultValue="COMERCIAL"
+                                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                >
+                                    <option value="COMERCIAL">Comercial</option>
+                                    <option value="ONG">ONG</option>
+                                    <option value="MEI">MEI</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className="space-y-1.5">

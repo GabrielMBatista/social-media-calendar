@@ -74,6 +74,7 @@ export async function signUpAction(formData: FormData) {
     const username = formData.get("username") as string;
     const agency = formData.get("agency") as string;
     const phone = formData.get("phone") as string;
+    const accountType = (formData.get("accountType") as string) || "COMERCIAL";
 
     const supabase = await createClient();
 
@@ -123,6 +124,7 @@ export async function signUpAction(formData: FormData) {
                 data: {
                     name: agency,
                     plan: "FREE",
+                    accountType: accountType as "COMERCIAL" | "ONG" | "MEI",
                 },
             });
 
