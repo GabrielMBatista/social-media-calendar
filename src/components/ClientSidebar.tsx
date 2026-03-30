@@ -8,6 +8,7 @@ import { PostStatus, SocialTheme, STATUS_CONFIG, SOCIAL_THEME_CONFIG } from "@/l
 import { cn } from "@/lib/utils";
 import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical, Search, XCircle } from "lucide-react";
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
@@ -22,6 +23,8 @@ export function ClientSidebar() {
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusOpen, setStatusOpen] = useState(true);
+  const [themeOpen, setThemeOpen] = useState(false);
 
   const activeClients = clients.filter(c =>
     c.active && (c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -213,12 +216,27 @@ export function ClientSidebar() {
         })}
       </div>
 
-      {/* Status filters — flex-shrink-0 garante visibilidade mesmo com muitos clientes */}
+      {/* Status filters */}
       <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 px-3 py-3">
-        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">
-          Por Status
-        </p>
-        <div className="space-y-0.5">
+        <button
+          onClick={() => setStatusOpen(o => !o)}
+          className="w-full flex items-center justify-between px-1 mb-2 group"
+        >
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Por Status
+          </p>
+          <ChevronDown
+            size={12}
+            className={cn(
+              "text-slate-400 dark:text-slate-500 transition-transform duration-200",
+              statusOpen ? "rotate-0" : "-rotate-90"
+            )}
+          />
+        </button>
+        <div className={cn(
+          "space-y-0.5 overflow-hidden transition-all duration-200",
+          statusOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        )}>
           <button
             onClick={() => setStatusFilter(null)}
             className={cn(
@@ -268,10 +286,25 @@ export function ClientSidebar() {
       {/* Social Theme filters */}
       {themesWithPosts.length > 0 && (
         <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 px-3 py-3">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">
-            Por Tema Social
-          </p>
-          <div className="space-y-0.5">
+          <button
+            onClick={() => setThemeOpen(o => !o)}
+            className="w-full flex items-center justify-between px-1 mb-2 group"
+          >
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              Por Tema Social
+            </p>
+            <ChevronDown
+              size={12}
+              className={cn(
+                "text-slate-400 dark:text-slate-500 transition-transform duration-200",
+                themeOpen ? "rotate-0" : "-rotate-90"
+              )}
+            />
+          </button>
+          <div className={cn(
+            "space-y-0.5 overflow-hidden transition-all duration-200",
+            themeOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          )}>
             <button
               onClick={() => setSocialThemeFilter(null)}
               className={cn(
