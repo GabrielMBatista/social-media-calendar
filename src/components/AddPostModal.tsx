@@ -269,14 +269,14 @@ export function AddPostModal() {
                 Tema Social (ODS)
               </Label>
               <Select
-                value={form.socialTheme ?? ""}
-                onValueChange={v => setForm(p => ({ ...p, socialTheme: v ? v as SocialTheme : null }))}
+                value={form.socialTheme ?? "none"}
+                onValueChange={v => setForm(p => ({ ...p, socialTheme: v === "none" ? null : v as SocialTheme }))}
               >
                 <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   <SelectValue placeholder="Sem tema social" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" className="text-xs text-slate-400">Sem tema social</SelectItem>
+                  <SelectItem value="none" className="text-xs text-slate-400">Sem tema social</SelectItem>
                   {(Object.keys(SOCIAL_THEME_CONFIG) as SocialTheme[]).map(theme => (
                     <SelectItem key={theme} value={theme} className="text-xs">
                       {SOCIAL_THEME_CONFIG[theme].label}

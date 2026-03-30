@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Phone, Building2, CreditCard, ChevronLeft, ShieldCheck, LogOut } from "lucide-react";
+import { User, Mail, Phone, Building2, CreditCard, ChevronLeft, ShieldCheck, BarChart2, Leaf, Globe } from "lucide-react";
+import { SOCIAL_THEME_CONFIG } from "@/lib/types";
+import type { SocialTheme } from "@/lib/types";
 
 export default async function MinhaContaPage() {
     const supabase = await createClient();
@@ -15,8 +17,27 @@ export default async function MinhaContaPage() {
     // Buscar dados estendidos no Prisma
     const user = await prisma.user.findFirst({
         where: { authId: authData.user.id },
-        include: { account: true } // traz os dados da Agência 
+        include: { account: true }
     });
+
+    // Métricas de impacto
+    const impactData = user?.accountId ? await (async () => {
+        const posts = await prisma.post.findMany({
+            where: { accountId: user.accountId! },
+            select: { status: true, socialTheme: true },
+        });
+        const total = posts.length;
+        const publicados = posts.filter(p => p.status === "publicado").length;
+        const comTema = posts.filter(p => p.socialTheme).length;
+        const pct = total > 0 ? Math.round((comTema / total) * 100) : 0;
+        const topTema = Object.entries(
+            posts.reduce((acc, p) => {
+                if (p.socialTheme) acc[p.socialTheme] = (acc[p.socialTheme] ?? 0) + 1;
+                return acc;
+            }, {} as Record<string, number>)
+        ).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null;
+        return { total, publicados, comTema, pct, topTema };
+    })() : null;
 
     if (!user) {
         // Fallback de segurança caso a transação de criação não tenha salvo no Prisma
@@ -143,6 +164,69 @@ export default async function MinhaContaPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Card de Impacto ODS */}
+                        {impactData && (
+                            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                                <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+                                            <Leaf size={18} className="text-emerald-600 dark:text-emerald-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate-800 dark:text-slate-100">Impacto de Conteúdo</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Alinhado às ODS da ONU</p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/relatorio"
+                                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 flex items-center gap-1"
+                                    >
+                                        <BarChart2 size={13} />
+                                        Ver relatório
+                                    </Link>
+                                </div>
+                                <div className="p-6">
+                                    <div className="grid grid-cols-3 gap-4 mb-5">
+                                        <div className="text-center">
+                                            <p className="text-2xl font-black text-slate-800 dark:text-white">{impactData.total}</p>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">Posts criados</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-2xl font-black text-blue-600 dark:text-blue-400">{impactData.publicados}</p>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">Publicados</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{impactData.pct}%</p>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">Com tema social</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Barra de cobertura */}
+                                    <div className="mb-4">
+                                        <div className="flex justify-between text-[11px] text-slate-400 mb-1.5">
+                                            <span>{impactData.comTema} posts com tema social</span>
+                                            <span>{impactData.total - impactData.comTema} sem tema</span>
+                                        </div>
+                                        <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full bg-emerald-500 transition-all"
+                                                style={{ width: `${impactData.pct}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {impactData.topTema && SOCIAL_THEME_CONFIG[impactData.topTema as SocialTheme] && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[11px] text-slate-400">Tema principal:</span>
+                                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${SOCIAL_THEME_CONFIG[impactData.topTema as SocialTheme].bg} ${SOCIAL_THEME_CONFIG[impactData.topTema as SocialTheme].color}`}>
+                                                {SOCIAL_THEME_CONFIG[impactData.topTema as SocialTheme].label}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                     </div>
                 </div>
