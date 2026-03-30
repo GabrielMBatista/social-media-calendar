@@ -69,7 +69,7 @@ export function ClientSidebar() {
           <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
           <input
             type="text"
-            placeholder="Buscar agência..."
+            placeholder="Buscar cliente..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-8 pl-8 pr-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
@@ -338,7 +338,7 @@ export function ClientSidebar() {
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                   )}
                 >
-                  <span className={cn("w-2 h-2 rounded-full flex-shrink-0 opacity-70", cfg.bg)} />
+                  <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot)} />
                   <span className="flex-1 text-left">{cfg.label}</span>
                   <span className={cn(
                     "text-[10px] font-bold px-1 py-0.5 rounded",

@@ -23,13 +23,13 @@ export type SocialTheme =
   | "entretenimento"
   | "outro";
 
-export const SOCIAL_THEME_CONFIG: Record<SocialTheme, { label: string; color: string; bg: string }> = {
-  educativo:       { label: "Educativo",       color: "text-blue-700 dark:text-blue-300",   bg: "bg-blue-50 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30" },
-  informativo:     { label: "Informativo",     color: "text-sky-700 dark:text-sky-300",     bg: "bg-sky-50 dark:bg-sky-500/20 border-sky-200 dark:border-sky-500/30" },
-  diversidade:     { label: "Diversidade",     color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-50 dark:bg-purple-500/20 border-purple-200 dark:border-purple-500/30" },
-  sustentabilidade:{ label: "Sustentabilidade",color: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30" },
-  entretenimento:  { label: "Entretenimento",  color: "text-amber-700 dark:text-amber-300", bg: "bg-amber-50 dark:bg-amber-500/20 border-amber-200 dark:border-amber-500/30" },
-  outro:           { label: "Outro",           color: "text-slate-600 dark:text-slate-300", bg: "bg-slate-50 dark:bg-slate-500/20 border-slate-200 dark:border-slate-500/30" },
+export const SOCIAL_THEME_CONFIG: Record<SocialTheme, { label: string; color: string; bg: string; dot: string }> = {
+  educativo:       { label: "Educativo",       color: "text-blue-700 dark:text-blue-300",    bg: "bg-blue-50 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30",       dot: "bg-blue-500" },
+  informativo:     { label: "Informativo",     color: "text-cyan-700 dark:text-cyan-300",    bg: "bg-cyan-50 dark:bg-cyan-500/20 border-cyan-200 dark:border-cyan-500/30",       dot: "bg-cyan-500" },
+  diversidade:     { label: "Diversidade",     color: "text-violet-700 dark:text-violet-300",bg: "bg-violet-50 dark:bg-violet-500/20 border-violet-200 dark:border-violet-500/30",dot: "bg-violet-500" },
+  sustentabilidade:{ label: "Sustentabilidade",color: "text-emerald-700 dark:text-emerald-300",bg: "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30",dot: "bg-emerald-500" },
+  entretenimento:  { label: "Entretenimento",  color: "text-orange-700 dark:text-orange-300",bg: "bg-orange-50 dark:bg-orange-500/20 border-orange-200 dark:border-orange-500/30",dot: "bg-orange-500" },
+  outro:           { label: "Outro",           color: "text-slate-600 dark:text-slate-300",  bg: "bg-slate-50 dark:bg-slate-500/20 border-slate-200 dark:border-slate-500/30",   dot: "bg-slate-400" },
 };
 
 // --- Multi-Tenant Foundation ---
