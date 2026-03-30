@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Client, Post, PostStatus, DayOfWeek, CreateClientDTO, CreatePostDTO } from "@/lib/types";
+import { Client, Post, PostStatus, SocialTheme, DayOfWeek, CreateClientDTO, CreatePostDTO } from "@/lib/types";
 import { toast } from "sonner";
 
 interface AppState {
@@ -10,6 +10,7 @@ interface AppState {
   posts: Post[];
   selectedClientFilter: string | null;
   selectedStatusFilter: PostStatus | null;
+  selectedSocialThemeFilter: SocialTheme | null;
   currentWeekOffset: number;
   selectedPost: Post | null;
   isPostModalOpen: boolean;
@@ -36,6 +37,7 @@ interface AppContextValue extends AppState {
   closeAddPostModal: () => void;
   setClientFilter: (clientId: string | null) => void;
   setStatusFilter: (status: PostStatus | null) => void;
+  setSocialThemeFilter: (theme: SocialTheme | null) => void;
   navigateWeek: (direction: "prev" | "next" | "current") => void;
   jumpToDate: (dateStr: string) => void;
   openAccountModal: () => void;
@@ -75,6 +77,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const [selectedClientFilter, setSelectedClientFilter] = useState<string | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<PostStatus | null>(null);
+  const [selectedSocialThemeFilter, setSelectedSocialThemeFilter] = useState<SocialTheme | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -318,6 +321,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSelectedStatusFilter(status);
   }, []);
 
+  const setSocialThemeFilter = useCallback((theme: SocialTheme | null) => {
+    setSelectedSocialThemeFilter(theme);
+  }, []);
+
   const navigateWeek = useCallback((direction: "prev" | "next" | "current") => {
     setCurrentWeekOffset(prev => {
       if (direction === "current") return 0;
@@ -381,6 +388,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const filteredPosts = posts.filter(post => {
     if (selectedClientFilter && post.clientId !== selectedClientFilter) return false;
     if (selectedStatusFilter && post.status !== selectedStatusFilter) return false;
+    if (selectedSocialThemeFilter && post.socialTheme !== selectedSocialThemeFilter) return false;
     return true;
   });
 
@@ -390,6 +398,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       posts,
       selectedClientFilter,
       selectedStatusFilter,
+      selectedSocialThemeFilter,
       currentWeekOffset,
       selectedPost,
       isPostModalOpen,
@@ -413,6 +422,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       closeAddPostModal,
       setClientFilter,
       setStatusFilter,
+      setSocialThemeFilter,
       navigateWeek,
       jumpToDate,
       openAccountModal,

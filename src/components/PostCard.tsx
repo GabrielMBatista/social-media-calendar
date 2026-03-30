@@ -4,7 +4,7 @@
 // Design: Studio Criativo — card compacto com identidade visual do cliente
 
 import React from "react";
-import { Post, Client, PostStatus, STATUS_CONFIG, POST_TYPE_CONFIG } from "@/lib/types";
+import { Post, Client, PostStatus, SocialTheme, STATUS_CONFIG, POST_TYPE_CONFIG, SOCIAL_THEME_CONFIG } from "@/lib/types";
 import { useApp } from "@/contexts/AppContext";
 import {
   Image, Play, Clock, LayoutGrid, Music, Youtube, Linkedin, Twitter,
@@ -163,6 +163,17 @@ export const PostCard = React.memo(function PostCard({ post, client }: PostCardP
             })}
           </PopoverContent>
         </Popover>
+
+        {/* Social Theme badge */}
+        {post.socialTheme && SOCIAL_THEME_CONFIG[post.socialTheme as SocialTheme] && (
+          <span className={cn(
+            "inline-flex items-center px-1.5 py-0.5 rounded-md border text-[9px] font-semibold",
+            SOCIAL_THEME_CONFIG[post.socialTheme as SocialTheme].bg,
+            SOCIAL_THEME_CONFIG[post.socialTheme as SocialTheme].color,
+          )}>
+            {SOCIAL_THEME_CONFIG[post.socialTheme as SocialTheme].label}
+          </span>
+        )}
 
         {/* Time */}
         {post.scheduledTime && (

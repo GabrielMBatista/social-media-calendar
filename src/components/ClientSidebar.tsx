@@ -4,7 +4,7 @@
 // Design: Studio Criativo — sidebar com identidade visual dos clientes
 
 import { useApp } from "@/contexts/AppContext";
-import { PostStatus, STATUS_CONFIG } from "@/lib/types";
+import { PostStatus, SocialTheme, STATUS_CONFIG, SOCIAL_THEME_CONFIG } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Plus, Users, LayoutGrid, Edit2, Trash2, MoreVertical, Search, XCircle } from "lucide-react";
 import { useState } from "react";
@@ -17,8 +17,8 @@ import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 
 export function ClientSidebar() {
   const {
-    clients, posts, selectedClientFilter, selectedStatusFilter,
-    setClientFilter, setStatusFilter, openClientModal, deleteClient
+    clients, posts, selectedClientFilter, selectedStatusFilter, selectedSocialThemeFilter,
+    setClientFilter, setStatusFilter, setSocialThemeFilter, openClientModal, deleteClient
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +33,11 @@ export function ClientSidebar() {
 
   const getStatusCount = (status: PostStatus) =>
     posts.filter(p => p.status === status).length;
+
+  const getSocialThemeCount = (theme: SocialTheme) =>
+    posts.filter(p => p.socialTheme === theme).length;
+
+  const themesWithPosts = (Object.keys(SOCIAL_THEME_CONFIG) as SocialTheme[]).filter(t => getSocialThemeCount(t) > 0);
 
   return (
     <aside className="w-full sm:w-64 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 flex flex-col h-full overflow-hidden">
@@ -260,6 +265,60 @@ export function ClientSidebar() {
           })}
         </div>
       </div>
+      {/* Social Theme filters */}
+      {themesWithPosts.length > 0 && (
+        <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 px-3 py-3">
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">
+            Por Tema Social
+          </p>
+          <div className="space-y-0.5">
+            <button
+              onClick={() => setSocialThemeFilter(null)}
+              className={cn(
+                "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
+                selectedSocialThemeFilter === null
+                  ? "bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white font-semibold border border-slate-200 dark:border-slate-700/50 shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              )}
+            >
+              <span className="w-2 h-2 rounded-full bg-slate-400 flex-shrink-0" />
+              <span className="flex-1 text-left">Todos</span>
+              <span className={cn(
+                "text-[10px] font-bold px-1 py-0.5 rounded",
+                selectedSocialThemeFilter === null ? "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm" : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500"
+              )}>
+                {posts.length}
+              </span>
+            </button>
+            {themesWithPosts.map(theme => {
+              const cfg = SOCIAL_THEME_CONFIG[theme];
+              const count = getSocialThemeCount(theme);
+              const isActive = selectedSocialThemeFilter === theme;
+              return (
+                <button
+                  key={theme}
+                  onClick={() => setSocialThemeFilter(isActive ? null : theme)}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer",
+                    isActive
+                      ? cn(cfg.bg, cfg.color, "font-semibold border")
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  )}
+                >
+                  <span className={cn("w-2 h-2 rounded-full flex-shrink-0 opacity-70", cfg.bg)} />
+                  <span className="flex-1 text-left">{cfg.label}</span>
+                  <span className={cn(
+                    "text-[10px] font-bold px-1 py-0.5 rounded",
+                    isActive ? "bg-white/60 dark:bg-white/10" : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500"
+                  )}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

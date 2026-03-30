@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { PostStatus, PostType, DayOfWeek, DAYS_OF_WEEK, POST_TYPE_CONFIG, STATUS_CONFIG } from "@/lib/types";
+import { PostStatus, PostType, DayOfWeek, SocialTheme, DAYS_OF_WEEK, POST_TYPE_CONFIG, STATUS_CONFIG, SOCIAL_THEME_CONFIG } from "@/lib/types";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -35,6 +35,7 @@ export function AddPostModal() {
     caption: "",
     hashtags: "",
     notes: "",
+    socialTheme: null as SocialTheme | null,
   });
 
   const handleSubmit = () => {
@@ -64,7 +65,7 @@ export function AddPostModal() {
     closeAddPostModal();
     setForm({
       clientId: "", title: "", description: "", type: "feed", status: "rascunho",
-      dayOfWeek: "seg", scheduledTime: "", driveLink: "", caption: "", hashtags: "", notes: "",
+      dayOfWeek: "seg", scheduledTime: "", driveLink: "", caption: "", hashtags: "", notes: "", socialTheme: null,
     });
   };
 
@@ -250,17 +251,40 @@ export function AddPostModal() {
             </div>
           </div>
 
-          {/* Notes */}
-          <div className="pb-6 sm:pb-2">
-            <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
-              Observações Internas
-            </Label>
-            <Input
-              value={form.notes}
-              onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Notas para a agência ou designer..."
-              className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
-            />
+          {/* Notes + Social Theme row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pb-6 sm:pb-2">
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Observações Internas
+              </Label>
+              <Input
+                value={form.notes}
+                onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+                placeholder="Notas para a agência ou designer..."
+                className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+              />
+            </div>
+            <div>
+              <Label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block">
+                Tema Social (ODS)
+              </Label>
+              <Select
+                value={form.socialTheme ?? ""}
+                onValueChange={v => setForm(p => ({ ...p, socialTheme: v ? v as SocialTheme : null }))}
+              >
+                <SelectTrigger className="h-9 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                  <SelectValue placeholder="Sem tema social" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="" className="text-xs text-slate-400">Sem tema social</SelectItem>
+                  {(Object.keys(SOCIAL_THEME_CONFIG) as SocialTheme[]).map(theme => (
+                    <SelectItem key={theme} value={theme} className="text-xs">
+                      {SOCIAL_THEME_CONFIG[theme].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
